@@ -6,13 +6,26 @@ import router from './router'
 import axios from 'axios'
 import Cookies from 'js-cookie'
 
+import NProgress from 'muse-ui-progress';
+import Progress from 'muse-ui/lib/Progress';
+import Helpers from 'muse-ui/lib/Helpers';
+import 'muse-ui-progress/dist/muse-ui-progress.css';
+
+Vue.use(NProgress);
+Vue.use(Progress);
+Vue.use(Helpers);
+
 Vue.prototype.$http = axios;
 
 Vue.config.productionTip = false;
 
-import { setTitle } from './utils/setTitle'
+import { util } from './utils/base';
+Vue.prototype.$util = util;
+
+import { setTitle } from './utils/setTitle';
 
 router.beforeEach((to, from, next) => {
+  NProgress.start();
   document.title = to.meta.title;
   setTitle(to.meta.title);
   /* if (!Cookies.get('user') && to.name !== 'login') {  // 判断是否已经登录且前往的页面不是登录页
@@ -23,6 +36,10 @@ router.beforeEach((to, from, next) => {
     next()
   } */
   next()
+})
+
+router.afterEach(() => {
+  NProgress.done();
 })
 
 /* eslint-disable no-new */

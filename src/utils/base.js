@@ -1,4 +1,3 @@
-import $ from 'jquery'
 export const util = {
 	isWx: function(){
 		const ua = navigator.userAgent.toLowerCase();
@@ -110,12 +109,26 @@ export const util = {
 		}
 		document.documentElement.style.fontSize = Math.round(winw * 10 / 375) + 90 + 'px';
 	},
-	getQueryString:function(name) {
+	getQueryString: function(name) {
 		let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
 		let r = window.location.search.substr(1).match(reg);
 		if(r != null)
 			return decodeURI(r[2]);
 		return null;
+	},
+	showTips: function(txt, duration) {
+		if(!duration){
+			duration = 2000;
+		}
+		if($('#tips').length > 0) return false;
+		$('body').append('<div id="tips" class="tips"></div>');
+		var $tip = $('#tips');
+		$tip.html(txt).fadeIn();
+		setTimeout(function() {
+			$tip.fadeOut(function() {
+				$tip.remove();
+			});
+		}, duration);
 	},
 	wxShare: function(obj){
 		$.ajax({
