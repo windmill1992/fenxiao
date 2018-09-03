@@ -11,7 +11,7 @@
         </div>
         <mu-ripple class="user-wrapper flex fcen spb">
             <div class="user-info flex1">
-                <p class="nick">xxxxxx</p>
+                <p class="nick bold">xxxxxx</p>
                 <router-link to="" class="link">查看 · 编辑个人资料</router-link>
             </div>
             <div class="avatar fshrink0">
@@ -43,7 +43,7 @@
         <div class="con-wrapper">
             <div class="head flex fcen">
                 <div class="line cff7421"></div>
-                <div class="title">结算中心</div>
+                <div class="title bold">结算中心</div>
                 <div class="txt">余额 ￥0</div>
             </div>
             <div class="list flex">
@@ -71,7 +71,7 @@
         <div class="con-wrapper">
             <div class="head flex fcen">
                 <div class="line cff4521"></div>
-                <div class="title">订货管理</div>
+                <div class="title bold">订货管理</div>
                 <div class="txt">我的库存 0</div>
             </div>
             <div class="list flex">
@@ -99,7 +99,7 @@
         <div class="con-wrapper">
             <div class="head flex fcen">
                 <div class="line c80a9f0"></div>
-                <div class="title">分销管理</div>
+                <div class="title bold">分销管理</div>
             </div>
             <div class="list flex">
                 <mu-ripple class="item">
@@ -126,7 +126,7 @@
         <div class="con-wrapper">
             <div class="head flex fcen">
                 <div class="line c67c9ba"></div>
-                <div class="title">零售管理</div>
+                <div class="title bold">零售管理</div>
             </div>
             <div class="list flex">
                 <mu-ripple class="item">
@@ -217,8 +217,6 @@ Vue.use(Icon);
     .user-info{
         overflow: hidden;
         .nick{
-            font-family: 'PingFangSC-Semibold';
-            font-weight: 600;
             font-size: .24rem;
             color: #000;
             display: -webkit-box;
@@ -329,11 +327,9 @@ Vue.use(Icon);
             }
         }
         .title{
-            font-family: 'PingFangSC-Medium';
             font-size: .16rem;
             color: #000;
             margin-left: .12rem;
-            font-weight: 600;
         }
         .txt{
             font-size: .14rem;

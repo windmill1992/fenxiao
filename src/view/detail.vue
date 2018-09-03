@@ -106,13 +106,6 @@ export default {
     color: #000;
     line-height: 1.5;
     padding: .15rem;
-    *{
-        img{
-            width: 100%;
-            max-width: 100%;
-            margin: .1rem 0;
-        }
-    }
     img{
         width: 100%;
         max-width: 100%;

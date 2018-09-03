@@ -117,7 +117,6 @@ Vue.use(Button);
             padding: .1rem .15rem;
             .name{
                 font-size: .16rem;
-                
             }
             .mobile{
                 font-size: .14rem;

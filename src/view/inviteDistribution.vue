@@ -10,7 +10,7 @@
             </div>
             <div class="card">
                 <p class="txt">邀请更多人一起创业</p>
-                <p class="txt2">大健康之路在此起航!</p>
+                <p class="txt2 bold">大健康之路在此起航!</p>
                 <div class="share-box flex">
                     <a href="javascript:;" class="item" @click="wxSendAppMessage">
                         <img src="../assets/img/wechat.png" alt="微信好友">
@@ -31,7 +31,7 @@
                 </div>
             </div>
             <div class="intro">
-                <p class="title">邀请说明</p>
+                <p class="title bold">邀请说明</p>
                 <p class="txt">1.邀请好友注册成功后，请您在经销中心→邀请客户→待审核下进行分销客户审核。</p>
                 <p class="txt">2.一旦审核通过后，双方关系确定，将无法调整。</p>
             </div>
@@ -105,9 +105,7 @@ export default {
     }
     .txt2{
         font-size: .2rem;
-        font-weight: 600;
         color: #000;
-        font-family: 'PingFangSC-Medium';
         letter-spacing: 1px;
         margin-top: .05rem;
     }
@@ -130,11 +128,9 @@ export default {
         font-size: .16rem;
         color: #555;
         text-align: center;
-        font-family: 'PingFangSC-Medium';
         line-height: .4rem;
         border-bottom: 1px solid #c9c9c9;
         margin-bottom: .15rem;
-        font-weight: 600;
     }
     .txt{
         font-size: .14rem;

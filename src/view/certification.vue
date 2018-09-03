@@ -5,7 +5,7 @@
             <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
         </div>
         <div class="wrapper">
-            <p class="tip">身份证上传</p>
+            <p class="tip bold">身份证上传</p>
             <div class="box">
                 <p class="txt">请按照图文指示上传</p>
                 <p class="txt1">注册人姓名:张三</p>
@@ -22,7 +22,7 @@
                 <p class="txt2">点击上传手持身份证正面</p>
             </div>
             
-            <p class="tip">银行卡上传</p>
+            <p class="tip bold">银行卡上传</p>
             <div class="box">
                 <label for="bank" class="item bank"></label>
                 <input type="file" id="bank" class="file-input">
@@ -59,8 +59,6 @@ Vue.use(Helpers);
     line-height: .5rem;
     padding: 0 .15rem;
     color: #000;
-    font-weight: 600;
-    font-family: 'PingFangSC-Medium';
     font-size: .16rem;
 }
 .box{
@@ -97,8 +95,6 @@ Vue.use(Helpers);
         color: #ff7421;
         margin-top: .15rem;
         text-align: center;
-        font-family: 'PingFangSC-Medium';
-        font-weight: 500;
     }
 }
 .btns{
@@ -112,6 +108,7 @@ Vue.use(Helpers);
         color: #fff;
         font-size: .18rem;
         background: #ff7421;
+        letter-spacing: 1px;
     }
 }
 </style>
