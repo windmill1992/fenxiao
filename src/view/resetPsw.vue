@@ -16,10 +16,10 @@
                 </div>
                 <div class="bb10"></div>
                 <div class="item flex fcen spb">
-                    <mu-text-field type="password" v-model="psw" max-length="6" placeholder="输入新密码" class="inp" full-width underline-color="blue" prefix="新密码"></mu-text-field>
+                    <mu-text-field type="password" v-model="psw" placeholder="输入新密码" class="inp" full-width underline-color="blue" prefix="新密码"></mu-text-field>
                 </div>
                 <div class="item flex fcen spb">
-                    <mu-text-field type="password" v-model="psw2" max-length="6" placeholder="再次输入新密码" class="inp" full-width underline-color="blue" prefix="确认密码"></mu-text-field>
+                    <mu-text-field type="password" v-model="psw2" placeholder="再次输入新密码" class="inp" full-width underline-color="blue" prefix="确认密码"></mu-text-field>
                 </div>
             </div>
             <p class="tip">*新密码的长度至少为6位</p>

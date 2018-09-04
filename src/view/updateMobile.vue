@@ -20,7 +20,7 @@
 
             <div class="btns-wrapper">
                 <mu-ripple color="blue" class="btns">
-                    <a href="javascript:;" class="btn">确认</a>
+                    <a href="javascript:;" class="btn bold">确认</a>
                 </mu-ripple>
             </div>
         </div>
@@ -92,7 +92,6 @@ Vue.use(TextField);
             color: #fff;
             font-size: .2rem;
             text-align: center;
-            font-family: 'PingFangSC-Medium';
             border-radius: .05rem;
             background: #ff7421;
         }

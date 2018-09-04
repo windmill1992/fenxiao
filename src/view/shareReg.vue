@@ -8,11 +8,11 @@
             <div class="top-bg">
                 <img src="../assets/img/picture.png" alt="regbg">
                 <div class="mask">
-                    <p class="txt">您的好友Brocong</p>
+                    <p class="txt bold">您的好友Brocong</p>
                     <p class="txt2">邀请您成为会员!</p>
                 </div>
                 <div class="btns">
-                    <a href="javascript:;" class="btn">点击注册</a>
+                    <a href="javascript:;" class="btn bold">点击注册</a>
                 </div>
             </div>
         </div>
@@ -44,8 +44,6 @@ export default {
         padding: .05rem .15rem;
         .txt{
             font-size: .2rem;
-            font-family: 'PingFangSC-Medium';
-            font-weight: 600;
         }
         .txt2{
             font-size: .16rem;
@@ -64,8 +62,6 @@ export default {
             display: block;
             color: #fff;
             font-size: .2rem;
-            font-family: 'PingFangSC-Medium';
-            font-weight: 600;
         }
     }
 }

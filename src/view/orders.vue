@@ -482,21 +482,6 @@ Vue.use(LoadMore);
         }
     }
 }
-.btns{
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: .48rem;
-    line-height: .48rem;
-    text-align: center;
-    font-size: .18rem;
-    .btn{
-        display: block;
-        color: #fff;
-        background: #ff7421;
-    }
-}
 </style>
 <style>
 .orders .mu-tabs, .orders .mu-tab-active{

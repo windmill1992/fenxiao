@@ -124,7 +124,6 @@ Vue.use(LoadMore);
 .box{
     border-top: 1px solid #f3f3f3;
     background: #fff;
-
     .item{
         padding: .1rem .15rem;
         border-top: 1px solid #f3f3f3;
