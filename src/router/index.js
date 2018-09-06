@@ -46,6 +46,14 @@ export default new Router({
       }
     },
     {
+      path: '/loginByMobile',
+      name: 'loginByMobile',
+      component: resolve =>  require(['../view/loginByMobile.vue'], resolve),
+      meta: {
+        title: '验证码登录'
+      }
+    },
+    {
       path: '/invite',
       name: 'invite',
       component: resolve =>  require(['../view/inviteCustomer.vue'], resolve),
@@ -75,6 +83,14 @@ export default new Router({
       component: resolve =>  require(['../view/updateMobile.vue'], resolve),
       meta: {
         title: '修改手机号'
+      }
+    },
+    {
+      path: '/bindMobile',
+      name: 'bindMobile',
+      component: resolve =>  require(['../view/bindMobile.vue'], resolve),
+      meta: {
+        title: '绑定手机号'
       }
     },
     {

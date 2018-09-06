@@ -46,13 +46,15 @@
 </template>
 
 <script>
+import 'muse-ui-loading/dist/muse-ui-loading.css';
 import 'muse-ui-toast/dist/muse-ui-toast.all.css';
 import Vue from 'vue';
-import { TextField, Select, Switch, Snackbar, Button, Icon } from 'muse-ui';
-import Helpers from 'muse-ui/lib/Helpers';
+import { TextField, Select, Switch, Snackbar, Button, Icon, Helpers } from 'muse-ui';
 import Toast from 'muse-ui-toast';
+import Loading from 'muse-ui-loading';
 import { $city } from '../assets/js/city2.min';
 import { setTitle } from '../utils/setTitle';
+import { saveAddress, updateAddress, addressInfo } from '../api/user';
 export default {
     data() {
         return {
@@ -67,6 +69,58 @@ export default {
         }
     },
     methods: {
+        getData() {
+            this.loading = Loading();
+            addressInfo({ id: this.id }).then(res => {
+                this.loading.close();
+                if(res.code == 1){
+                    let r = res.data;
+                    this.formdata = {
+                        uname: r.realName,
+                        mobile: r.mobileNum,
+                        province: r.province,
+                        city: r.city,
+                        area: r.area,
+                        detailAddr: r.detailAddress,
+                        postcode: r.zipCode,
+                        isDefault: r.isSelected == 1,
+                    }
+                    for (let i=0; i<this.provinceArr.length; i++){
+                        if(this.provinceArr[i].includes(r.province)){
+                            this.province = i;
+                            this.selProvince(i);
+                            break;
+                        }
+                    }
+                    for (let i=0; i<this.cityArr.length; i++){
+                        if(this.cityArr[i].includes(r.city)){
+                            this.city = i;
+                            this.selCity(i);
+                            break;
+                        }
+                    }
+                    for (let i=0; i<this.areaArr.length; i++){
+                        if(this.areaArr[i].includes(r.area)){
+                            this.area = i;
+                            break;
+                        }
+                    }
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name);
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器错误，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                this.loading.close();
+                Toast.error('未知异常！');
+                console.log(err);
+            })
+        },
         selProvince(index) {
             console.log('pro---'+ index);
             this.formdata.province = $city[index].value;
@@ -118,11 +172,52 @@ export default {
                 Toast.error('详细地址不能为空！');
                 return;
             }
+            let param = {
+                realName: this.formdata.uname,
+                mobileNum: this.formdata.mobile,
+                province: this.formdata.province,
+                city: this.formdata.city,
+                area: this.formdata.area,
+                detailAddress: this.formdata.detailAddr,
+                zipCode: this.formdata.postcode,
+                isSelected: this.formdata.isDefault ? 1 : 0,
+            }
+            let urls = '';
+            if(this.id){
+                urls = updateAddress;
+                param.id = this.id;
+            }else{
+                urls = saveAddress;
+            }
+            this.loading = Loading();
+            urls(param).then(res => {
+                this.loading.close();
+                if(res.code == 1){
+                    Toast.success('保存成功！');
+                    setTimeout(() => {
+                        this.$router.go(-1);
+                    }, 1500);
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name);
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器错误，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                this.loading.close();
+                Toast.error('未知异常！');
+                console.log(err);
+            })
         }
     },
     mounted() {
         let id = this.$route.query.id;
         if(id){
+            this.id = id;
             this.title = '编辑收货地址';
         }else{
             this.title = '新增收货地址';
@@ -136,6 +231,7 @@ export default {
             city: '',
             area: '',
             detailAddr: '',
+            postcode: '',
             isDefault: false,
         };
         let arr = [];
@@ -143,10 +239,14 @@ export default {
             arr.push(v.value);
         }
         this.provinceArr = arr;
-    }
+        if(id){
+            this.getData();
+        }
+    },
 }
 Vue.use(Helpers);
 Vue.use(Toast);
+Vue.use(Loading);
 Vue.use(TextField);
 Vue.use(Select);
 Vue.use(Switch);

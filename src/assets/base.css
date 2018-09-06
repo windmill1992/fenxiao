@@ -346,3 +346,18 @@ img[lazy=loaded] {
 .mu-ripple-wrapper{
 	cursor: pointer;
 }
+.yzm-d .inp-yzm{
+    width: 1rem;
+    height: .28rem;
+    margin: 0 0 0 .2rem;
+    padding: 0;
+    color: #000;
+    font-size: .14rem;
+    min-height: auto;
+}
+.yzm-d .mu-text-field-input{
+    text-align: center;
+}
+.mu-input-help{
+    display: none!important;
+}

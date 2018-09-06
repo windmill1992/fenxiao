@@ -1,15 +1,11 @@
 <template>
-    <div id="pageContainer" class="register">
+    <div id="pageContainer" class="login-mobile">
         <div class="header">
-            <p class="title">申请注册</p>
+            <p class="title">验证码登录</p>
             <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
         </div>
         <div class="wrapper">
             <div class="box">
-                <div class="item flex fcen spb">
-                    <mu-text-field v-model="inviter" placeholder="邀请人" class="inp" full-width underline-color="blue" prefix="邀请人"></mu-text-field>
-                </div>
-                <div class="error">*请核实邀请人是否正确,会员只能和一个邀请人(购买)关联,无法再修改!</div>
                 <div class="item flex fcen spb">
                     <mu-text-field type="number" v-model="mobile" placeholder="请输入手机号" class="inp" full-width underline-color="blue" prefix="手机号"></mu-text-field>
                 </div>
@@ -18,26 +14,16 @@
                     <a href="javascript:;" class="code-a" @click="getCode" v-if="!waiting">获取验证码</a>
                     <a href="javascript:;" class="code-a no" v-else>{{time}}s重新获取</a>
                 </div>
-                <div class="item flex fcen spb">
-                    <mu-text-field v-model="uname" placeholder="用户名不可修改,请谨慎输入" class="inp" full-width underline-color="blue" prefix="会员名"></mu-text-field>
-                </div>
-                <div class="item flex fcen spb">
-                    <mu-text-field type="password" v-model="psw" placeholder="密码建议数字和字母组合使用" class="inp" full-width underline-color="blue" prefix="密码"></mu-text-field>
-                </div>
-            </div>
-            <div class="prot flex fcen">
-                <mu-checkbox label="我已阅读并同意" v-model="protocol" color="#ff7421"></mu-checkbox>
-                <a href="" class="link">《用户协议》</a>
             </div>
             <div class="btns-wrapper">
                 <mu-button class="btn" full-width color="#ff7421" textColor="#fff" @click="submit">
-                    <span class="bold">注册</span>
+                    <span class="bold">登录</span>
                 </mu-button>
             </div>
         </div>
         <mu-dialog title="验证码" width="360" :open.sync="openYzm" dialog-class="yzm-d">
             <div class="flex fcen spb">
-                <img :src="yzmUrl" alt="验证码">
+                <img :src="yzmUrl" alt="验证码" @click="freshCode">
                 <mu-text-field type="number" v-model="yzmCode" max-length="4" class="inp-yzm" underline-color="blue"></mu-text-field>
             </div>
             <mu-button slot="actions" flat color="#555" @click="closeDialog">取消</mu-button>
@@ -53,17 +39,13 @@ import Vue from 'vue';
 import Loading from 'muse-ui-loading';
 import Toast from 'muse-ui-toast';
 import { TextField, Checkbox, Dialog, Snackbar, Button, Icon } from 'muse-ui';
-import { regist, getMobileCode } from '../api/login';
+import { codeLogin, getMobileCode } from '../api/login';
 import { baseUrl } from '../api/baseUrl';
 export default {
     data() {
         return {
-            protocol: true,
-            inviter: '',
             mobile: '',
             code: '',
-            uname: '',
-            psw: '',
             yzmCode: '',
             openYzm: false,
             loading: false,
@@ -82,7 +64,7 @@ export default {
             this.openYzm = true;
         },
         freshCode() {
-            this.yzmUrl = `${baseUrl}/user/register/code?t=`+ Date.now();
+            this.yzmUrl = `${baseUrl}/user/login/code?t=` + Date.now();
         },
         sureYzm() {
             if(!this.yzmCode || this.yzmCode.length != 4){
@@ -90,7 +72,7 @@ export default {
                 return;
             }
             this.closeDialog();
-            getMobileCode({ mobile: this.mobile, code: this.yzmCode, type: 'register' }).then(res => {
+            getMobileCode({ mobile: this.mobile, code: this.yzmCode, type: 'login' }).then(res => {
                 if(res.code == 1){
                     this.countdown();
                     Toast.success('手机验证码发送成功，请查收！');
@@ -120,37 +102,13 @@ export default {
                 Toast.error('手机验证码错误！');
                 return;
             }
-            if(!this.uname){
-                Toast.error('请输入会员名！');
-                return;
-            }
-            if(!this.psw){
-                Toast.error('请输入密码！');
-                return;
-            }
-            if(this.psw.length < 6 || !Number.isNaN(Number.parseInt(this.psw))){
-                Toast.error({ message: '密码不能少于6位且不能以数字开头！', time: 5000 });
-                return;
-            }
-            if(!this.protocol){
-                Toast.error('请同意用户协议！');
-                return;
-            }
             this.loading = Loading();
-            let param = {
-                invitationCode: this.invitationCode,
-                mobileNum: this.mobile,
-                phoneCode: this.code,
-                userName: this.unmae,
-                password: this.psw,
-            }
-            regist(param).then(res => {
-                console.log(res);
+            codeLogin({ mobile: this.mobile, code: this.code, type: 'login' }).then(res => {
                 this.loading.close();
                 if(res.code == 1){
-                    Toast.success('注册成功，正在跳转...');
+                    Toast.success('登录成功，正在跳转...');
                     setTimeout(() => {
-                        this.$router.push();
+                        this.$router.push({ name: this.from });
                     }, 1500);
                 }else{
                     if(res.msg){
@@ -180,7 +138,7 @@ export default {
         }
     },
     mounted() {
-        this.invitationCode = this.$route.query.invitationCode;
+        this.from = this.$route.query.from;
     }
 }
 Vue.use(TextField);
@@ -226,21 +184,6 @@ Vue.use(Icon);
             }
         }
     }
-    .error{
-        color: #f00;
-        font-size: .12rem;
-        padding: .1rem .15rem;
-        background: #f6f6f6;
-        letter-spacing: 1px;
-    }
-}
-.prot{
-    padding: .15rem .15rem 0;
-    font-size: .12rem;
-    .link{
-        color: #ff7421;
-        line-height: 24px;
-    }
 }
 .btns-wrapper{
     margin-top: .15rem;
@@ -252,40 +195,43 @@ Vue.use(Icon);
         letter-spacing: 1px;
     }
 }
+.inp-yzm{
+    width: 1rem;
+    height: .28rem;
+    margin: 0 0 0 .2rem;
+    padding: 0;
+    color: #000;
+    font-size: .14rem;
+    min-height: auto;
+}
 </style>
 <style>
-.register .mu-input-content{
+.login-mobile .mu-input-content{
     padding: 0 .15rem;
 }
-.register .mu-text-field-input{
+.login-mobile .mu-input-content .mu-text-field-input{
     padding: .05rem 0 .05rem .1rem;
     height: .44rem;
-    text-align: right;
 }
-.register .yzm .mu-text-field-input{
+.login-mobile .yzm .mu-input-content .mu-text-field-input{
     padding-right: 1.1rem;
 }
-.register .mu-input-content .mu-input-prefix-text{
+.login-mobile .mu-input-content .mu-input-prefix-text{
     color: #000;
     min-width: .6rem;
     letter-spacing: 1px;
 }
-.register .mu-input-content .mu-input-line{
+.login-mobile .mu-input-content .mu-input-line{
     background-color: #f3f3f3;
     left: .15rem;
 }
-.register .mu-input-content .mu-input-focus-line {
+.login-mobile .mu-input-content .mu-input-focus-line {
     left: .15rem;
 }
-.register .mu-input-help, .yzm-d .mu-input-help{
+.login-mobile .mu-input-help, .yzm-d .mu-input-help{
     display: none;
 }
-.register .mu-checkbox-label{
-    color: #000;
-}
-.register .mu-checkbox-icon{
-    -webkit-transform: scale(0.8);
-    transform: scale(0.8);
-    margin-right: 0;
+.yzm-d .mu-text-field-input{
+    text-align: center;
 }
 </style>

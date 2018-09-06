@@ -15,9 +15,11 @@
                 <mu-ripple class="btn" @click="toOrder">
                     <a href="javascript:;" class="btn-a btn1 bold">立即订货</a>
                 </mu-ripple>
-                <mu-ripple class="btn">
-                    <a href="javascript:;" class="btn-a btn2 bold">提现资质认证</a>
-                </mu-ripple>
+                <router-link class="btn" to="/certification">
+                    <mu-ripple class="btn-a btn2">
+                        <span class="bold">提现资质认证</span>
+                    </mu-ripple>
+                </router-link>
             </div>
         </div>
     </div>
@@ -25,7 +27,7 @@
 
 <script>
 import Vue from 'vue';
-import Helpers from 'muse-ui/lib/Helpers';
+import { Helpers } from 'muse-ui';
 export default {
     data() {
         return {
@@ -65,7 +67,7 @@ Vue.use(Helpers);
     margin-top: .2rem;
     padding: 0 .15rem;
     .btn{
-        position: relative;
+        display: block;
         .btn-a{
             display: block;
             width: 100%;
@@ -77,6 +79,7 @@ Vue.use(Helpers);
             border-radius: .05rem;
             background: #ff7421;
             letter-spacing: 1px;
+            position: relative;
             &.btn2{
                 color: #ff7421;
                 border: 1px solid #ff7421;

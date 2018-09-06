@@ -9,23 +9,24 @@
             <div class="box">
                 <p class="txt">请按照图文指示上传</p>
                 <p class="txt1">注册人姓名:张三</p>
-                <label for="zm" class="item zm"></label>
-                <input type="file" id="zm" class="file-input">
+
+                <label for="zm" class="item zm" ref="zm" v-loading="loading_zm"></label>
+                <input type="file" id="zm" class="file-input" @change="upload('zm')">
                 <p class="txt2">点击上传身份证正面</p>
 
-                <label for="fm" class="item fm"></label>
-                <input type="file" id="fm" class="file-input">
+                <label for="fm" class="item fm" ref="fm" v-loading="loading_fm"></label>
+                <input type="file" id="fm" class="file-input" @change="upload('fm')">
                 <p class="txt2">点击上传身份证反面</p>
 
-                <label for="sc" class="item sc"></label>
-                <input type="file" id="sc" class="file-input">
+                <label for="sc" class="item sc" ref="sc" v-loading="loading_sc"></label>
+                <input type="file" id="sc" class="file-input" @change="upload('sc')">
                 <p class="txt2">点击上传手持身份证正面</p>
             </div>
             
             <p class="tip bold">银行卡上传</p>
             <div class="box">
-                <label for="bank" class="item bank"></label>
-                <input type="file" id="bank" class="file-input">
+                <label for="bank" class="item bank" ref="bank" v-loading="loading_bank"></label>
+                <input type="file" id="bank" class="file-input" @change="upload('bank')">
                 <p class="txt2">点击上传银行卡正面</p>
             </div>
 
@@ -37,21 +38,108 @@
 </template>
 
 <script>
+import 'muse-ui-loading/dist/muse-ui-loading.css';
+import 'muse-ui-toast/dist/muse-ui-toast.all.css';
 import Vue from 'vue';
-import Helpers from 'muse-ui/lib/Helpers';
+import Toast from 'muse-ui-toast';
+import Loading from 'muse-ui-loading';
+import { Helpers, Icon, Snackbar, Button } from 'muse-ui';
+import { uploadImage } from '../api/image';
+import { realCert } from '../api/user';
 export default {
     data() {
         return {
-
+            loading_zm: false,
+            loading_fm: false,
+            loading_sc: false,
+            loading_bank: false,
+            ids: {},
         }
     },
     methods: {
+        upload(name) {
+            let t = name == 'zm' ? 2 : (name == 'fm' ? 3 : (name == 'sc' ? 4 : 5));
+            let formData = new FormData();
+            let file = $(`#${name}`)[0].files[0];
+
+            formData.append('file', file, file.name);
+            formData.append('type', t);
+            this['loading_' + name] = true;
+            uploadImage(formData).then(res => {
+                this['loading_' + name] = false;
+                console.log(res);
+                if(res.code == 1){
+                    this.ids[name] = res.data.imageId;
+                    Toast.error('上传成功！');
+                    this.$refs[name].style.backgroundImage = 'url('+ res.data.imageUrl +')';
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器错误，上传失败！');
+                    }
+                }
+            })
+            .catch(err => {
+                this['loading_' + name] = false;
+                Toast.error('未知异常！');
+                console.log(err);
+            })
+        },
         submit() {
-            console.log('submit');
+            if(!this.ids.zm){
+                Toast.error('请上传身份证正面！');
+                return;
+            }
+            if(!this.ids.fm){
+                Toast.error('请上传身份证反面！');
+                return;
+            }
+            if(!this.ids.sc){
+                Toast.error('请上传手持身份证正面！');
+                return;
+            }
+            if(!this.ids.bank){
+                Toast.error('请上传银行卡正面！');
+                return;
+            }
+            this.loading = Loading();
+            let param = {
+                idFaceId: this.ids.zm,
+                idBackId: this.ids.fm,
+                idHand: this.ids.sc,
+                bankFaceId: this.ids.bank,
+            }
+            realCert(param).then(res => {
+                this.loading.close();
+                if(res.code == 1){
+                    Toast.success('提交成功！');
+                    setTimeout(() => {
+                        this.$router.push('/');
+                    }, 1500);
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name);
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器错误，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                Toast.error('未知异常！');
+                console.log(err);
+            })
         }
     }
 }
 Vue.use(Helpers);
+Vue.use(Loading);
+Vue.use(Toast);
+Vue.use(Icon);
+Vue.use(Snackbar);
+Vue.use(Button);
 </script>
 
 <style scoped lang="less">
@@ -80,6 +168,7 @@ Vue.use(Helpers);
         border: 1px solid #979797;
         border-radius: .1rem;
         margin-top: .15rem;
+        position: relative;
         &.sc{
             height: 2.8rem;
         }

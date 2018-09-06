@@ -32,9 +32,9 @@
         </div>
 
         <mu-dialog title="验证码" width="360" :open.sync="openYzm" dialog-class="yzm-d">
-            <div class="flex fcen">
-                <img src="" alt="验证码">
-                <mu-text-field type="number" v-model="yzmCode" max-length="4" class="inp2" underline-color="blue"></mu-text-field>
+            <div class="flex fcen spb">
+                <img :src="yzmUrl" alt="验证码">
+                <mu-text-field type="number" v-model="yzmCode" max-length="4" class="inp-yzm" underline-color="blue"></mu-text-field>
             </div>
             <mu-button slot="actions" flat color="#555" @click="closeDialog">取消</mu-button>
             <mu-button slot="actions" flat color="primary" @click="sureYzm">确定</mu-button>
@@ -49,6 +49,8 @@ import Vue from 'vue';
 import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
 import { TextField, Button, Dialog, Snackbar, Icon } from 'muse-ui';
+import { getMobileCode, resetLoginPsw } from '../api/login';
+import { baseUrl } from '../api/baseUrl';
 export default {
     data() {
         return {
@@ -61,30 +63,54 @@ export default {
             time: 60,
             waiting: false,
             loading: false,
+            yzmUrl: '',
         }
     },
     methods: {
         getCode() {
-            if(!this.mobile || this.$util.telValidate(this.mobile)){
+            if(!this.mobile || !this.$util.telValidate(this.mobile)){
                 Toast.error('请输入正确的手机号！');
                 return;
             }
+            this.freshCode();
             this.openYzm = true;
         },
+        freshCode() {
+            this.yzmUrl = `${baseUrl}/user/reset/code?t=`+ Date.now();
+        },
         sureYzm() {
-            this.countdown();
+            if(!this.yzmCode || this.yzmCode.length != 4){
+                Toast.error('验证码错误！');
+                return;
+            }
             this.closeDialog();
+            getMobileCode({ mobile: this.mobile, code: this.yzmCode, type: 'reset' }).then(res => {
+                if(res.code == 1){
+                    this.countdown();
+                    Toast.success('手机验证码发送成功，请查收！');
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器错误，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                Toast.error('未知异常！');
+                console.log(err);
+            })
         },
         closeDialog() {
             this.openYzm = false;
         },
         submit() {
             if(this.loading) return;
-            if(!this.mobile || this.$util.telValidate(this.mobile)){
+            if(!this.mobile || !this.$util.telValidate(this.mobile)){
                 Toast.error('请输入正确的手机号！');
                 return;
             }
-            if(!this.code || !Number.isInteger(this.code)){
+            if(!this.code || !Number.isInteger(Number(this.code))){
                 Toast.error('手机验证码错误！');
                 return;
             }
@@ -101,6 +127,33 @@ export default {
                 return;
             }
             this.loading = Loading();
+            let param = {
+                mobileCode: this.code,
+                type: 'reset',
+                password: this.psw,
+                surePassword: this.psw2,
+            }
+            resetLoginPsw(param).then(res => {
+                this.loading.close();
+                if(res.code == 1){
+                    Toast.success('密码重置成功!');
+                    setTimeout(() => {
+                        this.$router.push('/login?from=user');
+                    }, 1500);
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name);
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器错误，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                Toast.error('未知异常！');
+                console.log(err);
+            })
         },
         countdown() {
             this.waiting = true;
@@ -188,11 +241,6 @@ Vue.use(Loading);
     height: .44rem;
     text-align: right;
 }
-.yzm-d .mu-text-field-input{
-    padding: 0;
-    height: .4rem;
-    text-align: right;
-}
 .reset-psw .yzm .mu-text-field-input{
     padding-right: 1.1rem;
     text-align: left;
@@ -204,13 +252,5 @@ Vue.use(Loading);
 }
 .reset-psw .mu-input-line{
     background-color: #f3f3f3;
-}
-.reset-psw .mu-input-help, .yzm-d .mu-input-help{
-    display: none;
-}
-.yzm-d img{
-    width: 1rem;
-    height: .4rem;
-    margin-right: .2rem;
 }
 </style>

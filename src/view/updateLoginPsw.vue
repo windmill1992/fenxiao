@@ -34,6 +34,7 @@ import Vue from 'vue';
 import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
 import { TextField, Button, Snackbar, Icon } from 'muse-ui';
+import { updateLoginPsw } from '../api/login';
 export default {
     data() {
         return {
@@ -63,6 +64,32 @@ export default {
                 return;
             }
             this.loading = Loading();
+            let param = {
+                password: this.psw,
+                surePassword: this.psw2,
+                oldPassWord: this.oldpsw,
+            }
+            updateLoginPsw(param).then(res => {
+                this.loading.close();
+                if(res.code == 1) {
+                    Toast.success('密码修改成功！');
+                    setTimeout(() => {
+                        this.$router.push('/login?from=user');
+                    }, 1500);
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name);
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器错误，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                Toast.error('未知异常！');
+                console.log(err);
+            })
         },
     },
     mounted() {
