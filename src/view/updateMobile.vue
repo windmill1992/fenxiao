@@ -17,6 +17,10 @@
                 <div class="item flex fcen spb">
                     <mu-text-field type="password" v-model="psw" placeholder="输入登录密码" class="inp" full-width underline-color="blue" prefix="登录密码"></mu-text-field>
                 </div>
+                <div class="flex" v-if="state.passwordState == 0">
+                    <p class="tip flex fcen"><img src="../assets/img/warn.png" alt="">您还未设置过登录密码，请先去</p>
+                    <router-link to="/resetPsw?from=updateMobile" class="nav">设置登录密码</router-link>
+                </div>
             </div>
 
             <div class="btns-wrapper">
@@ -42,8 +46,9 @@ import 'muse-ui-toast/dist/muse-ui-toast.all.css';
 import Vue from 'vue';
 import Loading from 'muse-ui-loading';
 import Toast from 'muse-ui-toast';
-import { TextField, Dialog, Snackbar, Button, Icon, Helpers } from 'muse-ui';
-import { updateMobile, getMobileCode } from '../api/login';
+import { TextField, Dialog, Snackbar, Button, Icon } from 'muse-ui';
+import { updateMobile, getMobileCode, mobileIsRegistered } from '../api/login';
+import { userState } from '../api/user';
 import { baseUrl } from '../api/baseUrl';
 export default {
     data() {
@@ -57,16 +62,54 @@ export default {
             time: 60,
             waiting: false,
             yzmUrl: '',
+            state: {},
         }
     },
     methods: {
+        getUserState() {
+            userState().then(res => {
+                if(res.code == 1){
+                    this.state = res.data;
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name);
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                console.log(err);
+            })
+        },
         getCode() {
             if(!this.mobile || !this.$util.telValidate(this.mobile)){
                 Toast.error('请输入正确的手机号！');
                 return;
             }
-            this.freshCode();
-            this.openYzm = true;
+            this.loading2 = true;
+            mobileIsRegistered({ mobile: this.mobile }).then(res => {
+                this.loading2 = false;
+                if(res.code == 1){
+                    this.freshCode();
+                    this.openYzm = true;
+                }else if(res.code == 10015){
+                    Toast.warning('该手机号已被注册！');
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                this.loading2 = false;
+                Toast.error('未知异常！');
+                console.log(err);
+            })
         },
         freshCode() {
             this.yzmUrl = `${baseUrl}/user/edit/code?t=`+ Date.now();
@@ -85,7 +128,7 @@ export default {
                     if(res.msg){
                         Toast.error(res.msg);
                     }else{
-                        Toast.error('服务器错误，请稍后再试！');
+                        Toast.error('服务器开了小差，请稍后再试！');
                     }
                 }
             })
@@ -98,7 +141,7 @@ export default {
             this.openYzm = false;
         },
         submit() {
-            if(this.loading) return;
+            if(this.loading && this.loading.instance != null) return;
             if(!this.mobile || !this.$util.telValidate(this.mobile)){
                 Toast.error('请输入正确的手机号！');
                 return;
@@ -112,7 +155,7 @@ export default {
                 return;
             }
             this.loading = Loading();
-            updateMobile({ mobile: this.mobile, code: this.code, type: 'edit' }).then(res => {
+            updateMobile({ mobile: this.mobile, code: this.code, password: this.psw, type: 'edit' }).then(res => {
                 this.loading.close();
                 if(res.code == 1){
                     Toast.success('修改成功，正在跳转...');
@@ -123,7 +166,7 @@ export default {
                     if(res.msg){
                         Toast.error(res.msg);
                     }else{
-                        Toast.error('服务器错误，请稍后再试！');
+                        Toast.error('服务器开了小差，请稍后再试！');
                     }
                 }
             })
@@ -147,10 +190,11 @@ export default {
         }
     },
     mounted() {
-        
+        this.getUserState();
     }
 }
-Vue.use(Helpers);
+Vue.use(Toast);
+Vue.use(Loading);
 Vue.use(TextField);
 Vue.use(Dialog);
 Vue.use(Button);
@@ -190,6 +234,21 @@ Vue.use(Icon);
                 color: #9c9c9c;
             }
         }
+    }
+    .tip{
+        font-size: .12rem;
+        color: #9c9c9c;
+        padding: .1rem 0 .1rem .15rem;
+        img{
+            width: .14rem;
+            height: .14rem;
+            margin-right: .05rem;
+        }
+    }
+    .nav{
+        font-size: .12rem;
+        color: #ff4521;
+        padding: .1rem 0;
     }
 }
 .btns-wrapper{

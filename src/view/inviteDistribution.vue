@@ -6,9 +6,9 @@
         </div>
         <div class="wrapper">
             <div class="top-bg">
-                <img src="../assets/img/bk.png" alt="bk">
+                <img :src="imgHost + '/bk.png'" alt="bk">
             </div>
-            <div class="card">
+            <div class="card" :style="'background: url('+ imgHost +'/yqfxkh.png) no-repeat 0 0 / 100% 100%;'">
                 <p class="txt">邀请更多人一起创业</p>
                 <p class="txt2 bold">大健康之路在此起航!</p>
                 <div class="share-box flex">
@@ -40,49 +40,128 @@
 </template>
 
 <script>
-
+import 'muse-ui-toast/dist/muse-ui-toast.all.css';
+import 'muse-ui-loading/dist/muse-ui-loading.css';
+import Vue from 'vue';
+import Toast from 'muse-ui-toast';
+import Loading from 'muse-ui-loading';
+import { Button, Snackbar, Icon } from 'muse-ui';
+import { imgHost } from '../api/baseUrl';
+import { myCode } from '../api/user';
+import VueClipboard from 'vue-clipboard2';
 export default {
     data() {
         return {
             share: {},
+            imgHost: imgHost,
+            inviteCode: '',
+            wxConfig: {},
         }
     },
     methods: {
+        getData() {
+            let host = location.protocol + "//" + location.hostname;
+            myCode({ url: location.href }).then(res => {
+                if(res.code == 1){
+                    this.inviteCode = res.data.code;
+                    this.inviter = res.data.userName;
+                    this.wxConfig = res.data2;
+                    this.share = {
+                        "img_url": "",
+                        "link": `${host}/shareReg?inviter=${this.inviter}&invitationCode=${this.inviteCode}`,
+                        "desc": `您的好友${this.inviter}邀请您注册成为经销商啦~`,
+                        "title": "享瘦伴侣",
+                    }
+                    if(this.isWx){
+                        wx.config({
+                            appId: res.data2.appId,
+                            nonceStr: res.data2.nonceStr,
+                            signature: res.data2.signature,
+                            timestamp: res.data2.timeStamp,
+                            jsApiList: ["onMenuShareTimeline", "onMenuShareAppMessage"],
+                        })
+                    }
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name);
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                Toast.error('未知异常！');
+                console.log(err);
+            })
+        },
         wxSendAppMessage() {
+            const _this = this;
             if(this.isWx){
-                WeixinJSBridge.invoke('shareTimeline',{
-                    "img_url": this.share.imgUrl,
-                    "link": this.share.link,
-                    "desc": this.share.desc,
-                    "title": this.share.title,
-                });
+                wx.ready(function(){
+                    // WeixinJSBridge.invoke('sendAppMessage',{
+                    //     "img_url": _this.share.imgUrl,
+                    //     "link": _this.share.link,
+                    //     "desc": _this.share.desc,
+                    //     "title": _this.share.title,
+                    // });
+                    wx.onMenuShareAppMessage({
+                        "img_url": _this.share.imgUrl,
+                        "link": _this.share.link,
+                        "desc": _this.share.desc,
+                        "title": _this.share.title,
+                    })
+                })
             }else{
                 alert('请在微信浏览器打开链接！');
             }
         },
         wxShareTimeline() {
+            const _this = this;
             if(this.isWx){
-                WeixinJSBridge.invoke('sendAppMessage',{
-                    "img_url": this.share.imgUrl,
-                    "link": this.share.link,
-                    "desc": this.share.desc,
-                    "title": this.share.title,
-                });
+                wx.ready(function(){
+                    // WeixinJSBridge.invoke('shareTimeline',{
+                    //     "img_url": _this.share.imgUrl,
+                    //     "link": _this.share.link,
+                    //     "desc": _this.share.desc,
+                    //     "title": _this.share.title,
+                    // });
+                    wx.onMenuShareTimeline({
+                        "img_url": _this.share.imgUrl,
+                        "link": _this.share.link,
+                        "desc": _this.share.desc,
+                        "title": _this.share.title,
+                    })
+                })
             }else{
                 alert('请在微信浏览器打开链接！');
             }
         },
         copyLink() {
-            
+            let link = location.hostname + '/shareReg?invitationCode='+ this.inviteCode +'&inviter='+ this.inviter;
+            this.$copyText(link).then(e => {
+                Toast.success('链接复制成功！');
+            }, err => {
+                Toast.error('链接复制失败！');
+                console.log(err);
+            })
         },
         qrcodeInvite() {
-            
+            this.$router.push('/myQrcode');
         },
     },
     mounted() {
         this.isWx = this.$util.isWx();
+        this.getData();
     }
 }
+Vue.use(Toast);
+Vue.use(Loading);
+Vue.use(Button);
+Vue.use(Snackbar);
+Vue.use(Icon);
+Vue.use(VueClipboard);
 </script>
 
 <style scoped lang="less">
@@ -137,10 +216,5 @@ export default {
         color: #9c9c9c;
         margin-top: .1rem;
     }
-}
-</style>
-<style>
-.invite-dist .card{
-    background: url(../assets/img/yqfxkh.png) no-repeat 0 0 / 100% 100%;
 }
 </style>

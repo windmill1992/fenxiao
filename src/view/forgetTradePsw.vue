@@ -33,8 +33,8 @@
 
         <mu-dialog title="验证码" width="360" :open.sync="openYzm" dialog-class="yzm-d">
             <div class="flex fcen">
-                <img src="" alt="验证码">
-                <mu-text-field type="number" v-model="yzmCode" max-length="4" class="inp2" underline-color="blue"></mu-text-field>
+                <img :src="yzmUrl" alt="验证码">
+                <mu-text-field type="number" v-model="yzmCode" max-length="4" class="inp-yzm" underline-color="blue"></mu-text-field>
             </div>
             <mu-button slot="actions" flat color="#555" @click="closeDialog">取消</mu-button>
             <mu-button slot="actions" flat color="primary" @click="sureYzm">确定</mu-button>
@@ -49,6 +49,8 @@ import Vue from 'vue';
 import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
 import { TextField, Button, Dialog, Snackbar, Icon } from 'muse-ui';
+import { codeLogin, getMobileCode, resetTradePsw } from '../api/login';
+import { baseUrl } from '../api/baseUrl';
 export default {
     data() {
         return {
@@ -61,34 +63,58 @@ export default {
             openYzm: false,
             time: 60,
             waiting: false,
+            yzmUrl: '',
         }
     },
     methods: {
         getCode() {
-            if(!this.mobile || this.$util.telValidate(this.mobile)){
+            if(!this.mobile || !this.$util.telValidate(this.mobile)){
                 Toast.error('请输入正确的手机号！');
                 return;
             }
+            this.freshCode();
             this.openYzm = true;
         },
+        freshCode() {
+            this.yzmUrl = `${baseUrl}/user/reset_transact/code?t=` + Date.now();
+        },
         sureYzm() {
-            this.countdown();
+             if(!this.yzmCode || this.yzmCode.length != 4){
+                Toast.error('验证码错误！');
+                return;
+            }
             this.closeDialog();
+            getMobileCode({ mobile: this.mobile, code: this.yzmCode, type: 'reset_transact' }).then(res => {
+                if(res.code == 1){
+                    this.countdown();
+                    Toast.success('手机验证码发送成功，请查收！');
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                Toast.error('未知异常！');
+                console.log(err);
+            })
         },
         closeDialog() {
             this.openYzm = false;
         },
         submit() {
-            if(this.loading) return;
+            if(this.loading2) return;
             if(!this.bank){
                 Toast.error('请输入银行卡号！');
                 return;
             }
-            if(!this.mobile || this.$util.telValidate(this.mobile)){
+            if(!this.mobile || !this.$util.telValidate(this.mobile)){
                 Toast.error('请输入正确的手机号！');
                 return;
             }
-            if(!this.code || !Number.isInteger(this.code)){
+            if(!this.code || !Number.isInteger(Number(this.code))){
                 Toast.error('手机验证码错误！');
                 return;
             }
@@ -96,7 +122,7 @@ export default {
                 Toast.error('请输入交易密码！');
                 return;
             }
-            if(this.psw.length != 6 || !Number.isInteger(this.psw)){
+            if(this.psw.length != 6 || !Number.isInteger(Number(this.psw))){
                 Toast.error({ message: '请输入6位数字密码！', time: 5000 });
                 return;
             }
@@ -104,7 +130,40 @@ export default {
                 Toast.error('两次密码不一致！');
                 return;
             }
-            this.loading = Loading();
+            this.loading = Loading({ text: '请稍等...' });
+            this.loading2 = true;
+            let param = {
+                card: this.bank,
+                mobile: this.mobile,
+                mobileCode: this.code,
+                type: 'reset_transact',
+                password: this.psw,
+                surePassword: this.psw2,
+            }
+            resetTradePsw(param).then(res => {
+                this.loading.close();
+                if(res.code == 1){
+                    Toast.success('重置成功！');
+                    setTimeout(() => {
+                        this.$router.push('/setting');
+                    }, 1500);
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name);
+                }else{
+                    this.loading2 = false;
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                this.loading2 = false;
+                this.loading.close();
+                Toast.error('未知异常！');
+                console.log(err);
+            })
         },
         countdown() {
             this.waiting = true;
@@ -186,11 +245,6 @@ Vue.use(Loading);
     height: .44rem;
     text-align: right;
 }
-.yzm-d .mu-text-field-input{
-    padding: 0;
-    height: .4rem;
-    text-align: right;
-}
 .forget-trade-psw .yzm .mu-text-field-input{
     padding-right: 1.1rem;
     text-align: left;
@@ -202,13 +256,5 @@ Vue.use(Loading);
 }
 .forget-trade-psw .mu-input-line{
     background-color: #f3f3f3;
-}
-.forget-trade-psw .mu-input-help, .yzm-d .mu-input-help{
-    display: none;
-}
-.yzm-d img{
-    width: 1rem;
-    height: .4rem;
-    margin-right: .2rem;
 }
 </style>

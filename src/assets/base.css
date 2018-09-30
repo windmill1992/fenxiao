@@ -24,6 +24,9 @@ html, body, ul, li, ol, p, div, h1, h2, h3, h4, h5, h6, nav, header, footer, tab
 	padding: 0;
 	font-weight: 400;
 }
+*::-webkit-scrollbar{
+	display: none;
+}
 ul, li {
 	list-style: none;
 	padding: 0;
@@ -46,13 +49,16 @@ input::-webkit-input-placeholder, textarea::-webkit-input-placeholder{
 	border:0px;		/*火狐的私有属性去掉点击时边框*/
 }
 .flex {
+	/*! autoprefixer: off */
 	display: -webkit-flex;
 	display: -webkit-box;
 	display: -moz-box;
 	display: -ms-flexbox;
 	display: flex;
+	/*! autoprefixer: on */
 }
 .fcol {
+	/*! autoprefixer: off */
 	display: -webkit-flex;
 	display: -webkit-box;
 	display: -moz-box;
@@ -61,55 +67,92 @@ input::-webkit-input-placeholder, textarea::-webkit-input-placeholder{
 	-webkit-flex-direction: column;
 	-ms-flex-direction: column;
 	flex-direction: column;
+	/*! autoprefixer: on */
 }
 .flex1{
+	/*! autoprefixer: off */
     -webkit-flex: 1;
     -ms-flex: 1;
+	/*! autoprefixer: on */
 	flex: 1;
 }
 .fshrink0{
+	/*! autoprefixer: off */
     -webkit-flex-shrink: 0;
 	flex-shrink: 0;
+	/*! autoprefixer: on */
 }
 .fwrap{
+	/*! autoprefixer: off */
 	-webkit-flex-wrap: wrap;
 	-ms-flex-wrap: wrap;
 	flex-wrap: wrap;
+	/*! autoprefixer: on */
 }
 .fnowrap{
+	/*! autoprefixer: off */
 	-webkit-flex-wrap: nowrap;
 	-ms-flex-wrap: nowrap;
 	flex-wrap: nowrap;
+	/*! autoprefixer: on */
 }
 .spb {
+	/*! autoprefixer: off */
     -webkit-justify-content: space-between;
 	justify-content: space-between;
+	/*! autoprefixer: on */
 }
 .spa {
+	/*! autoprefixer: off */
 	-webkit-justify-content: space-around;
 	justify-content: space-around;
+	/*! autoprefixer: on */
 }
 .fend{
+	/*! autoprefixer: off */
 	-webkit-justify-content: flex-end;
 	justify-content: flex-end;
+	/*! autoprefixer: on */
 }
 .spc {
+	/*! autoprefixer: off */
 	-webkit-justify-content: center;
 	justify-content: center;
+	/*! autoprefixer: on */
 }
 .fcen {
+	/*! autoprefixer: off */
 	-webkit-align-items: center;
 	align-items: center;
+	/*! autoprefixer: on */
 }
 .fbot{
+	/*! autoprefixer: off */
 	-webkit-align-items: flex-end;
 	align-items: flex-end;
+	/*! autoprefixer: on */
 }
 *, a {
 	-webkit-tap-highlight-color: transparent;
 }
 [v-cloak] {
 	display: none;
+}
+.line1{
+	/*! autoprefixer: off */
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 1;
+	overflow: hidden;
+	/*! autoprefixer: on */
+}
+.line2{
+	/*! autoprefixer: off */
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+	/*! autoprefixer: on */
 }
 .txtL {
 	text-align: left;
@@ -171,6 +214,7 @@ html, body {
 }
 body{
 	font-size: .14rem;
+	color: #000;
 }
 body::-webkit-scrollbar {
 	display: none;
@@ -181,6 +225,7 @@ body::-webkit-scrollbar {
 	position: relative;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
+	overflow-x: hidden;
 }
 @font-face {
 	font-family: dinc;
@@ -251,7 +296,7 @@ body::-webkit-scrollbar {
 	margin: 0 auto;
 }
 .more.no{
-	color: #999!important;
+	color: #9c9c9c!important;
 }
 
 img[lazy=loading] {
@@ -355,9 +400,36 @@ img[lazy=loaded] {
     font-size: .14rem;
     min-height: auto;
 }
+.yzm-d img{
+	width: 1rem;
+	height: .4rem;
+	margin-right: .2rem;
+}
 .yzm-d .mu-text-field-input{
     text-align: center;
 }
 .mu-input-help{
     display: none!important;
+}
+.no-data img{
+	width: 1.95rem;
+	height: 1.05rem;
+	vertical-align: top;
+}
+.no-data .txt{
+	font-size: .16rem;
+	color: #9c9c9c;
+	margin-top: .2rem;
+}
+.no-more{
+	text-align: center;
+	color: #9c9c9c;
+	font-size: .14rem;
+	padding: .15rem 0;
+}
+.mu-select-no-data{
+	display: none;
+}
+.mu-option{
+	padding: 0 .1rem;
 }

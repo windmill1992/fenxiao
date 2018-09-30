@@ -171,19 +171,5 @@ export const util = {
 				}
 			}
 		});
-	},
-	pageNavDBClick: (function(){
-		if($('#pageNav').length > 0){
-			let startTime = 0;
-			$('body').on('click', '#pageNav .item.on', function(){
-				if($(this).hasClass('cen')) return;
-				if(new Date().getTime() - startTime < 500){
-					window.location.reload();
-				}else{
-					startTime = new Date().getTime();
-				}
-			});
-		}
-		return false;
-	})()
+	}
 }

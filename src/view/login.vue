@@ -1,40 +1,43 @@
 <template>
     <div id="pageContainer" class="login">
-        <div class="box">
-            <div class="logo">
-                <img src="../assets/img/dsh.png" alt="logo">
+        <div class="wrap fcol spb">
+            <div>
+                <div class="box">
+                    <div class="logo">
+                        <img :src="imgHost + '/logo.png'" alt="logo">
+                    </div>
+                    <div class="item flex fcen spb">
+                        <mu-text-field v-model="account" @input="getAccount" placeholder="请输入登录手机号/会员名" class="inp" full-width underline-color="blue" prefix="账号"></mu-text-field>
+                    </div>
+                    <div class="item flex fcen spb">
+                        <mu-text-field type="password" v-model="psw" @input="getPsw" placeholder="请输入密码" class="inp" full-width underline-color="blue" prefix="密码"></mu-text-field>
+                    </div>
+                </div>
+                <div class="btns-wrapper">
+                    <mu-button @click="login" class="btn" :class="{ no: disabled }" color="#ff7421" textColor="#fff" full-width>
+                        <span class="bold">登录</span>
+                    </mu-button>
+                </div>
+                <div class="forget txtR">
+                    <router-link to="/resetPsw" class="for-a">忘记密码</router-link>
+                </div>
             </div>
-            <div class="item flex fcen spb">
-                <mu-text-field v-model="account" @input="getAccount" placeholder="请输入登录手机号/会员名" class="inp" full-width underline-color="blue" prefix="账号"></mu-text-field>
-            </div>
-            <div class="item flex fcen spb">
-                <mu-text-field type="password" v-model="psw" @input="getPsw" placeholder="请输入密码" class="inp" full-width underline-color="blue" prefix="密码"></mu-text-field>
-            </div>
-        </div>
-        <div class="btns-wrapper">
-            <mu-button @click="login" class="btn" :class="{ no: disabled }" color="#ff7421" textColor="#fff" full-width>
-                <span class="bold">登录</span>
-            </mu-button>
-        </div>
-        <div class="forget txtR">
-            <router-link to="/resetPsw" class="for-a">忘记密码</router-link>
-        </div>
-
-        <div class="quick-login">
-            <p class="txt1 flex fcen">快捷登录</p>
-            <div class="way flex">
-                <a href="javascript:;" class="btn">
-                    <mu-ripple class="rip">
-                        <img src="../assets/img/wechat.png" alt="微信登录">
-                        <p class="txt">微信登录</p>
-                    </mu-ripple>
-                </a>
-                <a href="javascript:;" class="btn" @click="codeLogin">
-                    <mu-ripple class="rip">
-                        <img src="../assets/img/dl_yzm.png" alt="验证码登录">
-                        <p class="txt">验证码登录</p>
-                    </mu-ripple>
-                </a>
+            <div class="quick-login">
+                <p class="txt1 flex fcen">快捷登录</p>
+                <div class="way flex">
+                    <a href="javascript:;" class="btn">
+                        <mu-ripple class="rip" @click="wxLogin">
+                            <img src="../assets/img/wechat.png" alt="微信登录">
+                            <p class="txt">微信登录</p>
+                        </mu-ripple>
+                    </a>
+                    <a href="javascript:;" class="btn" @click="codeLogin">
+                        <mu-ripple class="rip">
+                            <img src="../assets/img/dl_yzm.png" alt="验证码登录">
+                            <p class="txt">验证码登录</p>
+                        </mu-ripple>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -47,7 +50,9 @@ import Vue from 'vue';
 import Loading from 'muse-ui-loading';
 import Toast from 'muse-ui-toast';
 import { TextField, Button, Snackbar, Icon } from 'muse-ui';
-import { login } from '../api/login';
+import { login, wxlogin } from '../api/login';
+import { str2json } from '../utils/str2json';
+import { imgHost } from '../api/baseUrl';
 export default {
     data() {
         return {
@@ -55,6 +60,7 @@ export default {
             psw: '',
             disabled: true,
             loading: false,
+            imgHost: imgHost,
         }
     },
     methods: {
@@ -67,25 +73,80 @@ export default {
             this.valid();
         },
         valid() {
-            if(this.account && this.psw){
+            if(this.account && this.psw && this.psw.length >= 6){
                 this.disabled = false;
             }
         },
         login() {
-            if(this.disabled) return;
+            if(this.disabled || this.f) return;
             this.loading = Loading({ text: '正在登录...' });
+            this.f = true;
             login({ userName: this.account, password: this.psw }).then(res => {
+                this.loading.close();
+                if(res.code == 1){
+                    localStorage.setItem('account', this.account);
+                    Toast.success('登录成功，正在跳转...');
+                    setTimeout(() => {
+                        // this.$router.replace({ name: this.from ? this.from : 'index', params: str2json(this.params), query: str2json(this.query) });
+                        this.$router.replace('/');
+                    }, 1000);
+                }else{
+                    this.f = false;
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                this.f = false;
+                this.loading.close();
+                Toast.error('未知异常！');
+                console.log(err);
+            });
+        },
+        codeLogin() {
+            let query = '';
+            if(this.from){
+                query = '?from='+ this.from + (this.params ? '&params=' + this.params : '') + (this.query ? '&query=' + this.query : '');
+            }
+            this.$router.push('/loginByMobile'+ query);
+        },
+        wxLogin(code) {
+            let param = {
+                url: location.href,
+            }
+            if(code){
+                param.code = code;
+            }
+            this.loading = Loading({ text: '正在登录...' });
+            wxlogin(param).then(res => {
                 this.loading.close();
                 if(res.code == 1){
                     Toast.success('登录成功，正在跳转...');
                     setTimeout(() => {
-                        this.$router.go(-1);
+                        // if(this.from){
+                        //     this.$router.push({ name: this.from, params: str2json(this.params), query: str2json(this.query) });
+                        // }else{}
+                        this.$router.replace('/');
+                    }, 1000);
+                }else if(res.code == 10025 || res.code == 10007){
+                    location.href = res.data;
+                }else if(res.code == 10026){
+                    Toast.success('登录成功，正在跳转...');
+                    setTimeout(() => {
+                        let query = '';
+                        if(this.from){
+                            query = '?from='+ this.from + (this.params ? '&params=' + this.params : '') + (this.query ? '&query=' + this.query : '');
+                        }
+                        this.$router.push('/bindMobile'+ query);
                     }, 1500);
                 }else{
                     if(res.msg){
                         Toast.error(res.msg);
                     }else{
-                        Toast.error('服务器错误，请稍后再试！');
+                        Toast.error('服务器开了小差，请稍后再试！');
                     }
                 }
             })
@@ -95,13 +156,28 @@ export default {
                 console.log(err);
             })
         },
-        codeLogin() {
-            this.$router.push('/loginByMobile?from='+ this.from);
-        }
+        keyFn(e) {
+            if(e.keyCode == 13){
+                this.login();
+            }
+        },
     },
     mounted() {
         this.from = this.$route.query.from;
-    }
+        this.params = this.$route.query.params;
+        this.query = this.$route.query.query;
+        let code = this.$route.query.code;
+        if(code){
+            this.wxLogin(code);
+        }
+        if(localStorage.getItem('account')){
+            this.account = localStorage.getItem('account');
+        }
+        window.addEventListener('keypress', this.keyFn);
+    },
+    beforeDestroy() {
+        window.removeEventListener('keypress', this.keyFn);
+    },
 }
 Vue.use(Loading);
 Vue.use(TextField);
@@ -112,6 +188,9 @@ Vue.use(Snackbar);
 </script>
 
 <style scoped lang="less">
+.wrap{
+    height: 100%;
+}
 .box{
     background: #fff;
     overflow: hidden;
@@ -175,11 +254,8 @@ Vue.use(Snackbar);
     }
 }
 .quick-login{
-    position: absolute;
-    bottom: 0;
-    left: 0;
     width: 100%;
-    padding: .2rem 0 0;
+    padding: 0;
     .txt1{
         font-size: .14rem;
         color: #9c9c9c;

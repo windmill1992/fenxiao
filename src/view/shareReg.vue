@@ -6,23 +6,59 @@
         </div>
         <div class="wrapper">
             <div class="top-bg">
-                <img src="../assets/img/picture.png" alt="regbg">
+                <img :src="imgHost +'/picture.png'" alt="regbg">
                 <div class="mask">
-                    <p class="txt bold">您的好友Brocong</p>
+                    <p class="txt bold">您的好友{{inviter}}</p>
                     <p class="txt2">邀请您成为会员!</p>
                 </div>
-                <div class="btns">
-                    <a href="javascript:;" class="btn bold">点击注册</a>
-                </div>
+                <a href="javascript:;" class="btns" :style="'background: url('+ imgHost +'/djzc.png) no-repeat 0 0 / 100% 100%;'" @click="toReg">
+                    <span class="btn bold">点击注册</span>
+                </a>
             </div>
         </div>
     </div>
 </template>
 
 <script>
+import 'muse-ui-toast/dist/muse-ui-toast.all.css';
+import 'muse-ui-loading/dist/muse-ui-loading.css';
+import Vue from 'vue';
+import Toast from 'muse-ui-toast';
+import Loading from 'muse-ui-loading';
+import { Button, Snackbar, Icon } from 'muse-ui';
+import { imgHost } from '../api/baseUrl';
 export default {
-
+    data() {
+        return {
+            imgHost: imgHost,
+            inviter: '',
+            invitationCode: '',
+        }
+    },
+    methods: {
+        toReg() {
+            if(!this.inviter || !this.invitationCode) {
+                alert('邀请人不存在！');
+                return;
+            }
+            this.$router.push({ name: 'register', query: { inviter: this.inviter, invitationCode: this.invitationCode } });
+        }
+    },
+    mounted() {
+        let { inviter, invitationCode } = this.$route.query;
+        if(inviter && invitationCode){
+            this.inviter = inviter;
+            this.invitationCode = invitationCode;
+        }else{
+            alert('邀请人不存在！');
+        }
+    }
 }
+Vue.use(Toast);
+Vue.use(Loading);
+Vue.use(Button);
+Vue.use(Snackbar);
+Vue.use(Icon);
 </script>
 
 <style scoped lang="less">
@@ -64,10 +100,5 @@ export default {
             font-size: .2rem;
         }
     }
-}
-</style>
-<style>
-.share-reg .btns{
-    background: url(../assets/img/djzc.png) no-repeat 0 0 / 100% 100%;
 }
 </style>

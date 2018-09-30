@@ -6,38 +6,38 @@
         </div>
         <div class="wrapper">
             <div class="link-box flex fcen">
-                <a href="" class="link flex1">
+                <router-link to="/myOrders" class="link flex1">
                     <mu-ripple class="rip flex fcen spc">
                         <img src="../assets/img/fhdd.png" alt="发货订单">
                         <p class="txt">发货订单</p>
                     </mu-ripple>
-                </a>
-                <a href="" class="link flex1">
+                </router-link>
+                <router-link to="/addrManage" class="link flex1">
                     <mu-ripple class="rip flex fcen spc">
                         <img src="../assets/img/address.png" alt="地址管理">
                         <p class="txt">地址管理</p>
                     </mu-ripple>
-                </a>
+                </router-link>
             </div>
             <div class="list">
                 <div class="item flex fcen">
                     <div class="pic fshrink0">
-                        <img src="../assets/img/error_zanwusj.png" alt="商品">
+                        <img :src="imgHost +'/error_zanwusj.png'" alt="商品">
                     </div>
                     <div class="info flex1">
                         <p class="title">【特惠专享季】家庭计划-饼干</p>
                         <p class="limit">限发3件/人/月</p>
                         <p class="stock">可用库存x38</p>
                         <div class="num-box flex fcen">
-                            <a href="javascript:;" class="op"><img src="../assets/img/minus.png" alt="减少"></a>
-                            <mu-text-field type="number" v-model="num" class="inp" color="transparent" underline-color="blue"></mu-text-field>
-                            <a href="javascript:;" class="op"><img src="../assets/img/add.png" alt="增加"></a>
+                            <a href="javascript:;" class="op" @click="minus" data-index="0"><img src="../assets/img/minus.png" alt="减少"></a>
+                            <mu-text-field type="number" v-model="num[0]" @change="getNum(0)" class="inp" color="transparent" underline-color="blue"></mu-text-field>
+                            <a href="javascript:;" class="op" @click="add" data-index="0"><img src="../assets/img/add.png" alt="增加"></a>
                         </div>
                     </div>
                 </div>
                 <div class="item flex fcen">
                     <div class="pic fshrink0">
-                        <img src="../assets/img/error_zanwusj.png" alt="商品">
+                        <img :src="imgHost +'/error_zanwusj.png'" alt="商品">
                     </div>
                     <div class="info flex1">
                         <p class="title">【特惠专享季】家庭计划-饼干</p>
@@ -45,14 +45,14 @@
                         <p class="stock">可用库存x38</p>
                         <div class="num-box flex fcen">
                             <a href="javascript:;" class="op"><img src="../assets/img/minus.png" alt="减少"></a>
-                            <mu-text-field type="number" v-model="num" class="inp" color="transparent" underline-color="blue"></mu-text-field>
+                            <mu-text-field type="number" v-model="num[1]" class="inp" color="transparent" underline-color="blue"></mu-text-field>
                             <a href="javascript:;" class="op"><img src="../assets/img/add.png" alt="增加"></a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <mu-ripple class="btns">
+            <mu-ripple class="btns" @click="submit">
                 <a href="javascript:;" class="btn bold">下一步</a>
             </mu-ripple>
         </div>
@@ -60,24 +60,55 @@
 </template>
 
 <script>
+import 'muse-ui-toast/dist/muse-ui-toast.all.css';
+import 'muse-ui-loading/dist/muse-ui-loading.css';
 import Vue from 'vue';
-import Helpers from 'muse-ui/lib/Helpers';
-import { TextField } from 'muse-ui';
+import Toast from 'muse-ui-toast';
+import Loading from 'muse-ui-loading';
+import { TextField, Button, Snackbar, Icon } from 'muse-ui';
+import { imgHost } from '../api/baseUrl';
 export default {
     data() {
         return {
-            num: 0,
+            num: [0, 0],
+            imgHost: imgHost,
         }
     },
     methods: {
-        
+        getData() {
+
+        },
+        minus(e) {
+            let { index } = e.path[1].dataset;
+            if(this.num[index] <= 0) return;
+            this.num[index]--;
+            this.num = [...[], ...this.num];
+        },
+        add(e) {
+            let { index } = e.path[1].dataset;
+            this.num[index]++;
+            this.num = [...[], ...this.num];
+        },
+        getNum(index) {
+            if(!this.num[index] &&this.num[index] < 0 || !Number.isInteger(Number(this.num[index]))){
+                this.num[index] = 0;
+                this.num = [...[], ...this.num];
+            }
+        },
+        submit() {
+
+        },
     },
     mounted() {
-        
+        this.getData();
     }
 }
-Vue.use(Helpers);
 Vue.use(TextField);
+Vue.use(Toast);
+Vue.use(Loading);
+Vue.use(Button);
+Vue.use(Snackbar);
+Vue.use(Icon);
 </script>
 
 <style scoped lang="less">

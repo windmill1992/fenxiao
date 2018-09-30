@@ -7,20 +7,20 @@
         <div class="wrapper">
             <div class="box">
                 <div class="item">
-                    <mu-text-field v-model="uname" placeholder="姓名" class="inp" full-width underline-color="blue" prefix="姓名"></mu-text-field>
+                    <mu-text-field v-model="info.realName" placeholder="姓名" class="inp" full-width underline-color="blue" prefix="姓名" readonly></mu-text-field>
                 </div>
                 <div class="item">
-                    <mu-text-field type="number" v-model="bankNo" placeholder="银行卡号" class="inp" full-width underline-color="blue" prefix="银行卡号"></mu-text-field>
+                    <mu-text-field type="number" v-model="info.card" placeholder="银行卡号" class="inp" full-width underline-color="blue" prefix="银行卡号" readonly></mu-text-field>
                 </div>
                 <div class="item">
-                    <mu-text-field v-model="bankName" placeholder="招商银行" class="inp" full-width underline-color="blue" prefix="银行"></mu-text-field>
+                    <mu-text-field v-model="info.bankName" placeholder="招商银行" class="inp" full-width underline-color="blue" prefix="银行" readonly></mu-text-field>
                 </div>
                 <div class="item">
-                    <mu-text-field v-model="amount" placeholder="账户金额" class="inp" full-width underline-color="blue" prefix="账户金额" readonly></mu-text-field>
+                    <mu-text-field v-model="info.balance" placeholder="账户金额" class="inp" full-width underline-color="blue" prefix="账户金额" readonly></mu-text-field>
                 </div>
                 <div class="bb10"></div>
                 <div class="item">
-                    <mu-text-field type="number" v-model="money" placeholder="本次最多可提现0" class="inp" full-width underline-color="blue" prefix="充值金额" suffix="元"></mu-text-field>
+                    <mu-text-field type="number" v-model="money" :placeholder="'本次最多可提现'+ info.balance" class="inp" full-width underline-color="blue" prefix="充值金额" suffix="元"></mu-text-field>
                 </div>
             </div>
             <div class="tip flex fcen spb">
@@ -44,26 +44,42 @@ import Vue from 'vue';
 import Loading from 'muse-ui-loading';
 import Toast from 'muse-ui-toast';
 import { TextField, Button, Snackbar, Icon } from 'muse-ui';
+import { userInfo, myBank } from '../api/user';
 export default {
     data() {
         return {
             open: true,
-            uname: '',
-            bankNo: '',
-            bankName: '',
-            amount: 100,
             money: '',
+            info: {},
         }
     },
     methods: {
+        getData() {
+            this.loading = Loading();
+            myBank().then(res => {
+                this.loading.close();
+                if(res.code == 1){
+                    this.info = res.data;
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name);
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                this.loading.close();
+                Toast.error('未知异常！');
+                console.log(err);
+            })
+        },
         withdrawAll() {
-            this.money = this.amount;
+            this.money = this.info.balance;
         },
         submit() {
-            if(!this.uname){
-                Toast.error('请输入姓名！');
-                return;
-            }
             if(!this.bankNo){
                 Toast.error('请输入银行卡号！');
                 return;
@@ -72,12 +88,16 @@ export default {
                 Toast.error('请输入银行名称！');
                 return;
             }
-            if(!this.money || !Number.isNaN(Number(this.money))){
+            if(!this.money || !Number.isNaN(Number(this.money)) || this.money < 0.01){
                 Toast.error('请输入有效的提现金额！');
                 return;
             }
             this.loading = Loading();
+            
         }
+    },
+    mounted() {
+        this.getData();
     }
 }
 Vue.use(Loading);

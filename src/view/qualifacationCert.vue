@@ -21,59 +21,48 @@
                 <div class="item">
                     <mu-text-field type="number" v-model="formdata.mobile" placeholder="请输入手机号" class="inp" full-width underline-color="blue" prefix="手机号"></mu-text-field>
                 </div>
-                <div class="item flex fcen spb">
-                    <mu-text-field type="number" v-model="formdata.code" placeholder="请输入验证码" class="inp yzm" max-length="6" full-width underline-color="blue" prefix="验证码"></mu-text-field>
-                    <a href="javascript:;" class="code-a" v-if="!waiting" @click="getCode">获取验证码</a>
-                    <a href="javascript:;" class="code-a no" v-else>{{time}}s重新获取</a>
-                </div>
                 <div class="item">
-                    <mu-text-field v-model="formdata.bankKind" placeholder="银行卡卡种" class="inp" full-width underline-color="blue" prefix="银行卡卡种"></mu-text-field>
+                    <mu-text-field v-model="formdata.bankKind" placeholder="银行卡卡种" class="inp" full-width underline-color="blue" prefix="银行卡卡种" readonly></mu-text-field>
                 </div>
                 <div class="item">
                     <mu-text-field type="number" v-model="formdata.bankNo" placeholder="银行卡号" class="inp" full-width underline-color="blue" prefix="银行卡号"></mu-text-field>
                 </div>
                 <div class="item">
-                    <mu-select v-model="formdata.bankName" full-width placeholder="选择银行" class="sel inp" underline-color="blue">
-                        <mu-option label="aa" :value="1"></mu-option>
+                    <mu-select v-model="bank" full-width placeholder="选择银行" class="sel inp" underline-color="blue" @change="selBank">
+                        <mu-option label="请选择" value="-1" disabled></mu-option>
+                        <mu-option :label="item.bankName" :value="index" v-for="item,index in bankList" :key="item.id"></mu-option>
                     </mu-select>
                 </div>
                 <div class="item item2 flex fcen spb">
-                    <mu-select v-model="province" full-width placeholder="选择开户省份" class="sel" underline-color="blue" @change="selProvince">
+                    <mu-select v-model="province" full-width placeholder="开户省份" class="sel flex1" underline-color="blue" @change="selProvince">
                         <mu-option label="请选择" value="-1" disabled></mu-option>
-                        <mu-option :label="item" :value="index" v-for="item,index in provinceArr" :key="'prov'+ index"></mu-option>
+                        <mu-option :label="item" :value="index" v-for="item,index in provinceArr" :key="'prov'+ index" v-if="item != '其他'"></mu-option>
                     </mu-select>
-                    <mu-select v-model="city" full-width placeholder="选择开户城市" class="sel" underline-color="blue" @change="selCity">
+                    <mu-select v-model="city" full-width placeholder="开户城市" class="sel flex1" underline-color="blue" @change="selCity">
                         <mu-option label="请选择" value="-1" disabled></mu-option>
-                        <mu-option :label="item" :value="index" v-for="item,index in cityArr" :key="'city'+ index"></mu-option>
+                        <mu-option :label="item" :value="index" v-for="item,index in cityArr" :key="'city'+ index" v-if="item != '其他'"></mu-option>
+                    </mu-select>
+                    <mu-select v-model="area" class="sel flex1" underline-color="blue" placeholder="开户区" @change="selArea">
+                        <mu-option label="请选择" value="-1" disabled></mu-option>
+                        <mu-option :label="item" :value="index" v-for="item,index in areaArr" :key="'area'+ index"></mu-option>
                     </mu-select>
                 </div>
                 <div class="item">
-                    <mu-select v-model="formdata.bankDeposit" full-width placeholder="选择开户行" class="sel inp" underline-color="blue">
-                        <mu-option label="aa" :value="1"></mu-option>
-                        <mu-option label="aa" :value="1"></mu-option>
-                        <mu-option label="aa" :value="1"></mu-option>
-                        <mu-option label="aa" :value="1"></mu-option>
-                        <mu-option label="aa" :value="1"></mu-option>
-                        <mu-option label="aa" :value="1"></mu-option>
-                        <mu-option label="aa" :value="1"></mu-option>
-                        <mu-option label="aa" :value="1"></mu-option>
+                    <mu-select v-model="bankDeposit" filterable full-width placeholder="选择开户行" @change="selDeposit" class="sel inp" underline-color="blue">
+                        <mu-option label="请选择" value="-1" disabled></mu-option>
+                        <mu-option :label="item.v" :value="index" v-for="item,index in bankList2" :key="'dep'+ index"></mu-option>
                     </mu-select>
+                </div>
+                <div class="item">
+                    <mu-text-field v-model="formdata.detailAddr" placeholder="请输入详细地址" class="inp" full-width underline-color="blue" prefix="详细地址"></mu-text-field>
                 </div>
             </div>
             <div class="btns-wrapper">
                 <mu-button color="#ff7421" textColor="#fff" full-width class="btn" @click="save">
-                    <span class="bold">注册</span>
+                    <span class="bold">下一步</span>
                 </mu-button>
             </div>
         </div>
-        <mu-dialog title="验证码" width="360" :open.sync="openYzm" dialog-class="yzm-d">
-            <div class="flex fcen">
-                <img src="" alt="验证码">
-                <mu-text-field type="number" v-model="yzmCode" max-length="4" class="inp2" underline-color="blue"></mu-text-field>
-            </div>
-            <mu-button slot="actions" flat color="#555" @click="closeDialog">取消</mu-button>
-            <mu-button slot="actions" flat color="primary" @click="sureYzm">确定</mu-button>
-        </mu-dialog>
     </div>
 </template>
 
@@ -83,38 +72,114 @@ import 'muse-ui-loading/dist/muse-ui-loading.css';
 import Vue from 'vue';
 import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
-import { TextField, Select, Snackbar, Icon, Dialog, Button } from 'muse-ui';
+import { TextField, Select, Snackbar, Icon, Button } from 'muse-ui';
 import { $city } from '../assets/js/city2.min';
 import { checkCard } from '../utils/card';
+import { bankList, cityInfo, bankListInfo, qualifacationCert } from '../api/user';
+import { baseUrl } from '../api/baseUrl';
 export default {
     data() {
         return {
             protocol: true,
             province: '',
             city: '',
+            area: '',
+            bank: '',
             provinceArr: [],
             cityArr: [],
+            areaArr: [],
+            bankCode: '',
+            bankDeposit: '',
             formdata: {},
-            waiting: false,
-            time: 60,
-            yzmCode: '',
-            openYzm: false,
+            loading: false,
+            bankList: [],
+            bankList2: [],
         }
     },
     methods: {
-        getCode() {
-            if(!this.formdata.mobile || this.$util.telValidate(this.formdata.mobile)){
-                Toast.error('请输入正确的手机号！');
-                return;
-            }
-            this.openYzm = true;
+        getBankList() {
+            bankList().then(res => {
+                if(res.code == 1){
+                    this.bankList = res.data;
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name);
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                Toast.error('获取银行列表失败！');
+                console.log(err);
+            })
         },
-        sureYzm() {
-            this.countdown();
-            this.closeDialog();
+        getBankInfoList() {
+            this.loading2 = Loading({ text: '正在查询开户行，请稍等...' });
+            cityInfo({ province: this.formdata.province, city: this.formdata.city, area: this.formdata.area }).then(res => {
+                if(res.code == 1){
+                    let r = res.data;
+                    this.regionCode = {
+                        bankProvinceCode: r.provinceCode,
+                        bankCityCode: r.cityCode,
+                        bankAreaCode: r.areaCode,
+                    }
+                    bankListInfo({ headBankCode: this.bankCode, bankProvince: r.provinceCode, bankCity: r.cityCode }).then(res2 => {
+                        this.loading2.close();
+                        if(res2.code == 1){
+                            this.bankList2 = [];
+                            let arr = [];
+                            for (let v in res2.data){
+                                arr.push({ k: v, v: res2.data[v]});
+                            }
+                            this.bankList2 = arr;
+                        }else if(res.code == 0){
+                            this.$router.push('/login?from='+ this.$route.name);
+                        }else{
+                            if(res.msg){
+                                Toast.error(res.msg);
+                            }else{
+                                Toast.error('服务器开了小差，请稍后再试！');
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        this.loading2.close();
+                        Toast.error('查询省市编号失败！');
+                        console.log(err);
+                    })
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name);
+                }else{
+                    this.loading2.close();
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                this.loading2.close();
+                Toast.error('查询省开户行失败！');
+                console.log(err);
+            })
         },
-        closeDialog() {
-            this.openYzm = false;
+        selBank(index) {
+            this.province = '';
+            this.formdata.province = '';
+            this.city = '';
+            this.cityArr = [];
+            this.formdata.city = '';
+            this.area = '';
+            this.areaArr = [];
+            this.formdata.area = '';
+            this.bankList2 = [];
+            this.bankDeposit = '';
+            this.formdata.bankName = this.bankList[index].bankName;
+            this.bankCode = this.bankList[index].bankCode;
         },
         selProvince(index) {
             console.log('pro---'+ index);
@@ -126,23 +191,41 @@ export default {
             }
             this.cityArr = arr;
             this.city = '';
+            this.areaArr = [];
+            this.area = '';
+            this.bankList2 = [];
+            this.bankDeposit = '';
         },
         selCity(index) {
             console.log('city---'+ index);
             this.formdata.city = $city[this.province].child[index].value;
             this.city = index;
-        },
-        countdown() {
-            this.waiting = true;
-            clearInterval(this.timer);
-            this.timer = setInterval(() => {
-                this.time--;
-                if(this.time == -1){
-                    clearInterval(this.timer);
-                    this.waiting = false;
-                    this.time = 60;
+            console.log($city[this.province].child);
+            if($city[this.province].child[index].child){
+                let arr = [];
+                for (let v of $city[this.province].child[index].child) {
+                    arr.push(v.value);
                 }
-            }, 1000);
+                this.areaArr = arr;
+                this.area = '';
+            }else{
+                this.areaArr = [];
+                this.area = '';
+            }
+            this.bankDeposit = '';
+        },
+        selArea(index) {
+            console.log('area---'+ index);
+            this.formdata.area = $city[this.province].child[this.city].child[index].value;
+            this.area = index;
+            this.bankDeposit = '';
+            if(this.bankCode){
+                this.getBankInfoList();
+            }
+        },
+        selDeposit(index) {
+            this.formdata.bankDeposit = this.bankList2[index].v;
+            this.formdata.bankDepositCode = this.bankList2[index].k;
         },
         save() {
             if(!this.formdata.uname){
@@ -155,10 +238,6 @@ export default {
             }
             if(!this.formdata.mobile || !this.$util.telValidate(this.formdata.mobile)){
                 Toast.error('手机号不正确！');
-                return;
-            }
-            if(!this.formdata.code || !Number.isInteger(this.formdata.code)){
-                Toast.error('手机验证码错误！');
                 return;
             }
             if(!this.formdata.bankKind){
@@ -181,31 +260,62 @@ export default {
                 Toast.error('请选择开户行！');
                 return;
             }
-            this.loading = Loading();
+            if(!this.formdata.detailAddr){
+                Toast.error('详细地址不能为空！');
+                return;
+            }
+            sessionStorage.saveObj = JSON.stringify(Object.assign({
+                legalName: this.formdata.uname,
+                legalIdCard: this.formdata.idcard,
+                merLegalPhone: this.formdata.mobile,
+                cardNo: this.formdata.bankNo,
+                headBankCode: this.bankCode,
+                bankProvince: this.formdata.province,
+                bankCity: this.formdata.city,
+                bankArea: this.formdata.area,
+                merAddress: this.formdata.detailAddr,
+                accountName: this.formdata.bankDeposit,
+                bankCode: this.formdata.bankDepositCode,
+                bankName: this.formdata.bankName,
+            }, this.regionCode));
+            this.$router.push('/certification');
         },
     },
     mounted() {
         this.formdata = {
-
+            uname: '',
+            mobile: '',
+            idcard: '',
+            bankKind: '借记卡（建议银联卡）',
+            bankNo: '',
+            bankName: '',
+            province: '',
+            city: '',
+            area: '',
+            bankDeposit: '',
+            detailAddr: '',
         };
         let arr = [];
         for (let v of $city) {
             arr.push(v.value);
         }
         this.provinceArr = arr;
+        this.getBankList();
     }
 }
 Vue.use(Loading);
 Vue.use(Toast);
 Vue.use(TextField);
 Vue.use(Select);
-Vue.use(Dialog);
 Vue.use(Snackbar);
 Vue.use(Icon);
 Vue.use(Button);
 </script>
 
 <style scoped lang="less">
+.wrapper{
+    padding-bottom: .2rem;
+}
 .box{
     background: #fff;
     .item{
@@ -228,7 +338,7 @@ Vue.use(Button);
             margin: 0;
             padding: 0;
             color: #000;
-            font-size: .16rem;
+            font-size: .14rem;
             min-height: auto;
         }
         .sel{
@@ -236,7 +346,7 @@ Vue.use(Button);
             margin: 0;
             padding: 0;
             color: #000;
-            font-size: .16rem;
+            font-size: .14rem;
             min-height: auto;
         }
         .code-a{
@@ -245,7 +355,7 @@ Vue.use(Button);
             top: 0;
             line-height: .43rem;
             color: #fc4444;
-            font-size: .16rem;
+            font-size: .14rem;
             padding-left: .15rem;
             border-left: 1px solid #f3f3f3;
             &.no{
@@ -279,7 +389,7 @@ Vue.use(Button);
     .btn{
         height: .42rem;
         line-height: .42rem;
-        font-size: .18rem;
+        font-size: .16rem;
         border-radius: .05rem;
         letter-spacing: 1px;
     }
@@ -311,8 +421,5 @@ Vue.use(Button);
 }
 .qualifacation-cert .mu-input-content .mu-input-focus-line {
     left: .15rem;
-}
-.qualifacation-cert .mu-input-help, .yzm-d .mu-input-help{
-    display: none;
 }
 </style>

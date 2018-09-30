@@ -22,7 +22,7 @@
                     <mu-text-field type="password" v-model="psw2" placeholder="再次输入新密码" class="inp" full-width underline-color="blue" prefix="确认密码"></mu-text-field>
                 </div>
             </div>
-            <p class="tip">*新密码的长度至少为6位</p>
+            <p class="tip">*密码不少于6位且只能以字母或下划线开头，可以包含~!@#$%^&*-_'.?等特殊符号，不能包含中文！</p>
 
             <div class="btns-wrapper">
                 <mu-button class="btn" color="#ff7421" textColor="#fff" full-width @click="submit">
@@ -50,7 +50,9 @@ import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
 import { TextField, Button, Dialog, Snackbar, Icon } from 'muse-ui';
 import { getMobileCode, resetLoginPsw } from '../api/login';
+import { userInfo } from '../api/user';
 import { baseUrl } from '../api/baseUrl';
+import { pswReg } from '../utils/pswReg';
 export default {
     data() {
         return {
@@ -67,6 +69,24 @@ export default {
         }
     },
     methods: {
+        getUserInfo() {
+            userInfo().then(res => {
+                if(res.code == 1){
+                    this.mobile = res.data.mobileNum;
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name);
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                console.log(err);
+            })
+        },
         getCode() {
             if(!this.mobile || !this.$util.telValidate(this.mobile)){
                 Toast.error('请输入正确的手机号！');
@@ -92,7 +112,7 @@ export default {
                     if(res.msg){
                         Toast.error(res.msg);
                     }else{
-                        Toast.error('服务器错误，请稍后再试！');
+                        Toast.error('服务器开了小差，请稍后再试！');
                     }
                 }
             })
@@ -105,7 +125,7 @@ export default {
             this.openYzm = false;
         },
         submit() {
-            if(this.loading) return;
+            if(this.loading && this.loading.instance != null) return;
             if(!this.mobile || !this.$util.telValidate(this.mobile)){
                 Toast.error('请输入正确的手机号！');
                 return;
@@ -118,8 +138,8 @@ export default {
                 Toast.error('请输入密码！');
                 return;
             }
-            if(this.psw.length < 6 || !Number.isNaN(Number.parseInt(this.psw))){
-                Toast.error({ message: '密码不能少于6位且不能以数字开头！', time: 5000 });
+            if(!pswReg.test(this.psw)){
+                Toast.error({ message: '密码格式错误！', time: 2000 });
                 return;
             }
             if(this.psw != this.psw2){
@@ -128,6 +148,7 @@ export default {
             }
             this.loading = Loading();
             let param = {
+                mobile: this.mobile,
                 mobileCode: this.code,
                 type: 'reset',
                 password: this.psw,
@@ -136,21 +157,26 @@ export default {
             resetLoginPsw(param).then(res => {
                 this.loading.close();
                 if(res.code == 1){
-                    Toast.success('密码重置成功!');
+                    Toast.success('密码设置成功!');
                     setTimeout(() => {
-                        this.$router.push('/login?from=user');
-                    }, 1500);
+                        if(this.from){
+                            this.$router.replace({ name: this.from });
+                        }else{
+                            this.$router.push('/login?from=user');
+                        }
+                    }, 1000);
                 }else if(res.code == 0){
                     this.$router.push('/login?from='+ this.$route.name);
                 }else{
                     if(res.msg){
                         Toast.error(res.msg);
                     }else{
-                        Toast.error('服务器错误，请稍后再试！');
+                        Toast.error('服务器开了小差，请稍后再试！');
                     }
                 }
             })
             .catch(err => {
+                this.loading.close();
                 Toast.error('未知异常！');
                 console.log(err);
             })
@@ -169,15 +195,17 @@ export default {
         }
     },
     mounted() {
-        
+        this.from = this.$route.query.from;
+        this.getUserInfo();
     }
 }
+Vue.use(Toast);
+Vue.use(Loading);
 Vue.use(Button);
 Vue.use(Dialog);
 Vue.use(Snackbar);
 Vue.use(Icon);
 Vue.use(TextField);
-Vue.use(Loading);
 </script>
 
 <style scoped lang="less">

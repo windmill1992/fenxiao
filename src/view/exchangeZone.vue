@@ -16,7 +16,7 @@
             <mu-load-more @refresh="refresh" :refreshing="refreshing" :loading="loading" @load="load" class="flex1">
                 <div class="list">
                     <div class="item flex">
-                        <div class="pic fshrink0"></div>
+                        <div class="pic fshrink0" :style="'background-image: url('+ imgHost +'def_pro1.png)'"></div>
                         <div class="info flex1">
                             <p class="title">好吃饼干套组</p>
                             <p class="txt">好几盒饼干</p>
@@ -52,17 +52,20 @@
 </template>
 
 <script>
+import 'muse-ui-toast/dist/muse-ui-toast.all.css';
 import 'muse-ui-loading/dist/muse-ui-loading';
 import Vue from 'vue';
-import Helpers from 'muse-ui/lib/Helpers';
+import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
-import { LoadMore } from 'muse-ui';
+import { LoadMore, Button, Snackbar, Icon } from 'muse-ui';
+import { imgHost } from '../api/baseUrl';
 export default {
     data() {
         return {
             list: [],
             loading: false,
             refreshing: false,
+            imgHost: imgHost,
         }
     },
     methods: {
@@ -91,9 +94,12 @@ export default {
         this.getData();
     }
 }
-Vue.use(Helpers);
 Vue.use(LoadMore);
 Vue.use(Loading);
+Vue.use(Toast);
+Vue.use(Button);
+Vue.use(Snackbar);
+Vue.use(Icon);
 </script>
 
 <style scoped lang="less">
@@ -178,8 +184,4 @@ Vue.use(Loading);
     }
 }
 </style>
-<style>
-.exchange-zone .item .pic{
-    background-image: url(../assets/img/error_zanwusj.png);
-}
-</style>
+

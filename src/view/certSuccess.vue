@@ -6,20 +6,14 @@
         </div>
         <div class="wrapper">
             <div class="box">
-                <img src="../assets/img/tongguos.png" alt="success">
+                <img :src="imgHost +'/tongguos.png'" alt="success">
                 <p class="txt bold">资格认证成功！</p>
-                <p class="txt1">您可以继续进行提现资质认证</p>
-                <p class="txt1">该认证通过后方可收到货款</p>
+                <p class="txt1">认证通过后方可收到货款</p>
             </div>
             <div class="btns">
                 <mu-ripple class="btn" @click="toOrder">
                     <a href="javascript:;" class="btn-a btn1 bold">立即订货</a>
                 </mu-ripple>
-                <router-link class="btn" to="/certification">
-                    <mu-ripple class="btn-a btn2">
-                        <span class="bold">提现资质认证</span>
-                    </mu-ripple>
-                </router-link>
             </div>
         </div>
     </div>
@@ -27,20 +21,19 @@
 
 <script>
 import Vue from 'vue';
-import { Helpers } from 'muse-ui';
+import { imgHost } from '../api/baseUrl';
 export default {
     data() {
         return {
-
+            imgHost: imgHost,
         }
     },
     methods: {
         toOrder() {
-            this.$router.push();
+            this.$router.push('/orderArea');
         }
     }
 }
-Vue.use(Helpers);
 </script>
 
 <style scoped lang="less">

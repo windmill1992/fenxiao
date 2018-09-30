@@ -1,0 +1,410 @@
+<template>
+    <div id="pageContainer" class="update-bank">
+        <div class="header">
+            <p class="title">更换银行卡</p>
+            <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
+        </div>
+        <div class="wrapper">
+            <div class="box">
+                <div class="warn">
+                    <p class="txt flex fcen">*建议使用印有银联的借记卡</p>
+                    <p class="txt flex fcen">*开户行省、市、支行无误以免提现失败</p>
+                    <p class="txt flex fcen">*每日提交不超过5次</p>
+                </div>
+                <div class="bb10"></div>
+                <div class="item">
+                    <mu-text-field v-model="formdata.bankKind" placeholder="银行卡卡种" class="inp" full-width underline-color="blue" prefix="银行卡卡种" readonly></mu-text-field>
+                </div>
+                <div class="item">
+                    <mu-text-field type="number" v-model="formdata.bankNo" placeholder="银行卡号" class="inp" full-width underline-color="blue" prefix="银行卡号"></mu-text-field>
+                </div>
+                <div class="item">
+                    <mu-select v-model="bank" full-width placeholder="选择银行" class="sel inp" underline-color="blue" @change="selBank">
+                        <mu-option label="请选择" value="-1" disabled></mu-option>
+                        <mu-option :label="item.bankName" :value="index" v-for="item,index in bankList" :key="item.id"></mu-option>
+                    </mu-select>
+                </div>
+                <div class="item item2 flex fcen spb">
+                    <mu-select v-model="province" full-width placeholder="选择开户省份" class="sel" underline-color="blue" @change="selProvince">
+                        <mu-option label="请选择" value="-1" disabled></mu-option>
+                        <mu-option :label="item" :value="index" v-for="item,index in provinceArr" :key="'prov'+ index" v-if="item != '其他'"></mu-option>
+                    </mu-select>
+                    <mu-select v-model="city" full-width placeholder="选择开户城市" class="sel" underline-color="blue" @change="selCity">
+                        <mu-option label="请选择" value="-1" disabled></mu-option>
+                        <mu-option :label="item" :value="index" v-for="item,index in cityArr" :key="'city'+ index" v-if="item != '其他'"></mu-option>
+                    </mu-select>
+                </div>
+                <div class="item">
+                    <mu-select v-model="bankDeposit" filterable full-width placeholder="选择开户行" class="sel inp" underline-color="blue">
+                        <mu-option label="请选择" value="-1" disabled></mu-option>
+                        <mu-option :label="item.v" :value="index" v-for="item,index in bankList2" :key="'dep'+ index"></mu-option>
+                    </mu-select>
+                </div>
+                <div class="item flex fcen spb">
+                    <mu-text-field type="number" v-model="code" placeholder="请输入验证码" class="inp yzm" max-length="6" full-width underline-color="blue" prefix="验证码"></mu-text-field>
+                    <a href="javascript:;" class="code-a" v-if="loading" v-loading="loading" data-mu-loading-size="20"></a>
+                    <a href="javascript:;" class="code-a" @click="getCode" v-else-if="!waiting">获取验证码</a>
+                    <a href="javascript:;" class="code-a no" v-else>{{time}}s重新获取</a>
+                </div>
+            </div>
+            <div class="btns-wrapper">
+                <mu-button color="#ff7421" textColor="#fff" full-width class="btn" @click="save">
+                    <span class="bold">提交</span>
+                </mu-button>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+import 'muse-ui-toast/dist/muse-ui-toast.all.css';
+import 'muse-ui-loading/dist/muse-ui-loading.css';
+import Vue from 'vue';
+import Toast from 'muse-ui-toast';
+import Loading from 'muse-ui-loading';
+import { TextField, Select, Snackbar, Icon, Button } from 'muse-ui';
+import { $city } from '../assets/js/city2.min';
+import { bankList, cityInfo, bankListInfo, updateBank, sendYopCode } from '../api/user';
+import { baseUrl } from '../api/baseUrl';
+export default {
+    data() {
+        return {
+            province: '',
+            city: '',
+            bank: '',
+            provinceArr: [],
+            cityArr: [],
+            bankCode: '',
+            bankDeposit: '',
+            formdata: {},
+            loading: false,
+            bankList: [],
+            bankList2: [],
+            time: 60,
+            waiting: false,
+            code: '',
+        }
+    },
+    methods: {
+        getBankList() {
+            bankList().then(res => {
+                if(res.code == 1){
+                    this.bankList = res.data;
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name);
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                Toast.error('获取银行列表失败！');
+                console.log(err);
+            })
+        },
+        getBankInfoList() {
+            this.loading2 = Loading({ text: '正在查询开户行，请稍等...' });
+            cityInfo({ province: this.formdata.province, city: this.formdata.city }).then(res => {
+                if(res.code == 1){
+                    let r = res.data;
+                    this.codeObj = {
+                        bankProvinceCode: r.provinceCode,
+                        bankCityCode: r.cityCode,
+                    }
+                    bankListInfo({ headBankCode: this.bankCode, bankProvince: r.provinceCode, bankCity: r.cityCode }).then(res2 => {
+                        this.loading2.close();
+                        if(res2.code == 1){
+                            this.bankList2 = [];
+                            let arr = [];
+                            for (let v in res2.data){
+                                arr.push({ k: v, v: res2.data[v]});
+                            }
+                            this.bankList2 = arr;
+                        }else if(res.code == 0){
+                            this.$router.push('/login?from='+ this.$route.name);
+                        }else{
+                            if(res.msg){
+                                Toast.error(res.msg);
+                            }else{
+                                Toast.error('服务器开了小差，请稍后再试！');
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        this.loading2.close();
+                        Toast.error('查询省市编号失败！');
+                        console.log(err);
+                    })
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name);
+                }else{
+                    this.loading2.close();
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                this.loading2.close();
+                Toast.error('查询省开户行失败！');
+                console.log(err);
+            })
+        },
+        selBank(index) {
+            this.province = '';
+            this.formdata.province = '';
+            this.city = '';
+            this.cityArr = [];
+            this.formdata.city = '';
+            this.bankList2 = [];
+            this.bankDeposit = '';
+            this.formdata.bankName = this.bankList[index].bankName;
+            this.bankCode = this.bankList[index].bankCode;
+        },
+        selProvince(index) {
+            console.log('pro---'+ index);
+            this.formdata.province = $city[index].value;
+            this.province = index;
+            let arr = [];
+            for (let v of $city[index].child) {
+                arr.push(v.value);
+            }
+            this.cityArr = arr;
+            this.city = '';
+            this.bankList2 = [];
+            this.bankDeposit = '';
+        },
+        selCity(index) {
+            console.log('city---'+ index);
+            this.formdata.city = $city[this.province].child[index].value;
+            this.city = index;
+            this.getBankInfoList();
+            this.bankDeposit = '';
+        },
+        getCode() {
+            this.loading = true;
+            sendYopCode().then(res => {
+                this.loading = false;
+                if(res.code == 1){
+                    Toast.success('验证码已发送，请注意查收！');
+                    this.countdown();
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name);
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                this.loading = false;
+                Toast.error('未知异常！');
+                console.log(err);
+            })
+        },
+        save() {
+            if((this.loading2 && this.loading2.instance != null) || this.loading3) return;
+            if(!this.formdata.bankNo){
+                Toast.error('请填写银行卡号！');
+                return;
+            }
+            if(!this.formdata.bankName){
+                Toast.error('请选择银行！');
+                return;
+            }
+            if(!this.formdata.province || !this.formdata.city){
+                Toast.error('请选择完整的开户省市！');
+                return;
+            }
+            if(!this.bankDeposit){
+                Toast.error('请选择开户行！');
+                return;
+            }
+            if(!this.code){
+                Toast.error('请填写验证码！');
+                return;
+            }
+            this.loading2 = Loading({ text: '正在提交...' });
+            this.loading3 = true;
+            let param = Object.assign({
+                card: this.formdata.bankNo,
+                bankName: this.formdata.bankName,
+                accountProvince: this.formdata.province,
+                accountCity: this.formdata.city,
+                accountName: this.bankList2[this.bankDeposit].v,
+                headBankCode: this.bankCode,
+                bankCode: this.bankList2[this.bankDeposit].k,
+                merAuthorizeNum: this.code,
+            }, this.codeObj);
+            updateBank(param).then(res => {
+                this.loading2.close();
+                if(res.code == 1){
+                    Toast.success('提交成功，正在跳转...');
+                    setTimeout(() => {
+                        this.$router.replace('/myBank');
+                    }, 1000);
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name);
+                }else{
+                    this.loading3 = false;
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                this.loading2.close();
+                this.loading3 = false;
+                Toast.error('未知异常！');
+                console.log(err);
+            })
+        },
+        countdown() {
+            this.waiting = true;
+            clearInterval(this.timer);
+            this.timer = setInterval(() => {
+                this.time--;
+                if(this.time == -1){
+                    clearInterval(this.timer);
+                    this.waiting = false;
+                    this.time = 60;
+                }
+            }, 1000);
+        }
+    },
+    mounted() {
+        this.formdata = {
+            bankKind: '借记卡（建议银联卡）',
+            bankNo: '',
+            bankName: '',
+            province: '',
+            city: '',
+            bankDeposit: '',
+        };
+        let arr = [];
+        for (let v of $city) {
+            arr.push(v.value);
+        }
+        this.provinceArr = arr;
+        this.getBankList();
+    }
+}
+Vue.use(Loading);
+Vue.use(Toast);
+Vue.use(TextField);
+Vue.use(Select);
+Vue.use(Snackbar);
+Vue.use(Icon);
+Vue.use(Button);
+</script>
+
+<style scoped lang="less">
+.box{
+    background: #fff;
+    .item{
+        height: .44rem;
+        line-height: .44rem;
+        padding: 0 .15rem;
+        position: relative;
+        &.item2{
+            padding: 0;
+            .sel{
+                padding: 0;
+            }
+        }
+        .inp{
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: .44rem;
+            margin: 0;
+            padding: 0;
+            color: #000;
+            font-size: .14rem;
+            min-height: auto;
+        }
+        .sel{
+            height: .44rem;
+            margin: 0;
+            padding: 0;
+            color: #000;
+            font-size: .14rem;
+            min-height: auto;
+        }
+        .code-a{
+            position: absolute;
+            right: .15rem;
+            top: 0;
+            min-width: .9rem;
+            height: .43rem;
+            line-height: .43rem;
+            color: #fc4444;
+            font-size: .14rem;
+            padding-left: .15rem;
+            border-left: 1px solid #f3f3f3;
+            &.no{
+                color: #9c9c9c;
+            }
+        }
+    }
+    .warn{
+        color: #ff7421;
+        font-size: .12rem;
+        padding: .1rem .15rem;
+        background: #feefbc;
+        letter-spacing: 1px;
+        .txt{
+            line-height: 2;
+        }
+    }
+}
+.btns-wrapper{
+    margin-top: .15rem;
+    padding: 0 .15rem;
+    .btn{
+        height: .42rem;
+        line-height: .42rem;
+        font-size: .16rem;
+        border-radius: .05rem;
+        letter-spacing: 1px;
+    }
+}
+</style>
+<style>
+.update-bank .mu-input-content{
+    padding: 0 .15rem;
+}
+.update-bank .mu-input-content.mu-select{
+    padding-right: 0;
+}
+.update-bank .mu-input-content .mu-text-field-input{
+    padding: .05rem 0 .05rem .1rem;
+    height: .44rem;
+    text-align: right;
+}
+.update-bank .yzm .mu-input-content .mu-text-field-input{
+    padding-right: 1.1rem;
+}
+.update-bank .mu-input-content .mu-input-prefix-text{
+    color: #000;
+    min-width: .6rem;
+    letter-spacing: 1px;
+}
+.update-bank .mu-input-content .mu-input-line{
+    background-color: #f3f3f3;
+    left: .15rem;
+}
+.update-bank .mu-input-content .mu-input-focus-line {
+    left: .15rem;
+}
+</style>

@@ -33,7 +33,8 @@ import 'muse-ui-loading/dist/muse-ui-loading.css';
 import Vue from 'vue';
 import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
-import { TextField, Button } from 'muse-ui';
+import { TextField, Button, Snackbar, Icon } from 'muse-ui';
+import { updateTradePsw } from '../api/login';
 export default {
     data() {
         return {
@@ -45,8 +46,8 @@ export default {
     },
     methods: {
         submit() {
-            if(this.loading) return;
-            if(!this.oldpsw || this.psw.length != 6 || !Number.isInteger(this.psw)){
+            if(this.f) return;
+            if(!this.oldpsw || this.psw.length != 6 || !Number.isInteger(Number(this.psw))){
                 Toast.error('请输入正确的原交易密码！');
                 return;
             }
@@ -54,7 +55,7 @@ export default {
                 Toast.error('请输入交易密码！');
                 return;
             }
-            if(this.psw.length != 6 || !Number.isInteger(this.psw)){
+            if(this.psw.length != 6 || !Number.isInteger(Number(this.psw))){
                 Toast.error({ message: '交易密码为6位数字！', time: 5000 });
                 return;
             }
@@ -62,16 +63,43 @@ export default {
                 Toast.error('两次交易密码不一致！');
                 return;
             }
-            this.loading = Loading();
+            this.loading = Loading({ text: '请稍等...' });
+            this.f = true;
+            updateTradePsw({ oldPassWord: this.oldpsw, password: this.psw, surePassword: this.psw2 }).then(res => {
+                this.loading.close();
+                if(res.code == 1){
+                    Toast.success('设置成功！');
+                    setTimeout(() => {
+                        this.$router.push('/setting');
+                    }, 1500);
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name);
+                }else{
+                    this.f = false;
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                this.f = false;
+                this.loading.close();
+                Toast.error('未知异常！');
+                console.log(err);
+            })
         },
     },
     mounted() {
         
     }
 }
-Vue.use(Button);
 Vue.use(TextField);
 Vue.use(Loading);
+Vue.use(Button);
+Vue.use(Snackbar);
+Vue.use(Icon);
 </script>
 
 <style scoped lang="less">
@@ -117,11 +145,6 @@ Vue.use(Loading);
     height: .44rem;
     text-align: right;
 }
-.yzm-d .mu-text-field-input{
-    padding: 0;
-    height: .4rem;
-    text-align: right;
-}
 .update-trade-psw .yzm .mu-text-field-input{
     padding-right: 1.1rem;
     text-align: left;
@@ -133,13 +156,5 @@ Vue.use(Loading);
 }
 .update-trade-psw .mu-input-line{
     background-color: #f3f3f3;
-}
-.update-trade-psw .mu-input-help, .yzm-d .mu-input-help{
-    display: none;
-}
-.yzm-d img{
-    width: 1rem;
-    height: .4rem;
-    margin-right: .2rem;
 }
 </style>

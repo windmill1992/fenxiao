@@ -11,7 +11,8 @@
                 </div>
                 <div class="item flex fcen spb">
                     <mu-text-field type="number" v-model="code" placeholder="请输入验证码" class="inp yzm" max-length="6" full-width underline-color="blue" prefix="验证码"></mu-text-field>
-                    <a href="javascript:;" class="code-a" @click="getCode" v-if="!waiting">获取验证码</a>
+                    <a href="javascript:;" class="code-a" v-if="loading" v-loading="loading" data-mu-loading-size="20"></a>
+                    <a href="javascript:;" class="code-a" @click="getCode" v-else-if="!waiting">获取验证码</a>
                     <a href="javascript:;" class="code-a no" v-else>{{time}}s重新获取</a>
                 </div>
             </div>
@@ -41,6 +42,7 @@ import Toast from 'muse-ui-toast';
 import { TextField, Checkbox, Dialog, Snackbar, Button, Icon } from 'muse-ui';
 import { codeLogin, getMobileCode } from '../api/login';
 import { baseUrl } from '../api/baseUrl';
+import { str2json } from '../utils/str2json';
 export default {
     data() {
         return {
@@ -72,7 +74,9 @@ export default {
                 return;
             }
             this.closeDialog();
+            this.loading = true;
             getMobileCode({ mobile: this.mobile, code: this.yzmCode, type: 'login' }).then(res => {
+                this.loading = false;
                 if(res.code == 1){
                     this.countdown();
                     Toast.success('手机验证码发送成功，请查收！');
@@ -80,11 +84,12 @@ export default {
                     if(res.msg){
                         Toast.error(res.msg);
                     }else{
-                        Toast.error('服务器错误，请稍后再试！');
+                        Toast.error('服务器开了小差，请稍后再试！');
                     }
                 }
             })
             .catch(err => {
+                this.loading = false;
                 Toast.error('未知异常！');
                 console.log(err);
             })
@@ -93,7 +98,7 @@ export default {
             this.openYzm = false;
         },
         submit() {
-            if(this.loading) return;
+            if(this.loading2) return;
             if(!this.mobile || !this.$util.telValidate(this.mobile)){
                 Toast.error('请输入正确的手机号！');
                 return;
@@ -102,24 +107,32 @@ export default {
                 Toast.error('手机验证码错误！');
                 return;
             }
-            this.loading = Loading();
+            this.loading2 = true;
+            this.loading3 = Loading();
             codeLogin({ mobile: this.mobile, code: this.code, type: 'login' }).then(res => {
-                this.loading.close();
+                this.loading3.close();
                 if(res.code == 1){
                     Toast.success('登录成功，正在跳转...');
                     setTimeout(() => {
-                        this.$router.push({ name: this.from });
-                    }, 1500);
+                        // if(this.from){
+                        //     this.$router.push({ name: this.from, params: str2json(this.params), query: str2json(this.query) });
+                        // }else{
+                        //     this.$router.replace('/');
+                        // }
+                        this.$router.replace('/');
+                    }, 1000);
                 }else{
+                    this.loading2 = false;
                     if(res.msg){
                         Toast.error(res.msg);
                     }else{
-                        Toast.error('服务器错误，请稍后再试！');
+                        Toast.error('服务器开了小差，请稍后再试！');
                     }
                 }
             })
             .catch(err => {
-                this.loading.close();
+                this.loading3.close();
+                this.loading2 = false;
                 Toast.error('未知异常！');
                 console.log(err);
             })
@@ -139,8 +152,12 @@ export default {
     },
     mounted() {
         this.from = this.$route.query.from;
+        this.params = this.$route.query.params;
+        this.query = this.$route.query.query;
     }
 }
+Vue.use(Loading);
+Vue.use(Toast);
 Vue.use(TextField);
 Vue.use(Checkbox);
 Vue.use(Dialog);
@@ -174,6 +191,8 @@ Vue.use(Icon);
             position: absolute;
             right: .15rem;
             top: 0;
+            min-width: .9rem;
+            height: .43rem;
             line-height: .43rem;
             color: #fc4444;
             font-size: .16rem;
@@ -227,11 +246,5 @@ Vue.use(Icon);
 }
 .login-mobile .mu-input-content .mu-input-focus-line {
     left: .15rem;
-}
-.login-mobile .mu-input-help, .yzm-d .mu-input-help{
-    display: none;
-}
-.yzm-d .mu-text-field-input{
-    text-align: center;
 }
 </style>

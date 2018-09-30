@@ -4,7 +4,6 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import axios from 'axios'
-import Cookies from 'js-cookie'
 
 import NProgress from 'muse-ui-progress';
 import Progress from 'muse-ui/lib/Progress';
@@ -28,13 +27,6 @@ router.beforeEach((to, from, next) => {
   NProgress.start();
   document.title = to.meta.title;
   setTitle(to.meta.title);
-  /* if (!Cookies.get('user') && to.name !== 'login') {  // 判断是否已经登录且前往的页面不是登录页
-    next({ name: 'login' });
-  } else if (Cookies.get('user') && to.name === 'login') {  // 判断是否已经登录且前往的是登录页
-    next({ name: 'index' });
-  } else {
-    next()
-  } */
   next()
 })
 

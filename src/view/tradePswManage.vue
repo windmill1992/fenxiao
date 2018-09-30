@@ -5,11 +5,11 @@
             <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
         </div>
         <div class="wrapper">
-            <mu-ripple class="item flex fcen spb" @click="addTradePsw" v-if="!isEdit">
+            <mu-ripple class="item flex fcen spb" @click="addTradePsw" v-if="state.transactState == 0">
                 <p class="label">新增交易密码</p>
                 <p class="arr-r gray"></p>
             </mu-ripple>
-            <template v-else>
+            <template v-else-if="state.transactState == 1">
                 <mu-ripple class="item flex fcen spb" @click="updateTradePsw">
                     <p class="label">修改交易密码</p>
                     <p class="arr-r gray"></p>
@@ -24,15 +24,42 @@
 </template>
 
 <script>
+import 'muse-ui-toast/dist/muse-ui-toast.all.css';
+import 'muse-ui-loading/dist/muse-ui-loading.css';
 import Vue from 'vue';
-import { Helpers } from 'muse-ui';
+import Toast from 'muse-ui-toast';
+import Loading from 'muse-ui-loading';
+import { Button, Snackbar, Icon } from 'muse-ui';
+import { userState } from '../api/user';
 export default {
     data() {
         return {
-            isEdit: false,
+            state: {},
         }
     },
     methods: {
+        getUserState() {
+            this.loading = Loading();
+            userState().then(res => {
+                this.loading.close();
+                if(res.code == 1){
+                    this.state = res.data;
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name);
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                this.loading.close();
+                Toast.error('未知异常！');
+                console.log(err);
+            })
+        },
         addTradePsw() {
             this.$router.push('/setTradePsw');
         },
@@ -44,10 +71,14 @@ export default {
         }
     },
     mounted() {
-        this.isEdit = this.$route.params.edit;
+        this.getUserState();
     }
 }
-Vue.use(Helpers);
+Vue.use(Toast);
+Vue.use(Loading);
+Vue.use(Button);
+Vue.use(Snackbar);
+Vue.use(Icon);
 </script>
 
 <style scoped lang="less">

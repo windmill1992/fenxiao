@@ -30,7 +30,7 @@
             <div class="box flex1 fcol" v-loading="loading">
                 <div class="list"></div>
                 <div class="no-data fcol spc fcen flex1">
-                    <img src="../assets/img/error_zanwujf.png" alt="暂无积分">
+                    <img :src="imgHost + '/error_zanwujf.png'" alt="暂无积分">
                     <p>暂无积分情况记录</p>
                 </div>
             </div>
@@ -47,11 +47,13 @@
 </template>
 
 <script>
+import 'muse-ui-toast/dist/muse-ui-toast.all.css';
 import 'muse-ui-loading/dist/muse-ui-loading.css';
 import Vue from 'vue';
-import Helpers from 'muse-ui/lib/Helpers';
+import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
-import { Tabs, SlidePicker, BottomSheet } from 'muse-ui';
+import { Tabs, SlidePicker, BottomSheet, Button, Snackbar, Icon } from 'muse-ui';
+import { imgHost } from '../api/baseUrl';
 
 const dates = {};
 const dd = new Date();
@@ -83,6 +85,7 @@ export default {
             dates: [year, month],
             year: year,
             month: month,
+            imgHost: imgHost,
         }
     },
     methods: {
@@ -134,11 +137,14 @@ export default {
         
     }
 }
-Vue.use(Helpers);
 Vue.use(Loading);
+Vue.use(Toast);
 Vue.use(Tabs);
 Vue.use(SlidePicker);
 Vue.use(BottomSheet);
+Vue.use(Button);
+Vue.use(Snackbar);
+Vue.use(Icon);
 </script>
 
 <style scoped lang="less">

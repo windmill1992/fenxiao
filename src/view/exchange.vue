@@ -6,7 +6,7 @@
         </div>
         <div class="wrapper">
             <div class="top">
-                <img src="../assets/img/bk.png" alt="商品">
+                <img :src="imgHost + '/def_pro2.png'" alt="商品">
                 <p class="title bold">饼干套餐换饮料</p>
             </div>
             <p class="tip">您将减少</p>
@@ -29,12 +29,18 @@
 </template>
 
 <script>
+import 'muse-ui-toast/dist/muse-ui-toast.all.css';
+import 'muse-ui-loading/dist/muse-ui-loading.css';
 import Vue from 'vue';
-import { Button } from 'muse-ui';
+import Toast from 'muse-ui-toast';
+import Loading from 'muse-ui-loading';
+import { Button, Snackbar, Icon } from 'muse-ui';
+import { imgHost } from '../api/baseUrl';
 export default {
     data() {
         return {
             title: '换货',
+            imgHost: imgHost,
         }
     },
     methods: {
@@ -47,6 +53,10 @@ export default {
     }
 }
 Vue.use(Button);
+Vue.use(Toast);
+Vue.use(Loading);
+Vue.use(Snackbar);
+Vue.use(Icon);
 </script>
 
 <style scoped lang="less">

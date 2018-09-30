@@ -6,6 +6,7 @@ import qs from 'qs';
 axios.defaults.headers.post = {
     'Content-Type': 'application/x-www-form-urlencoded'
 }
+axios.defaults.withCredentials = true;
 
 //上传图片
 export const uploadImage = params => { 

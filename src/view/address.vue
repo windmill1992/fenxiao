@@ -49,7 +49,7 @@
 import 'muse-ui-loading/dist/muse-ui-loading.css';
 import 'muse-ui-toast/dist/muse-ui-toast.all.css';
 import Vue from 'vue';
-import { TextField, Select, Switch, Snackbar, Button, Icon, Helpers } from 'muse-ui';
+import { TextField, Select, Switch, Snackbar, Button, Icon } from 'muse-ui';
 import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
 import { $city } from '../assets/js/city2.min';
@@ -111,7 +111,7 @@ export default {
                     if(res.msg){
                         Toast.error(res.msg);
                     }else{
-                        Toast.error('服务器错误，请稍后再试！');
+                        Toast.error('服务器开了小差，请稍后再试！');
                     }
                 }
             })
@@ -203,7 +203,7 @@ export default {
                     if(res.msg){
                         Toast.error(res.msg);
                     }else{
-                        Toast.error('服务器错误，请稍后再试！');
+                        Toast.error('服务器开了小差，请稍后再试！');
                     }
                 }
             })
@@ -244,7 +244,6 @@ export default {
         }
     },
 }
-Vue.use(Helpers);
 Vue.use(Toast);
 Vue.use(Loading);
 Vue.use(TextField);

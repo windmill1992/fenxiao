@@ -1,36 +1,27 @@
 <template>
     <div id="pageContainer" class="notice">
         <div class="header">
-            <p class="title">重要公告</p>
+            <p class="title">{{title}}</p>
             <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
         </div>
         <div class="wrapper fcol" ref="wrapper">
             <mu-load-more class="box flex1 fcol" @refresh="refresh" :refreshing="refreshing" :loading="loading" @load="load">
-                <div class="box" v-if="list.length > 0">
-                    <div class="item">
-                        <div class="time">1天前</div>
+                <div class="box" v-if="hasmore > 0">
+                    <div class="item" v-for="item in list" :key="item.id">
+                        <div class="time">{{item.createTime | fmt}}</div>
                         <div class="con">
-                            <div class="title">瘦身小知识</div>
-                            <div class="txt">瘦身饼干啦啦啦</div>
+                            <div class="title">{{item.title}}</div>
+                            <div class="txt" v-if="item.content">{{item.content}}</div>
+                            <div class="txt" v-else>暂无内容</div>
                             <div class="link txtR">
-                                <a href="" class="link-a arr-r gray">查看详情</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="time">1天前</div>
-                        <div class="con">
-                            <div class="title">瘦身小知识</div>
-                            <div class="txt">瘦身饼干啦啦啦</div>
-                            <div class="link txtR">
-                                <a href="" class="link-a arr-r gray">查看详情</a>
+                                <router-link :to="'/msgDetail/'+ item.id" class="link-a arr-r gray">查看详情</router-link>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="no-data fcol spc fcen flex1" v-else>
-                    <img src="../assets/img/error_zwxx.png" alt="暂无消息">
-                    <p class="txt">暂无消息</p>
+                    <img :src="imgHost +'/error_zwxx.png'" alt="暂无消息">
+                    <p class="txt">暂无{{title}}</p>
                 </div>
             </mu-load-more>
         </div>
@@ -38,46 +29,153 @@
 </template>
 
 <script>
+import 'muse-ui-toast/dist/muse-ui-toast.all.css';
 import 'muse-ui-loading/dist/muse-ui-loading.css';
 import Vue from 'vue';
 import Loading from 'muse-ui-loading';
-import { LoadMore } from 'muse-ui';
+import Toast from 'muse-ui-toast';
+import { LoadMore, Button, Snackbar, Icon } from 'muse-ui';
+import { setTitle } from '../utils/setTitle';
+import { msgList } from '../api/message';
+import { imgHost } from '../api/baseUrl';
 export default {
     data() {
         return {
             list: [],
             loading: false,
             refreshing: false,
+            title: '消息',
+            page: 1,
+            pageSize: 20,
+            hasmore: -1,
+            imgHost: imgHost,
         }
     },
     methods: {
         getData() {
-            setTimeout(() => {
+            msgList({ type: this.type, page: this.page, pageSize: this.pageSize }).then(res => {
+                this.refreshing = false;
+                this.loading = false;
                 this.loading2.close();
-            }, 2000);
+                if(res.code == 1){
+                    let r = res.data;
+                    if(this.page == 1){
+                        this.list = [];
+                    }
+                    let arr = [...this.list, ...r.resultData];
+                    this.list = arr;
+                    if(r.total == 0){
+                        this.hasmore = 0;
+                    }else if(r.total <= this.page * this.pageSize){
+                        this.hasmore = 1;
+                    }else{
+                        this.hasmore = 2;
+                    }
+                }else if(res.code == 4){
+                    this.hasmore = 0;
+                    this.list = [];
+                }else if(res.code == 2){
+                    this.hasmore = 1;
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name +'&query=type_'+ this.type);
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                this.refreshing = false;
+                this.loading = false;
+                this.loading2.close();
+                Toast.error('未知异常！');
+                console.log(err);
+            })
         },
         refresh() {
             this.refreshing = true;
             this.$refs.wrapper.scrollTop = 0;
+            this.page = 1;
             this.getData();
-            setTimeout(() => {
-                this.refreshing = false;
-            }, 2000)
         },
         load() {
-            this.loading = true;
-            setTimeout(() => {
-                this.loading = false;
-            }, 2000)
+            if(this.hasmore == 2 && !this.loading){
+                this.loading = true;
+                this.getData();
+            }
+        }
+    },
+    filters: {
+        fmt(t) {
+            let now = Date.now();
+            let time = (now - t) / 1000;
+            if (time > 0 && time <= 5) {
+                return '刚刚';
+            } 
+            if (time > 5 && time < 60) {
+                return time + '秒前';
+            }
+            if (time >= 60 && time < 3600) {
+                return Number.parseInt(time / 60) + '分钟前';
+            }
+            if (time >= 3600 && time < 3600 * 24) {
+                return Number.parseInt(time / 3600) + '小时前';
+            }
+            if (time >= 3600 * 24 && time < 3600 * 24 * 7) {
+                return Number.parseInt(time / 3600 / 24) + '天前';
+            }
+            if (time >= 3600 * 24 * 7) {
+                let dd = new Date(time);
+                let y = dd.getFullYear();
+                let m = dd.getMonth() + 1;
+                let d = dd.getDate();
+                m = m.toString()[1] ? m : ('0' + m);
+                d = d.toString()[1] ? d : ('0' + d);
+                return y + '-' + m + '-' + d;
+            }
         }
     },
     mounted() {
+        let t = this.$route.query.type;
+        if(!t){
+            this.$router.replace({ path: '/notify' });
+            return;
+        }
+        let title = '';
+        switch(t) {
+            case '1':
+                title = '重要公告';
+                break;
+            case '2':
+                title = '活动公告';
+                break;
+            case '3':
+                title = '版本更新';
+                break;
+            case '4':
+                title = '系统通知';
+                break;
+            case '5':
+                title = '操作记录';
+                break;
+            default: title = '消息'
+        }
+        this.title = title;
+        this.type = t;
+        setTitle(title);
+
         this.loading2 = Loading();
         this.getData();
     }
 }
 Vue.use(Loading);
 Vue.use(LoadMore);
+Vue.use(Toast);
+Vue.use(Button);
+Vue.use(Snackbar);
+Vue.use(Icon);
 </script>
 
 <style scoped lang="less">

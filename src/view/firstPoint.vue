@@ -1,52 +1,49 @@
 <template>
     <div id="pageContainer" class="dynamic-point">
         <div class="header">
-            <p class="title">动销积分</p>
+                <p class="title">一阶积分</p>
             <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
         </div>
         <div class="wrapper fcol">
-            <div class="top">
-                <div class="date-sel flex spc">
-                    <a href="javascript:;" class="sel bold flex fcen" @click="openSheet">{{year}}年{{month}}月</a>
-                </div>
-                <div class="point-box">
-                    <div class="flex fcen spb">
-                        <p class="txt">已动销积分</p>
-                        <a href="javascript:;" class="icon"><img src="../assets/img/icon_question.png" alt="规则说明"></a>
+            <mu-load-more class="flex1 fcol" :refreshing="refreshing" :loading="loading" @refresh="refresh" @load="load">
+                <div class="top">
+                    <div class="date-sel flex spc">
+                        <a href="javascript:;" class="sel bold flex fcen" @click="openSheet">{{year}}年{{month}}月</a>
                     </div>
-                    <div class="point">
-                        <span class="num bold">0</span>
-                        <span class="txt1">(完成:0%)</span>
+                    <div class="point-box">
+                        <div class="flex fcen spb">
+                            <p class="txt">一阶积分</p>
+                            <!-- <a href="javascript:;" class="icon"><img src="../assets/img/icon_question.png" alt="规则说明"></a> -->
+                        </div>
+                        <div class="point">
+                            <span class="num bold">{{point}}</span>
+                            <!-- <span class="txt1">(完成: 0%)</span> -->
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="box">
-                <div class="li flex spb">
-                    <p class="txt">未动销积分</p>
-                    <p class="num">0 <span style="font-size: .12rem">(未完成:0%)</span></p>
+                <div class="tip">积分详情</div>
+                <div class="box">
+                    <div class="th flex spb">
+                        <p class="td">会员名</p>
+                        <p class="td txtC">奖励积分</p>
+                        <p class="td txtR">时间</p>
+                    </div>
                 </div>
-                <div class="li flex spb">
-                    <p class="txt">总动销积分</p>
-                    <p class="num">0</p>
+                <div class="box" v-if="hasmore != 0">
+                    <div class="th flex spb" v-for="item in list" :key="'month'+ item.num">
+                        <p class="td">{{item.secondUserName}}</p>
+                        <p class="td txtC">{{item.num}}</p>
+                        <p class="td txtR">{{item.createTime | fmt}}</p>
+                    </div>
                 </div>
-            </div>
-            <div class="tip">积分详情</div>
-            <div class="box">
-                <div class="th flex spb">
-                    <p class="td">会员名</p>
-                    <p class="td">推荐人</p>
-                    <p class="td">已动销积分</p>
-                    <p class="td txtR">未动销积分</p>
+                <div class="box flex1 fcol" v-else>
+                    <div class="no-data fcol spc fcen flex1">
+                        <img :src="imgHost + '/error_zanwusj.png'" alt="暂无数据">
+                        <p class="txt">暂无数据</p>
+                    </div>
                 </div>
-            </div>
-            <div class="box flex1 fcol" v-loading="loading">
-                <div class="no-data fcol spc fcen flex1" v-if="list.length == 0">
-                    <img src="../assets/img/error_zanwusj.png" alt="暂无数据">
-                    <p>暂无数据</p>
-                </div>
-                <div class="list" v-else></div>
-            </div>
-
+            </mu-load-more>
+            <p class="no-more" v-if="hasmore == 1">没有更多数据了</p>
         </div>
         <mu-bottom-sheet :open.sync="open" class="date-container">
             <div class="btn-box flex spb">
@@ -59,11 +56,15 @@
 </template>
 
 <script>
+import 'muse-ui-toast/dist/muse-ui-toast.all.css';
 import 'muse-ui-loading/dist/muse-ui-loading.css';
 import Vue from 'vue';
-import Helpers from 'muse-ui/lib/Helpers';
+import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
-import { SlidePicker, BottomSheet } from 'muse-ui';
+import { SlidePicker, BottomSheet, Button, Snackbar, Icon, LoadMore } from 'muse-ui';
+import { imgHost } from '../api/baseUrl';
+import { firstPoint } from '../api/user';
+import { util } from '../utils/base';
 
 const dates = {};
 const dd = new Date();
@@ -95,14 +96,59 @@ export default {
             year: year,
             month: month,
             list: [],
+            imgHost: imgHost,
+            page: 1,
+            pageSize: 12,
+            hasmore: -1,
+            refreshing: false,
+            point: 0,
         }
     },
     methods: {
         getData() {
-            setTimeout(() => {
+            this.loading2 = Loading();
+            let time = this.year + '-' + this.month;
+            firstPoint({ monthTime: time, pageNum: this.page, pageSize: this.pageSize }).then(res => {
                 this.loading2.close();
                 this.loading = false;
-            }, 1000);
+                this.refreshing = false;
+                if(res.code == 1){
+                    let r = res.data;
+                    if(this.page == 1){
+                        this.list = [];
+                    }
+                    this.point = res.data2;
+                    if(r.total == 0){
+                        this.hasmore = 0;
+                    }else if(r.total <= this.page * this.pageSize){
+                        this.hasmore = 1;
+                    }else{
+                        this.hasmore = 2;
+                    }
+                    this.list = [...this.list, ...r.resultData];
+                }else if(res.code == 4){
+                    this.hasmore = 0;
+                    this.list = [];
+                    this.point = 0;
+                }else if(res.code == 2){
+                    this.hasmore = 1;
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name);
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                this.loading = false;
+                this.refreshing = false;
+                this.loading2.close();
+                Toast.error('未知异常！');
+                console.log(err);
+            })
         },
         dateChange(value, index) {
             switch (index) {
@@ -126,10 +172,12 @@ export default {
             this.open = false;
         },
         sureSelect() {
-            if(this._year != this.year || this._month != this.year){
-                this.year = this._year;
-                this.month = this._month;
-                this.loading = true;
+            if(this._year != this.year || this._month != this.month){
+                this.year = this._year | this.dates[0];
+                this.month = this._month | this.dates[1];
+                if(this.month < 10){
+                    this.month = '0' + this.month;
+                }
                 this.getData();
             }else{
                 if(this.list.length == 0){
@@ -137,17 +185,36 @@ export default {
                 }
             }
             this.open = false;
+        },
+        refresh() {
+            this.page = 1;
+            this.refreshing = true;
+            this.getData();
+        },
+        load() {
+            if(this.hasmore != 2 || this.loading) return;
+            this.page++;
+            this.loading = true;
+            this.getData();
+        }
+    },
+    filters: {
+        fmt(t) {
+            return util.formatTime(t, '-').substr(5);
         }
     },
     mounted() {
-        this.loading2 = Loading();
         this.getData();
     }
 }
-Vue.use(Helpers);
+Vue.use(Toast);
 Vue.use(Loading);
+Vue.use(LoadMore);
 Vue.use(SlidePicker);
 Vue.use(BottomSheet);
+Vue.use(Button);
+Vue.use(Snackbar);
+Vue.use(Icon);
 </script>
 
 <style scoped lang="less">
@@ -215,41 +282,17 @@ Vue.use(BottomSheet);
         width: 100%;
         background: #fff;
     }
-    .no-data{
-        img{
-            width: 1.86rem;
-            height: .95rem;
-        }
-        p{
-            font-size: .16rem;
-            color: #9c9c9c;
-            margin-top: .2rem;
-        }
-    }
-    .li{
-        padding: 0 .15rem;
-        border-bottom: 1px solid #f3f3f3;
-        background: #fff;
-        height: .43rem;
-        font-size: .14rem;
-        line-height: .42rem;
-        .txt{
-            color: #000;
-        }
-        .num{
-            color: #ff7421;
-        }
-    }
     .th{
         background: #fff;
         line-height: .42rem;
         padding: 0 .15rem;
+        border-bottom: 1px solid #f3f3f3;
         .td{
             color: #555;
         }
     }
     .td{
-        width: 25%;
+        width: 33.33%;
         font-size: .12rem;
         color: #000;
     }

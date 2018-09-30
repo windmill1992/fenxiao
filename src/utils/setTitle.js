@@ -5,7 +5,11 @@ const setTitle = t => {
     i.style.display = 'none';
     i.onload = function() {
         setTimeout(function(){
-            i.remove();
+            if(i.remove){
+                i.remove();
+            }else{
+                document.body.removeChild(i);
+            }
         }, 9)
    }
     document.body.appendChild(i);

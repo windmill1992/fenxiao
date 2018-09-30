@@ -8,25 +8,25 @@
         <div class="wrapper">
             <div class="box">
                 <div class="item flex fcen spb">
-                    <mu-text-field v-model="uname" placeholder="会员名" class="inp" full-width underline-color="blue" prefix="会员名"></mu-text-field>
+                    <mu-text-field v-model="uname" placeholder="会员名" class="inp" full-width underline-color="blue" prefix="会员名" readonly></mu-text-field>
                 </div>
                 <div class="item flex fcen spb">
-                    <mu-text-field type="number" v-model="mobile" placeholder="手机号" class="inp" full-width underline-color="blue" prefix="手机号"></mu-text-field>
+                    <mu-text-field type="number" v-model="mobile" placeholder="手机号" class="inp" full-width underline-color="blue" prefix="手机号" readonly></mu-text-field>
                 </div>
-                <div class="bb10"></div>
+                <!-- <div class="bb10"></div>
                 <div class="item flex fcen spb">
                     <mu-text-field v-model="way" placeholder="请选择充值方式" class="inp inp2" full-width underline-color="blue" readonly prefix="充值方式" @click="showSheet"></mu-text-field>
                     <div class="arr-r gray"></div>
-                </div>
+                </div> -->
                 <div class="bb10"></div>
                 <div class="item flex fcen spb">
                     <mu-text-field type="number" v-model="amount" placeholder="充值1元起" class="inp" full-width underline-color="blue" prefix="充值金额" suffix="元"></mu-text-field>
                 </div>
-                <div class="bb10"></div>
+                <!-- <div class="bb10"></div>
                 <mu-ripple class="item flex fcen spb" @click="toTradePsw">
                     <p class="txt">交易密码设置/修改</p>
                     <div class="arr-r gray"></div>
-                </mu-ripple>
+                </mu-ripple> -->
             </div>
 
             <div class="btn-wrapper">
@@ -46,9 +46,9 @@
                 <mu-ripple class="close" @click="open = false"><img src="../assets/img/close.png" alt="关闭"></mu-ripple>
             </div>
             <mu-list @item-click="closeSheet">
-                <mu-list-item button :data-index="0" data-name="微信分享支付">
+                <mu-list-item button :data-index="0" data-name="微信支付">
                     <mu-list-item-title class="flex fcen spb">
-                        <p>微信分享支付(单日限额3000元)</p>
+                        <p>微信支付(单日限额3000元)</p>
                         <mu-radio :value="0" v-model="wayRad" class="rad" color="#ff4521" uncheck-icon="1"></mu-radio>
                     </mu-list-item-title>
                 </mu-list-item>
@@ -87,7 +87,8 @@ import 'muse-ui-toast/dist/muse-ui-toast.all.css';
 import Vue from 'vue';
 import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
-import { TextField, Select, Radio, List, BottomSheet, Button, Helpers, Snackbar, Icon } from 'muse-ui';
+import { TextField, Select, Radio, List, BottomSheet, Button, Snackbar, Icon } from 'muse-ui';
+import { recharge, userInfo } from '../api/user';
 export default {
     data() {
         return {
@@ -102,7 +103,29 @@ export default {
     },
     methods: {
         refresh() {
-            window.location.reload();
+            this.getData();
+        },
+        getData() {
+            this.loading = Loading();
+            userInfo().then(res => {
+                this.loading.close();
+                if(res.code == 1){
+                    this.uname = res.data.userName;
+                    this.mobile = res.data.mobileNum;
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name);
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                this.loading.close();
+                Toast.error('')
+            })
         },
         showSheet() {
             this.open = true;
@@ -116,6 +139,7 @@ export default {
 
         },
         submit() {
+            if(this.loading && this.loading.instance != null) return;
             if(!this.uname){
                 Toast.error('请输入会员名！');
                 return;
@@ -124,21 +148,47 @@ export default {
                 Toast.error('请输入正确的手机号！');
                 return;
             }
-            if(!this.way){
-                Toast.error('请选择充值方式！');
-                return;
-            }
-            if(!this.amount){
+            // if(!this.way){
+            //     Toast.error('请选择充值方式！');
+            //     return;
+            // }
+            if(!this.amount || this.amount < 0.01){
                 Toast.error('请输入有效充值金额！');
                 return;
             }
             this.loading = Loading();
+            recharge({ orderType: 1, orderAmount: this.amount }).then(res => {
+                this.loading.close();
+                if(res.code == 1){
+                    // window.location.href = encodeURI(res.data);
+                    let link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
+                    link.href = encodeURI(res.data);
+                    let event = document.createEvent('MouseEvents');
+                    event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+                    link.dispatchEvent(event);
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name);
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                this.loading.close();
+                Toast.error('未知异常！');
+                console.log(err);
+            })
         }
+    },
+    mounted() {
+        this.getData();
     }
 }
 Vue.use(Toast);
 Vue.use(Loading);
-Vue.use(Helpers);
 Vue.use(TextField);
 Vue.use(Select);
 Vue.use(Radio);

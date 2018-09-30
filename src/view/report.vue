@@ -11,36 +11,43 @@
                         <div class="line c80a9f0"></div>
                         <p class="txt bold">我的积分</p>
                     </div>
-                    <div class="right flex fcen">
+                    <!-- <div class="right flex fcen">
                         <p class="txt1">规则说明</p>
                         <div class="arr-r gray"></div>
-                    </div>
+                    </div> -->
                 </div>
                 <div class="list flex spb fwrap">
-                    <a href="" class="item fcol">
+                    <router-link to="/firstPoint" class="item fcol">
                         <mu-ripple class="rip fcol spb flex1">
-                            <p class="txt">已动销积分</p>
-                            <p class="num bold">0</p>
+                            <p class="txt">一阶积分</p>
+                            <p class="num bold">{{info.firstIntegral ? info.firstIntegral : 0}}</p>
                             <div class="btn">查看详情</div>
                         </mu-ripple>
-                    </a>
-                    <a href="" class="item fcol">
+                    </router-link>
+                    <router-link to="/secondPoint" class="item fcol">
+                        <mu-ripple class="rip fcol spb flex1">
+                            <p class="txt">二阶积分</p>
+                            <p class="num bold">{{info.secondIntegral ? info.secondIntegral : 0}}</p>
+                            <div class="btn">查看详情</div>
+                        </mu-ripple>
+                    </router-link>
+                    <router-link to="/ownPoint" class="item fcol">
                         <mu-ripple class="rip fcol spb flex1">
                             <p class="txt">本月自有积分</p>
-                            <p class="num bold">0</p>
+                            <p class="num bold">{{info.integralSelf ? info.integralSelf : 0}}</p>
                             <div class="btn">查看详情</div>
                         </mu-ripple>
-                    </a>
-                    <a href="" class="item fcol">
+                    </router-link>
+                    <!-- <router-link to="" class="item fcol">
                         <mu-ripple class="rip fcol spb flex1">
                             <p class="txt">本月总积分</p>
                             <p class="num bold">0</p>
                             <div class="btn">查看详情</div>
                         </mu-ripple>
-                    </a>
+                    </router-link> -->
                 </div>
             </div>
-            <div class="bb10"></div>
+            <!-- <div class="bb10"></div>
             <div class="box">
                 <div class="flex fcen spb">
                     <div class="left flex fcen">
@@ -89,18 +96,58 @@
                         </mu-ripple>
                     </a>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 </template>
 
 <script>
+import 'muse-ui-toast/dist/muse-ui-toast.all.css';
+import 'muse-ui-loading/dist/muse-ui-loading.css';
 import Vue from 'vue';
-import Helpers from 'muse-ui/lib/Helpers';
+import Toast from 'muse-ui-toast';
+import Loading from 'muse-ui-loading';
+import { Button, Snackbar, Icon } from 'muse-ui';
+import { integral } from '../api/user';
 export default {
-
+    data() {
+        return {
+            info: {},
+        }
+    },
+    methods: {
+        getData() {
+            this.loading = Loading();
+            integral().then(res => {
+                this.loading.close();
+                if(res.code == 1){
+                    this.info = res.data;
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name);
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                this.loading.close();
+                Toast.error('未知异常！');
+                console.log(err);
+            })
+        },
+    },
+    mounted() {
+        this.getData();
+    }
 }
-Vue.use(Helpers);
+Vue.use(Toast);
+Vue.use(Loading);
+Vue.use(Button);
+Vue.use(Snackbar);
+Vue.use(Icon);
 </script>
 
 <style scoped lang="less">

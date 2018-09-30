@@ -19,7 +19,6 @@
 
 <script>
 import Vue from 'vue';
-import { Helpers } from 'muse-ui';
 export default {
     data() {
         return {
@@ -38,7 +37,6 @@ export default {
         
     }
 }
-Vue.use(Helpers);
 </script>
 
 <style scoped lang="less">

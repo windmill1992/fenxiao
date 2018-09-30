@@ -4,55 +4,103 @@
             <p class="title">商品详情</p>
             <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
         </div>
-        <div class="wrapper">
+        <div class="wrapper fcol" v-if="!nodata">
             <div class="top">
-                <div class="pic">
-                    <img src="../assets/img/bk.png" alt="商品">
-                </div>
-                <div class="title">巴拉巴拉卡卡卡饼干哈哈哈哈哈并敢不敢不敢不敢不敢不敢不敢不敢</div>
+                <div class="pic" :style="'background-image: url(' + (info.bFiles ? info.bFiles[0].middleUrl : imgHost +'/def_pro2.png') + ')'"></div>
+                <div class="title">{{info.productName}}</div>
                 <div class="price-box flex fcen">
                     <div class="tag">特惠价</div>
-                    <div class="price"><span>￥</span>1380</div>
-                    <div class="ori-price">市场价: <span>￥1580</span></div>
+                    <div class="price"><span>￥</span>{{info.salesPrice}}</div>
+                    <div class="ori-price">市场价: <span>￥{{info.originalPrice}}</span></div>
                 </div>
                 <div class="tags flex fcen">
-                    <p class="tag">悠可舱</p>
+                    <!-- <p class="tag">悠可舱</p> -->
                 </div>
             </div>
-            <div class="content"></div>
+            <div class="content" v-html="info.productContent"></div>
+        </div>
+        <div class="wrapper fcol" v-else>
+            <div class="no-data flex1 fcol spc fcen">
+                <img :src="imgHost + '/error_zanwusj.png'" alt="暂无数据">
+                <p class="txt">未查询到商品信息！</p>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
+import 'muse-ui-toast/dist/muse-ui-toast.all.css';
+import 'muse-ui-loading/dist/muse-ui-loading';
+import Vue from 'vue';
+import Toast from 'muse-ui-toast';
+import Loading from 'muse-ui-loading';
+import { Button, Snackbar, Icon } from 'muse-ui';
+import { imgHost } from '../api/baseUrl';
+import { prodDetail } from '../api/product';
 export default {
     data() {
         return {
-            id: 0,
+            imgHost: imgHost,
+            info: {},
+            nodata: false,
         }
     },
     methods: {
-
+        getData() {
+            this.loading = Loading();
+            prodDetail({ id: this.id }).then(res => {
+                this.loading.close();
+                if(res.code == 1){
+                    if(res.data != null){
+                        this.info = res.data;
+                        this.nodata = false;
+                    }else{
+                        this.nodata = true;
+                        alert('商品不存在！');
+                    }
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name +'&params=id_'+ this.id);
+                }else{
+                    this.nodata = true;
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                this.nodata = true;
+                Toast.error('未知异常！');
+                console.log(err);
+            })
+        }
     },
     mounted() {
         this.id = this.$route.params.id;
-        console.log(this.id);
-        
+        if(this.id){
+            this.getData();
+        }else{
+            this.$router.replace('/');
+        }
     }
 }
+Vue.use(Toast);
+Vue.use(Loading);
+Vue.use(Button);
+Vue.use(Snackbar);
+Vue.use(Icon);
 </script>
 
 <style scoped lang="less">
 .top{
     background: #fff;
     .pic{
-        max-height: 3rem;
+        padding-top: 60%;
         overflow: hidden;
-        img{
-            width: 100%;
-            height: auto;
-            vertical-align: top;
-        }
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
     }
     .title{
         padding: .1rem .15rem;
@@ -106,6 +154,7 @@ export default {
     color: #000;
     line-height: 1.5;
     padding: .15rem;
+    background: #fff;
     img{
         width: 100%;
         max-width: 100%;

@@ -4,13 +4,14 @@ import Router from 'vue-router'
 Vue.use(Router)
 
 export default new Router({
+  mode: 'history',
   routes: [
     {
       path: '/',
       name: '',
       component: resolve =>  require(['../view/index.vue'], resolve),
       meta: {
-        title: '邀请客户'
+        title: '经销中心'
       }
     },
     {
@@ -18,7 +19,7 @@ export default new Router({
       name: 'index',
       component: resolve =>  require(['../view/index.vue'], resolve),
       meta: {
-        title: '邀请客户'
+        title: '经销中心'
       }
     },
     {
@@ -99,6 +100,14 @@ export default new Router({
       component: resolve =>  require(['../view/inviteDistribution.vue'], resolve),
       meta: {
         title: '邀请分销客户'
+      }
+    },
+    {
+      path: '/myQrcode',
+      name: 'myQrcode',
+      component: resolve =>  require(['../view/myQrcode.vue'], resolve),
+      meta: {
+        title: '我的二维码'
       }
     },
     {
@@ -206,6 +215,30 @@ export default new Router({
       }
     },
     {
+      path: '/myOrders',
+      name: 'myOrders',
+      component: resolve =>  require(['../view/myOrders.vue'], resolve),
+      meta: {
+        title: '我的订货订单'
+      }
+    },
+    {
+      path: '/orderDetail/:id',
+      name: 'orderDetail',
+      component: resolve =>  require(['../view/orderDetail.vue'], resolve),
+      meta: {
+        title: '订货详情'
+      }
+    },
+    {
+      path: '/orderDetail2/:id',
+      name: 'orderDetail2',
+      component: resolve =>  require(['../view/orderDetail2.vue'], resolve),
+      meta: {
+        title: '分销客户订货详情'
+      }
+    },
+    {
       path: '/exchangeZone',
       name: 'exchangeZone',
       component: resolve =>  require(['../view/exchangeZone.vue'], resolve),
@@ -235,6 +268,14 @@ export default new Router({
       component: resolve =>  require(['../view/customers.vue'], resolve),
       meta: {
         title: '分销客户'
+      }
+    },
+    {
+      path: '/checkPending',
+      name: 'checkPending',
+      component: resolve =>  require(['../view/checkPending.vue'], resolve),
+      meta: {
+        title: '待审核'
       }
     },
     {
@@ -278,11 +319,43 @@ export default new Router({
       }
     },
     {
-      path: '/dynamicPoint',
-      name: 'dynamicPoint',
-      component: resolve =>  require(['../view/dynamicPoint.vue'], resolve),
+      path: '/myBank',
+      name: 'myBank',
+      component: resolve =>  require(['../view/myBank.vue'], resolve),
       meta: {
-        title: '动销积分'
+        title: '银行卡'
+      }
+    },
+    {
+      path: '/updateBank',
+      name: 'updateBank',
+      component: resolve =>  require(['../view/updateBank.vue'], resolve),
+      meta: {
+        title: '更换银行卡'
+      }
+    },
+    {
+      path: '/tradeRecord',
+      name: 'tradeRecord',
+      component: resolve =>  require(['../view/tradeRecord.vue'], resolve),
+      meta: {
+        title: '交易记录'
+      }
+    },
+    {
+      path: '/withholding',
+      name: 'withholding',
+      component: resolve =>  require(['../view/withholding.vue'], resolve),
+      meta: {
+        title: '扣款通知'
+      }
+    },
+    {
+      path: '/secondPoint',
+      name: 'secondPoint',
+      component: resolve =>  require(['../view/secondPoint.vue'], resolve),
+      meta: {
+        title: '二阶积分'
       }
     },
     {
@@ -294,11 +367,11 @@ export default new Router({
       }
     },
     {
-      path: '/inventoryIndex',
-      name: 'inventoryIndex',
-      component: resolve =>  require(['../view/inventoryIndex.vue'], resolve),
+      path: '/firstPoint',
+      name: 'firstPoint',
+      component: resolve =>  require(['../view/firstPoint.vue'], resolve),
       meta: {
-        title: '库存指数'
+        title: '一阶积分'
       }
     },
     {
@@ -307,6 +380,14 @@ export default new Router({
       component: resolve =>  require(['../view/notice.vue'], resolve),
       meta: {
         title: '重要公告'
+      }
+    },
+    {
+      path: '/msgDetail/:id',
+      name: 'msgDetail',
+      component: resolve =>  require(['../view/msgDetail.vue'], resolve),
+      meta: {
+        title: '消息详情'
       }
     },
     {

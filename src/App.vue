@@ -7,14 +7,12 @@
 </template>
 
 <script>
-import $ from 'jquery'
-import { util } from './utils/base';
 export default {
   name: 'App',
   mounted() {
-        util.getPageStyle();
+        this.$util.getPageStyle();
         window.onresize = () => {
-            util.getPageStyle();
+            this.$util.getPageStyle();
         }
     }
 }
@@ -23,9 +21,10 @@ export default {
 <style>
 @import url(./assets/base.css);
 #app {
-  font-family: 'Pingfang-regular', '微软雅黑', 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: 'PingFang-regular', '微软雅黑', 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-overflow-scrolling: touch;
 }
 .fade-enter-active,
 .fade-leave-active {

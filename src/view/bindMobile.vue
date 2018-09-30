@@ -39,9 +39,10 @@ import 'muse-ui-toast/dist/muse-ui-toast.all.css';
 import Vue from 'vue';
 import Loading from 'muse-ui-loading';
 import Toast from 'muse-ui-toast';
-import { TextField, Dialog, Snackbar, Button, Icon, Helpers } from 'muse-ui';
-import { bindMobile, getMobileCode } from '../api/login';
+import { TextField, Dialog, Snackbar, Button, Icon } from 'muse-ui';
+import { bindMobile, getMobileCode, isBindWx } from '../api/login';
 import { baseUrl } from '../api/baseUrl';
+import { str2json } from '../utils/str2json';
 export default {
     data() {
         return {
@@ -61,8 +62,27 @@ export default {
                 Toast.error('请输入正确的手机号！');
                 return;
             }
-            this.freshCode();
-            this.openYzm = true;
+            this.loading2 = true;
+            isBindWx({ mobile: this.mobile }).then(res => {
+                this.loading2 = false;
+                if(res.code == 1){
+                    this.freshCode();
+                    this.openYzm = true;
+                }else if(res.code == 10015){
+                    Toast.warning('该手机号已被注册！');
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                this.loading2 = false;
+                Toast.error('未知异常！');
+                console.log(err);
+            })
         },
         freshCode() {
             this.yzmUrl = `${baseUrl}/user/bind/code?t=`+ Date.now();
@@ -81,7 +101,7 @@ export default {
                     if(res.msg){
                         Toast.error(res.msg);
                     }else{
-                        Toast.error('服务器错误，请稍后再试！');
+                        Toast.error('服务器开了小差，请稍后再试！');
                     }
                 }
             })
@@ -94,7 +114,6 @@ export default {
             this.openYzm = false;
         },
         submit() {
-            if(this.loading) return;
             if(!this.mobile || !this.$util.telValidate(this.mobile)){
                 Toast.error('请输入正确的手机号！');
                 return;
@@ -107,15 +126,20 @@ export default {
             bindMobile({ mobile: this.mobile, code: this.code, type: 'bind' }).then(res => {
                 this.loading.close();
                 if(res.code == 1){
-                    Toast.success('注册成功，正在跳转...');
+                    Toast.success('绑定成功，正在跳转...');
                     setTimeout(() => {
-                        this.$router.push();
-                    }, 1500);
+                        // if(this.from){
+                        //     this.$router.push({ name: this.from, params: str2json(this.params), query: str2json(this.query) });
+                        // }else{
+                        //     this.$router.replace('/');
+                        // }
+                        this.$router.replace('/');
+                    }, 1000);
                 }else{
                     if(res.msg){
                         Toast.error(res.msg);
                     }else{
-                        Toast.error('服务器错误，请稍后再试！');
+                        Toast.error('服务器开了小差，请稍后再试！');
                     }
                 }
             })
@@ -139,10 +163,11 @@ export default {
         }
     },
     mounted() {
-
+        this.from = this.$route.query.from;
+        this.params = this.$route.query.params;
+        this.query = this.$route.query.query;
     }
 }
-Vue.use(Helpers);
 Vue.use(TextField);
 Vue.use(Dialog);
 Vue.use(Button);

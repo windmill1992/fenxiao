@@ -30,7 +30,7 @@
                 </div>
             </div>
             <div class="no-data flex1 fcol spc fcen" v-else>
-                <img src="../assets/img/error_zanwusj.png" alt="暂无数据">
+                <img :src="imgHost + '/error_zanwusj.png'" alt="暂无数据">
                 <p class="txt">暂无数据</p>
             </div>
 
@@ -49,8 +49,9 @@ import Vue from 'vue';
 import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
 import Message from 'muse-ui-message';
-import { Checkbox, Dialog, Icon, Button, Helpers, Snackbar } from 'muse-ui';
+import { Checkbox, Dialog, Icon, Button, Snackbar } from 'muse-ui';
 import { addressList, defaultAddress, deleteAddress } from '../api/user';
+import { imgHost } from '../api/baseUrl';
 export default {
     data() {
         return {
@@ -59,6 +60,7 @@ export default {
             pageSize: 10,
             list: [],
             hasmore: -1,
+            imgHost: imgHost,
         }
     },
     methods: {
@@ -83,15 +85,18 @@ export default {
                             this.check[i] = true;
                         }
                     }
-                }else if(res.code == 2 || res.code == 4){
+                }else if(res.code == 4){
                     this.hasmore = 0;
+                    this.list = [];
+                }else if(res.code == 2){
+                    this.hasmore = 1;
                 }else if(res.code == 0){
                     this.$router.push('/login?from='+ this.$route.name);
                 }else{
                     if(res.msg){
                         Toast.error(res.msg);
                     }else{
-                        Toast.error('服务器错误，请稍后再试！');
+                        Toast.error('服务器开了小差，请稍后再试！');
                     }
                 }
             })
@@ -126,7 +131,7 @@ export default {
                     if(res.msg){
                         Toast.error(res.msg);
                     }else{
-                        Toast.error('服务器错误，请稍后再试！');
+                        Toast.error('服务器开了小差，请稍后再试！');
                     }
                 }
             })
@@ -167,7 +172,6 @@ export default {
         this.getData();
     }
 }
-Vue.use(Helpers);
 Vue.use(Message);
 Vue.use(Checkbox);
 Vue.use(Dialog);

@@ -7,7 +7,7 @@
         <div class="wrapper">
             <div class="box">
                 <div class="item flex fcen spb">
-                    <mu-text-field v-model="inviter" placeholder="邀请人" class="inp" full-width underline-color="blue" prefix="邀请人"></mu-text-field>
+                    <mu-text-field v-model="inviter" max-length="20" placeholder="邀请人" class="inp" full-width underline-color="blue" prefix="邀请人" readonly></mu-text-field>
                 </div>
                 <div class="error">*请核实邀请人是否正确,会员只能和一个邀请人(购买)关联,无法再修改!</div>
                 <div class="item flex fcen spb">
@@ -15,7 +15,8 @@
                 </div>
                 <div class="item flex fcen spb">
                     <mu-text-field type="number" v-model="code" placeholder="请输入验证码" class="inp yzm" max-length="6" full-width underline-color="blue" prefix="验证码"></mu-text-field>
-                    <a href="javascript:;" class="code-a" @click="getCode" v-if="!waiting">获取验证码</a>
+                    <a href="javascript:;" class="code-a" v-if="loading2" v-loading="loading2" data-mu-loading-size="20"></a>
+                    <a href="javascript:;" class="code-a" @click="getCode" v-else-if="!waiting">获取验证码</a>
                     <a href="javascript:;" class="code-a no" v-else>{{time}}s重新获取</a>
                 </div>
                 <div class="item flex fcen spb">
@@ -24,6 +25,7 @@
                 <div class="item flex fcen spb">
                     <mu-text-field type="password" v-model="psw" placeholder="密码建议数字和字母组合使用" class="inp" full-width underline-color="blue" prefix="密码"></mu-text-field>
                 </div>
+                <p class="tip">*密码不少于6位且只能以字母或下划线开头，可以包含~!@#$%^&*-_'.?等特殊符号，不能包含中文！</p>
             </div>
             <div class="prot flex fcen">
                 <mu-checkbox label="我已阅读并同意" v-model="protocol" color="#ff7421"></mu-checkbox>
@@ -53,8 +55,9 @@ import Vue from 'vue';
 import Loading from 'muse-ui-loading';
 import Toast from 'muse-ui-toast';
 import { TextField, Checkbox, Dialog, Snackbar, Button, Icon } from 'muse-ui';
-import { regist, getMobileCode } from '../api/login';
+import { regist, getMobileCode, isRegistered} from '../api/login';
 import { baseUrl } from '../api/baseUrl';
+import { pswReg } from '../utils/pswReg';
 export default {
     data() {
         return {
@@ -67,9 +70,12 @@ export default {
             yzmCode: '',
             openYzm: false,
             loading: false,
+            loading2: false,
+            loading3: false,
             time: 60,
             waiting: false,
             yzmUrl: '',
+            inviter: '',
         }
     },
     methods: {
@@ -78,8 +84,27 @@ export default {
                 Toast.error('请输入正确的手机号！');
                 return;
             }
-            this.freshCode();
-            this.openYzm = true;
+            this.loading2 = true;
+            isRegistered({ mobile: this.mobile }).then(res => {
+                this.loading2 = false;
+                if(res.code == 1){
+                    this.freshCode();
+                    this.openYzm = true;
+                }else if(res.code == 10015){
+                    Toast.warning('该手机号已被注册！');
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                this.loading2 = false;
+                Toast.error('未知异常！');
+                console.log(err);
+            })
         },
         freshCode() {
             this.yzmUrl = `${baseUrl}/user/register/code?t=`+ Date.now();
@@ -98,7 +123,7 @@ export default {
                     if(res.msg){
                         Toast.error(res.msg);
                     }else{
-                        Toast.error('服务器错误，请稍后再试！');
+                        Toast.error('服务器开了小差，请稍后再试！');
                     }
                 }
             })
@@ -111,7 +136,7 @@ export default {
             this.openYzm = false;
         },
         submit() {
-            if(this.loading) return;
+            if(this.loading2 || this.loading3) return;
             if(!this.mobile || !this.$util.telValidate(this.mobile)){
                 Toast.error('请输入正确的手机号！');
                 return;
@@ -128,8 +153,8 @@ export default {
                 Toast.error('请输入密码！');
                 return;
             }
-            if(this.psw.length < 6 || !Number.isNaN(Number.parseInt(this.psw))){
-                Toast.error({ message: '密码不能少于6位且不能以数字开头！', time: 5000 });
+            if(!pswReg.test(this.psw)){
+                Toast.error({ message: '密码格式错误！', time: 2000 });
                 return;
             }
             if(!this.protocol){
@@ -137,31 +162,33 @@ export default {
                 return;
             }
             this.loading = Loading();
+            this.loading3 = true;
             let param = {
                 invitationCode: this.invitationCode,
                 mobileNum: this.mobile,
                 phoneCode: this.code,
-                userName: this.unmae,
+                userName: this.uname,
                 password: this.psw,
             }
             regist(param).then(res => {
-                console.log(res);
                 this.loading.close();
                 if(res.code == 1){
                     Toast.success('注册成功，正在跳转...');
                     setTimeout(() => {
-                        this.$router.push();
+                        this.$router.push('/index');
                     }, 1500);
                 }else{
+                    this.loading3 = false;
                     if(res.msg){
                         Toast.error(res.msg);
                     }else{
-                        Toast.error('服务器错误，请稍后再试！');
+                        Toast.error('服务器开了小差，请稍后再试！');
                     }
                 }
             })
             .catch(err => {
                 this.loading.close();
+                this.loading3 = false;
                 Toast.error('未知异常！');
                 console.log(err);
             })
@@ -181,8 +208,11 @@ export default {
     },
     mounted() {
         this.invitationCode = this.$route.query.invitationCode;
+        this.inviter = this.$route.query.inviter;
     }
 }
+Vue.use(Toast);
+Vue.use(Loading);
 Vue.use(TextField);
 Vue.use(Checkbox);
 Vue.use(Dialog);
@@ -209,16 +239,18 @@ Vue.use(Icon);
             margin: 0;
             padding: 0;
             color: #000;
-            font-size: .16rem;
+            font-size: .14rem;
             min-height: auto;
         }
         .code-a{
             position: absolute;
             right: .15rem;
             top: 0;
+            min-width: .9rem;
+            height: .43rem;
             line-height: .43rem;
             color: #fc4444;
-            font-size: .16rem;
+            font-size: .14rem;
             padding-left: .15rem;
             border-left: 1px solid #f3f3f3;
             &.no{
@@ -247,10 +279,16 @@ Vue.use(Icon);
     padding: 0 .15rem;
     .btn{
         height: .42rem;
-        font-size: .18rem;
+        font-size: .16rem;
         border-radius: .05rem;
         letter-spacing: 1px;
     }
+}
+.tip{
+    margin-top: .2rem;
+    padding: 0 .15rem .1rem;
+    color: #ff7421;
+    font-size: .14rem;
 }
 </style>
 <style>
@@ -276,9 +314,6 @@ Vue.use(Icon);
 }
 .register .mu-input-content .mu-input-focus-line {
     left: .15rem;
-}
-.register .mu-input-help, .yzm-d .mu-input-help{
-    display: none;
 }
 .register .mu-checkbox-label{
     color: #000;

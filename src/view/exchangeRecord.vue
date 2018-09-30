@@ -41,10 +41,12 @@
 </template>
 
 <script>
-import Vue from 'vue';
+import 'muse-ui-toast/dist/muse-ui-toast.all.css';
 import 'muse-ui-loading/dist/muse-ui-loading.css';
+import Vue from 'vue';
+import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
-import { LoadMore } from 'muse-ui';
+import { LoadMore, Button, Snackbar, Icon } from 'muse-ui';
 export default {
     data() {
         return {
@@ -81,6 +83,10 @@ export default {
 }
 Vue.use(Loading);
 Vue.use(LoadMore);
+Vue.use(Toast);
+Vue.use(Button);
+Vue.use(Snackbar);
+Vue.use(Icon);
 </script>
 
 <style scoped lang="less">

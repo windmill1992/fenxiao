@@ -2,7 +2,7 @@
     <div id="pageContainer">
         <div class="errorMain">
             <div class="error-pic">
-                <img src="./assets/img/404.png"/>
+                <img :src="imgHost + '/404.png'"/>
             </div>
             <p>啊哦~一不小心闯进了未知领域，请点击下面的按钮返回首页</p>
             <div class="btn">
@@ -13,7 +13,14 @@
 </template>
 
 <script>
-export default {};
+import { imgHost } from './api/baseUrl';
+export default {
+  data() {
+    return {
+      imgHost: imgHost,
+    }
+  }
+}
 </script>
 
 <style scoped>

@@ -17,7 +17,7 @@
                     <mu-text-field type="password" v-model="psw2" placeholder="再次输入新密码" class="inp" full-width underline-color="blue" prefix="确认密码"></mu-text-field>
                 </div>
             </div>
-            <p class="tip">*新密码的长度至少为6位</p>
+            <p class="tip">*新密码不少于6位且只能以字母或下划线开头，可以包含~!@#$%^&*-_'.?等特殊符号，不能包含中文！</p>
             <div class="btns-wrapper">
                 <mu-button class="btn" color="#ff7421" textColor="#fff" full-width @click="submit">
                     <span class="bold">确认修改</span>
@@ -35,6 +35,7 @@ import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
 import { TextField, Button, Snackbar, Icon } from 'muse-ui';
 import { updateLoginPsw } from '../api/login';
+import { pswReg } from '../utils/pswReg';
 export default {
     data() {
         return {
@@ -55,8 +56,8 @@ export default {
                 Toast.error('请输入新密码！');
                 return;
             }
-            if(this.psw.length < 6 || !Number.isNaN(Number.parseInt(this.psw))){
-                Toast.error({ message: '密码不能少于6位且不能以数字开头！', time: 5000 });
+            if(!pswReg.test(this.psw)){
+                Toast.error({ message: '密码格式错误！', time: 2000 });
                 return;
             }
             if(this.psw != this.psw2){
@@ -82,7 +83,7 @@ export default {
                     if(res.msg){
                         Toast.error(res.msg);
                     }else{
-                        Toast.error('服务器错误，请稍后再试！');
+                        Toast.error('服务器开了小差，请稍后再试！');
                     }
                 }
             })
@@ -151,11 +152,6 @@ Vue.use(Loading);
     height: .44rem;
     text-align: right;
 }
-.yzm-d .mu-text-field-input{
-    padding: 0;
-    height: .4rem;
-    text-align: right;
-}
 .update-login-psw .yzm .mu-text-field-input{
     padding-right: 1.1rem;
     text-align: left;
@@ -167,13 +163,5 @@ Vue.use(Loading);
 }
 .update-login-psw .mu-input-line{
     background-color: #f3f3f3;
-}
-.update-login-psw .mu-input-help, .yzm-d .mu-input-help{
-    display: none;
-}
-.yzm-d img{
-    width: 1rem;
-    height: .4rem;
-    margin-right: .2rem;
 }
 </style>

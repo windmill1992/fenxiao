@@ -6,6 +6,7 @@ import qs from 'qs';
 axios.defaults.headers.post = {
     'Content-Type': 'application/x-www-form-urlencoded'
 }
+axios.defaults.withCredentials = true;
 
 //新增地址
 export const saveAddress = params => { 
@@ -37,14 +38,169 @@ export const defaultAddress = params => {
     return axios.post(`${baseUrl}/user/address/${params.id}/default`, qs.stringify({})).then(res => res.data);
 }
 
+//默认选择地址
+export const selDefAddress = () => { 
+    return axios.get(`${baseUrl}/user/address/default`).then(res => res.data);
+}
+
 //用户信息
-export const userInfo = params => { 
+export const userInfo = () => { 
     return axios.get(`${baseUrl}/user/info`).then(res => res.data);
 }
 
-//提交实名认证
-export const realCert = params => { 
-    return axios.post(`${baseUrl}/audit/submit/real`, qs.stringify(params)).then(res => res.data);
+//提交资质认证
+export const certification = params => { 
+    return axios.post(`${baseUrl}/yop/register/person`, qs.stringify(params)).then(res => res.data);
+}
+
+//注册易宝子商户授权
+export const authorize = params => { 
+    return axios.post(`${baseUrl}/yop/register/receive/authorize/num`, qs.stringify(params)).then(res => res.data);
+}
+
+//发送易宝验证码
+export const sendYopCode = () => { 
+    return axios.post(`${baseUrl}/yop/register/send/mer/sms/notify`, qs.stringify({})).then(res => res.data);
+}
+
+//重发易宝验证码
+export const resendYopCode = params => { 
+    return axios.post(`${baseUrl}/yop/register/send/authorize/num`, qs.stringify(params)).then(res => res.data);
+}
+
+//查询用户是否申请过资质认证
+export const isUsercard = () => { 
+    return axios.get(`${baseUrl}/audit/is/submit/usercard`).then(res => res.data);
+}
+
+//查询用户是否申请过提现资质
+export const isReal = () => { 
+    return axios.get(`${baseUrl}/audit/is/submit/real`).then(res => res.data);
+}
+
+//用户下面一阶、二阶信息
+export const customers = params => { 
+    return axios.get(`${baseUrl}/user/customers`, { params: params }).then(res => res.data);
+}
+
+//待审核用户列表
+export const auditUsers = () => { 
+    return axios.get(`${baseUrl}/user/audit/list`).then(res => res.data);
+}
+
+//待审核用户数量
+export const auditUserNum = () => { 
+    return axios.get(`${baseUrl}/user/center/myAuditState`).then(res => res.data);
+}
+
+//审核自己下阶用户-通过
+export const auditPass = params => { 
+    return axios.post(`${baseUrl}/user/audit/pass`, qs.stringify(params)).then(res => res.data);
+}
+
+//我的订货订单
+export const myOrders = params => { 
+    return axios.get(`${baseUrl}/user/center/myOrder`, { params: params }).then(res => res.data);
+}
+
+//我的交易记录
+export const myTradeRecord = params => { 
+    return axios.get(`${baseUrl}/user/center/myCapitalinout`, { params: params }).then(res => res.data);
+}
+
+//我的库存
+export const myStock = params => { 
+    return axios.get(`${baseUrl}/user/center/myStock`, { params: params }).then(res => res.data);
+}
+
+//经销中心
+export const integral = params => { 
+    return axios.get(`${baseUrl}/user/center/integral`, { params: params }).then(res => res.data);
+}
+
+//解绑微信
+export const unbindWx = () => { 
+    return axios.post(`${baseUrl}/wx/unbind`, qs.stringify({})).then(res => res.data);
+}
+
+//获取用户状态（是否绑定登录密码、交易密码、微信）
+export const userState = () => { 
+    return axios.get(`${baseUrl}/user/state`).then(res => res.data);
+}
+
+//一阶积分明细
+export const firstPoint = params => { 
+    return axios.get(`${baseUrl}/user/center/myFirstIntegral`, { params: params }).then(res => res.data);
+}
+
+//二阶积分明细
+export const secondPoint = params => { 
+    return axios.get(`${baseUrl}/user/center/mySecondIntegral`, { params: params }).then(res => res.data);
+}
+
+//自有积分明细
+export const ownPoint = params => { 
+    return axios.get(`${baseUrl}/user/center/myselfIntegral`, { params: params }).then(res => res.data);
+}
+
+//设置利润
+export const setProfitValue = params => { 
+    return axios.post(`${baseUrl}/user/center/profitValue`, qs.stringify(params)).then(res => res.data);
+}
+
+//邀请码
+export const myCode = params => { 
+    return axios.get(`${baseUrl}/user/center/myCode`, { params: params }).then(res => res.data);
+}
+
+//订单详情
+export const orderDetail = params => { 
+    return axios.get(`${baseUrl}/user/center/myOrderDetail`, { params: params }).then(res => res.data);
+}
+
+//分销客户的订货订单
+export const order2List = params => { 
+    return axios.get(`${baseUrl}/user/center/myStockInfoList`, { params: params }).then(res => res.data);
+}
+
+//分销客户的订货订单详情
+export const order2Detail = params => { 
+    return axios.get(`${baseUrl}/user/center/myStockInfoDetail`, { params: params }).then(res => res.data);
+}
+
+//银行列表
+export const bankList = () => { 
+    return axios.get(`${baseUrl}/bank/list`).then(res => res.data);
+}
+
+//省市信息
+export const cityInfo = params => { 
+    return axios.post(`${baseUrl}/province/code`, qs.stringify(params)).then(res => res.data);
+}
+
+//查询支行列表
+export const bankListInfo = params => { 
+    return axios.get(`${baseUrl}/bank/list/info`, { params: params }).then(res => res.data);
+}
+
+//充值
+export const recharge = params => { 
+    return axios.post(`${baseUrl}/yoppay/reCharge`, qs.stringify(params)).then(res => res.data);
+}
+
+//设置微信号
+export const setWxcode = params => { 
+    return axios.post(`${baseUrl}/user/set/wechat`, qs.stringify(params)).then(res => res.data);
+}
+
+//查询用户银行卡
+export const myBank = () => { 
+    return axios.get(`${baseUrl}/user/bank`).then(res => res.data);
+}
+
+//更新用户银行卡
+export const updateBank = params => { 
+    return axios.post(`${baseUrl}/user/update/bank`, qs.stringify(params)).then(res => res.data);
 }
 
 
