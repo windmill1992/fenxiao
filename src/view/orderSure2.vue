@@ -17,7 +17,7 @@
                     </div>
                     <div class="arr-r"></div>
                 </mu-ripple>
-                <mu-ripple class="addr flex fcen spb" v-else>
+                <mu-ripple class="addr flex fcen spb" @click="addAddr" v-else>
                     <p>添加收货地址</p>
                     <div class="arr-r"></div>
                 </mu-ripple>
@@ -298,8 +298,6 @@ export default {
                             }
                         })
                     }
-                }else if(res.code == 0){
-                    this.$router.push('/login?from='+ this.$route.name +'&query=ids_'+ this.ids);
                 }else{
                     this.loading2 = false;
                     if(res.msg){
@@ -321,6 +319,9 @@ export default {
         },
         toAddrManage() {
             this.$router.push('/addrManage');
+        },
+        addAddr() {
+            this.$router.push('/address');
         },
     },
     mounted() {
