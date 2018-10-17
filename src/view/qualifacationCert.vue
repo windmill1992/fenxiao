@@ -117,7 +117,7 @@ export default {
             })
         },
         getBankInfoList() {
-            this.loading2 = Loading({ text: '正在查询开户行，请稍等...' });
+            this.loading2 = Loading({ text: '正在查询开户行，请稍等...', target: document.getElementById('pageContainer') });
             cityInfo({ province: this.formdata.province, city: this.formdata.city, area: this.formdata.area }).then(res => {
                 if(res.code == 1){
                     let r = res.data;

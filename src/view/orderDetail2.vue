@@ -5,12 +5,24 @@
             <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
         </div>
         <div class="wrapper fcol">
-            <div class="top flex spb fcen">
+            <div class="top flex spb fcen" v-if="info.state == 102">
                 <div class="left">
                     <p class="txt1 bold">订货成功</p>
                     <p class="txt2">共{{info.orderNum}}件商品 订货总价：￥{{info.amountMoney}}</p>
                 </div>
                 <img :src="imgHost + '/icon_xq.png'" class="right" alt="">
+            </div>
+            <div class="top flex spb fcen" v-else-if="info.state == 101">
+                <div class="left">
+                    <p class="txt1 bold">待补单</p>
+                </div>
+                <img :src="imgHost + '/atm.png'" class="right" alt="">
+            </div>
+            <div class="top flex spb fcen" v-else-if="info.state == 103">
+                <div class="left">
+                    <p class="txt1 bold">已取消</p>
+                </div>
+                <img :src="imgHost + '/cancel.png'" class="right" alt="">
             </div>
             <div class="box">
                 <p class="source">货源: 浙江众康科诺贸易有限公司</p>
@@ -62,7 +74,7 @@ export default {
     },
     methods: {
         getData() {
-            this.loading = Loading();
+            this.loading = Loading({ target: document.getElementById('pageContainer') });
             order2Detail({ stockInfoId: this.id }).then(res => {
                 this.loading.close();
                 if(res.code == 1){

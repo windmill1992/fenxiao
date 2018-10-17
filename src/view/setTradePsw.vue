@@ -54,15 +54,15 @@ export default {
                 Toast.error('两次交易密码不一致！');
                 return;
             }
-            this.loading = Loading({ text: '请稍等...' });
+            this.loading = Loading({ text: '请稍等...', target: document.getElementById('pageContainer') });
             this.f = true;
             setTradePsw({ password: this.psw, surePassword: this.psw2 }).then(res => {
                 this.loading.close();
                 if(res.code == 1){
                     Toast.success('设置成功！');
                     setTimeout(() => {
-                        this.$router.push('/setting');
-                    }, 1500);
+                        window.history.go(-1);
+                    }, 1000);
                 }else if(res.code == 0){
                     this.$router.push('/login?from='+ this.$route.name);
                 }else{

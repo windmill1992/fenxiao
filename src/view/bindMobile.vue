@@ -122,7 +122,7 @@ export default {
                 Toast.error('手机验证码错误！');
                 return;
             }
-            this.loading = Loading();
+            this.loading = Loading({ target: document.getElementById('pageContainer') });
             bindMobile({ mobile: this.mobile, code: this.code, type: 'bind' }).then(res => {
                 this.loading.close();
                 if(res.code == 1){

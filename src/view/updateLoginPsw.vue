@@ -64,7 +64,7 @@ export default {
                 Toast.error('两次密码不一致！');
                 return;
             }
-            this.loading = Loading();
+            this.loading = Loading({ target: document.getElementById('pageContainer') });
             let param = {
                 password: this.psw,
                 surePassword: this.psw2,

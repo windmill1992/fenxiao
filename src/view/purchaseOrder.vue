@@ -10,19 +10,19 @@
                     <div class="source">货源: 浙江众康科诺贸易有限公司</div>
                 </div>
                 <div class="goods-info flex fcen">
-                    <div class="pic fshrink0">
+                    <router-link :to="'/detail/'+ ids" class="pic fshrink0">
                         <img v-if="info.productUrl" :src="info.productUrl" alt="商品">
                         <img v-else :src="imgHost + '/def_pro1.png'" alt="商品">
-                    </div>
+                    </router-link>
                     <div class="info flex1">
-                        <p class="title">{{info.productName}}</p>
+                        <router-link :to="'/detail/'+ ids" class="title">{{info.productName}}</router-link>
                         <p class="price" v-if="info.highLevelStock != null">上阶库存: {{info.highLevelStock}}</p>
                         <p class="price" v-else></p>
                         <!-- <a href="javascript:;" class="del" @click="deleteItem(0)"><img src="../assets/img/delete.png" alt="删除"></a> -->
                         <div class="num-box flex fcen">
-                            <a href="javascript:;" class="op" @click="minusNum" data-index="0"><img src="../assets/img/minus.png" alt="减少"></a>
+                            <mu-button fab small color="rgba(0,0,0,0)" class="op" @click="minusNum" data-index="0"><mu-icon value="remove" color="#ccc"></mu-icon></mu-button>
                             <mu-text-field type="number" v-model="num[0]" @change="getNum(0)" class="inp" color="transparent" underline-color="blue"></mu-text-field>
-                            <a href="javascript:;" class="op" @click="addNum" data-index="0"><img src="../assets/img/add.png" alt="增加"></a>
+                            <mu-button fab small class="op" @click="addNum" data-index="0"><img src="../assets/img/add.png" alt="增加"></mu-button>
                         </div>
                     </div>
                 </div>
@@ -73,7 +73,7 @@
                         <p class="name">{{info.productName}}</p>
                         <p class="price flex spb">
                             <span class="num">￥{{sumInfo.price}}</span>
-                            <span>x{{num[0]}}</span>
+                            <span>×{{num[0]}}</span>
                         </p>
                     </div>
                 </div>
@@ -142,7 +142,7 @@ export default {
     },
     methods: {
         getData(id) {
-            this.loading = Loading();
+            this.loading = Loading({ target: document.getElementById('pageContainer') });
             prodInfo({ productId: this.ids }).then(res => {
                 this.loading.close();
                 if(res.code == 1){
@@ -151,7 +151,7 @@ export default {
                     this.getState();
                     this.getSum(1, 0);
                 }else if(res.code == 0){
-                    this.$router.push('/login?from='+ this.$route.name +'&query=ids_'+ this.ids);
+                    this.$router.push('/login');
                 }else{
                     if(res.msg){
                         Toast.error(res.msg);
@@ -205,12 +205,12 @@ export default {
             })
         },
         minusNum(e) {
-            let { index } = e.path[1].dataset;
+            let { index } = $(e.target).closest('.op')[0].dataset;
             if(this.num[index] <= 1) return;
             this.getSum(this.num[index] - 1, index);
         },
         addNum(e) {
-            let { index } = e.path[1].dataset;
+            let { index } = $(e.target).closest('.op')[0].dataset;
             this.getSum(this.num[index] + 1, index);
         },
         getNum(index) {
@@ -236,7 +236,7 @@ export default {
         },
         getSum(num, index) {
             if(this.prog == 1 || this.loading2) return;
-            this.loading = Loading();
+            this.loading = Loading({ target: document.getElementById('pageContainer') });
             this.prog = 1;
             prodPurchase({ productId: this.ids, num: num }).then(res => {
                 if(this.loading){
@@ -281,22 +281,18 @@ export default {
             });
         },
         sureOrder() {
-            if(this.user.powerState != 103){
-                this.$router.push('/qualifacationCert');
-            }else{
-                if(this.num[0] <= 0) {
-                    Toast.error('订货数量至少为1');
-                    return;
-                }
-                this.showDialog = true;
+            if(this.num[0] <= 0) {
+                Toast.error('订货数量至少为1');
+                return;
             }
+            this.showDialog = true;
         },
         closeDialog() {
             this.showDialog = false;
         },
         submit() {
             if(this.loading2) return;
-            this.loading = Loading('正在查询...');
+            this.loading = Loading({ text: '正在查询...', target: document.getElementById('pageContainer') });
             this.loading2 = true;
             order({ orderType: 5, productId: this.ids, shipmentNum: this.num[0], price: this.sumInfo.price, amountMoney: this.sumInfo.amountMoney }).then(res => {
                 this.loading.close();
@@ -501,11 +497,16 @@ Vue.use(BottomSheet);
                 bottom: 0;
                 right: 0;
                 .op{
-                    width: .3rem;
-                    height: .3rem;
+                    width: .26rem;
+                    height: .26rem;
+                    position: relative;
+                    &:first-child{
+                        border: 1px solid #ccc;
+                    }
                     img{
-                        width: 100%;
-                        height: 100%;
+                        width: .3rem;
+                        height: .3rem;
+                        position: relative;
                     }
                 }
                 .inp{

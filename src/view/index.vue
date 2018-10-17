@@ -35,7 +35,7 @@
                 <p class="num">{{info.integralSelf ? info.integralSelf : 0}}</p>
                 <p class="txt">自有积分</p>
             </mu-ripple>
-            <mu-ripple class="menu-item fcol spb fcen" @click="linkto('')">
+            <mu-ripple class="menu-item fcol spb fcen" @click="linkto('teamSales')">
                 <p class="num">{{info.teamSale ? info.teamSale : 0}}</p>
                 <p class="txt">团队销售额</p>
             </mu-ripple>
@@ -56,9 +56,9 @@
                     <img src="../assets/img/dxrwjs.png" alt="订单明细">
                     <p class="txt">订单明细</p>
                 </mu-ripple>
-                <mu-ripple class="item" color="#ff7421" @click="linkto('')">
+                <mu-ripple class="item" color="#ff7421" @click="linkto('myAllowance', 1)">
                     <img src="../assets/img/dxrw.png" alt="团队奖励">
-                    <p class="txt">团队奖励</p>
+                    <p class="txt">我的补贴</p>
                 </mu-ripple>
                 <mu-ripple class="item" color="#ff7421" @click="linkto('wallet')">
                     <img src="../assets/img/wallet.png" alt="钱包管理">
@@ -71,7 +71,7 @@
             <div class="head flex fcen">
                 <div class="line cff4521"></div>
                 <div class="title bold">订货管理</div>
-                <div class="txt">我的库存 {{info.stockNum}}</div>
+                <div class="txt">我的库存 {{info.stockNum ? info.stockNum : 0}}</div>
             </div>
             <div class="list flex">
                 <mu-ripple class="item" color="#ff4521" @click="order">
@@ -98,6 +98,7 @@
                 <mu-ripple class="item" color="#80a9f0" @click="invite">
                     <img src="../assets/img/invite.png" alt="邀请客户">
                     <p class="txt">邀请客户</p>
+                    <span v-if="auditNum > 0" class="badge">{{auditNum}}</span>
                 </mu-ripple>
                 <mu-ripple class="item" color="#80a9f0" @click="linkto('orders')">
                     <img src="../assets/img/fxdd.png" alt="分销订单">
@@ -110,26 +111,26 @@
             </div>
         </div>
         <div class="bb10"></div>
-        <!-- <div class="con-wrapper">
+        <div class="con-wrapper">
             <div class="head flex fcen">
                 <div class="line c67c9ba"></div>
-                <div class="title bold">零售管理</div>
+                <div class="title bold">发货管理</div>
             </div>
             <div class="list flex">
-                <mu-ripple class="item" color="#67c9ba" @click="linkto('')">
-                    <img src="../assets/img/scls.png" alt="云商城零售">
-                    <p class="txt">云商城零售</p>
-                </mu-ripple>
                 <mu-ripple class="item" color="#67c9ba" @click="linkto('offlineRetail')">
                     <img src="../assets/img/xxls.png" alt="线下零售">
                     <p class="txt">线下零售</p>
                 </mu-ripple>
+                <!-- <mu-ripple class="item" color="#67c9ba" @click="linkto('')">
+                    <img src="../assets/img/scls.png" alt="云商城零售">
+                    <p class="txt">云商城零售</p>
+                </mu-ripple>
                 <mu-ripple class="item" color="#67c9ba" @click="linkto('exchangeZone')">
                     <img src="../assets/img/huanfahq.png" alt="换发货区">
                     <p class="txt">换发货区</p>
-                </mu-ripple>
+                </mu-ripple> -->
             </div>
-        </div> -->
+        </div>
     </div>
 </template>
 
@@ -140,24 +141,26 @@ import Vue from 'vue';
 import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
 import { Snackbar, Button, Icon } from 'muse-ui';
-import { integral } from '../api/user';
+import { integral, auditUserNum } from '../api/user';
 import { imgHost } from '../api/baseUrl';
 export default {
     data() {
         return {
             info: {},
             imgHost: imgHost,
+            auditNum: 0,
         }     
     },
     methods: {
         getData() {
-            let loading = Loading();
+            let loading = Loading({ target: document.getElementById('pageContainer') });
             integral().then(res => {
                 if(loading){
                     loading.close();
                 }
                 if(res.code == 1){
                     this.info = res.data;
+                    this.getAuditNum();
                 }else if(res.code == 0){
                     this.$router.push('/login');
                 }else{
@@ -174,35 +177,58 @@ export default {
                 console.log(err);
             })
         },
-        linkto(name) {
-            if(name == 'setting' || name == 'user'){
-                this.$router.push({ name: name });
-            }else{
-                if(this.info.highLevelId || this.info.highLevelId == 0){
-                    if(!name){
-                        alert('暂未开放！');
-                        return;
+        getAuditNum() {
+            auditUserNum().then(res => {
+                if(res.code == 1){
+                    this.auditNum = res.data;
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
                     }
+                }
+            })
+            .catch(err => {
+                Toast.error('未知异常！');
+                console.log(err);
+            })
+        },
+        linkto(name, f) {
+            if(f == 1){
+                if(this.info.level >= 4){
                     this.$router.push({ name: name });
                 }else{
-                    alert('您还未成为经销商，请联系客服！');
+                    Toast.error('特约用户才能查看哦~');
+                }
+            }else{
+                if(name == 'setting' || name == 'user'){
+                    this.$router.push({ name: name });
+                }else{
+                    if(this.info.highLevelId || this.info.highLevelId == 0){
+                        if(!name){
+                            alert('暂未开放！');
+                            return;
+                        }
+                        this.$router.push({ name: name });
+                    }else{
+                        alert('您还未成为经销商，请联系客服！');
+                    }
                 }
             }
         },
         invite() {
             if(this.info.powerState == 103){
                 this.$router.push('/invite');
+            }else if(this.info.powerState == 102){
+                alert('资格认证审核中，请耐心等待。');
             }else{
                 this.$router.push('/qualifacationCert');
             }
         },
         order() {
             if(this.info.highLevelId || this.info.highLevelId == 0){
-                if(this.info.powerState == 103){
-                    this.$router.push({ name: 'orderArea' });
-                }else if(this.info.powerState == 101){
-                    this.$router.push('/qualifacationCert');
-                }
+                this.$router.push({ name: 'orderArea' });
             }else{
                 alert('您还未成为经销商，请联系客服！');
             }
@@ -239,6 +265,7 @@ Vue.use(Icon);
     .txt{
         font-size: .2rem;
         color: #000;
+        font-family: 'PingFangSC-Medium';
     }
 }
 .user-wrapper{
@@ -382,6 +409,19 @@ Vue.use(Icon);
             .txt{
                 color: #000;
                 font-size: .14rem;
+            }
+            .badge{
+                position: absolute;
+                top: 0;
+                right: .25rem;
+                width: .16rem;
+                height: .16rem;
+                background: #ff7421;
+                color: #fff;
+                font-size: .12rem;
+                text-align: center;
+                line-height: .16rem;
+                border-radius: 100%;
             }
         }
     }

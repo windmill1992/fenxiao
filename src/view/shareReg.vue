@@ -21,10 +21,8 @@
 
 <script>
 import 'muse-ui-toast/dist/muse-ui-toast.all.css';
-import 'muse-ui-loading/dist/muse-ui-loading.css';
 import Vue from 'vue';
 import Toast from 'muse-ui-toast';
-import Loading from 'muse-ui-loading';
 import { Button, Snackbar, Icon } from 'muse-ui';
 import { imgHost } from '../api/baseUrl';
 export default {
@@ -55,7 +53,6 @@ export default {
     }
 }
 Vue.use(Toast);
-Vue.use(Loading);
 Vue.use(Button);
 Vue.use(Snackbar);
 Vue.use(Icon);

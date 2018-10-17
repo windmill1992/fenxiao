@@ -5,7 +5,7 @@
             <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
         </div>
         <div class="wrapper fcol" ref="wrapper">
-            <mu-load-more class="box flex1 fcol" @refresh="refresh" :refreshing="refreshing" :loading="loading" @load="load">
+            <mu-load-more class="box flex1 fcol" :loading="loading" @load="load">
                 <div class="box" v-if="hasmore > 0">
                     <div class="item" v-for="item in list" :key="item.id">
                         <div class="time">{{item.createTime | fmt}}</div>
@@ -23,6 +23,7 @@
                     <img :src="imgHost +'/error_zwxx.png'" alt="暂无消息">
                     <p class="txt">暂无{{title}}</p>
                 </div>
+                <div class="more no" v-if="hasmore == 1">没有更多数据了</div>
             </mu-load-more>
         </div>
     </div>
@@ -43,7 +44,6 @@ export default {
         return {
             list: [],
             loading: false,
-            refreshing: false,
             title: '消息',
             page: 1,
             pageSize: 20,
@@ -54,7 +54,6 @@ export default {
     methods: {
         getData() {
             msgList({ type: this.type, page: this.page, pageSize: this.pageSize }).then(res => {
-                this.refreshing = false;
                 this.loading = false;
                 this.loading2.close();
                 if(res.code == 1){
@@ -87,18 +86,11 @@ export default {
                 }
             })
             .catch(err => {
-                this.refreshing = false;
                 this.loading = false;
                 this.loading2.close();
                 Toast.error('未知异常！');
                 console.log(err);
             })
-        },
-        refresh() {
-            this.refreshing = true;
-            this.$refs.wrapper.scrollTop = 0;
-            this.page = 1;
-            this.getData();
         },
         load() {
             if(this.hasmore == 2 && !this.loading){
@@ -166,7 +158,7 @@ export default {
         this.type = t;
         setTitle(title);
 
-        this.loading2 = Loading();
+        this.loading2 = Loading({ target: document.getElementById('pageContainer') });
         this.getData();
     }
 }
@@ -180,6 +172,7 @@ Vue.use(Icon);
 
 <style scoped lang="less">
 .box{
+    padding-bottom: .2rem;
     .item{
         padding: 0 .15rem;
         .time{

@@ -74,7 +74,7 @@ export default {
                 if(res.code == 1){
                     this.mobile = res.data.mobileNum;
                 }else if(res.code == 0){
-                    this.$router.push('/login?from='+ this.$route.name);
+                    // this.$router.push('/login?from='+ this.$route.name);
                 }else{
                     if(res.msg){
                         Toast.error(res.msg);
@@ -146,7 +146,7 @@ export default {
                 Toast.error('两次密码不一致！');
                 return;
             }
-            this.loading = Loading();
+            this.loading = Loading({ target: document.getElementById('pageContainer') });
             let param = {
                 mobile: this.mobile,
                 mobileCode: this.code,
@@ -166,7 +166,7 @@ export default {
                         }
                     }, 1000);
                 }else if(res.code == 0){
-                    this.$router.push('/login?from='+ this.$route.name);
+                    // this.$router.push('/login?from='+ this.$route.name);
                 }else{
                     if(res.msg){
                         Toast.error(res.msg);

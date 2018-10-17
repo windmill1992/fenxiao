@@ -44,29 +44,27 @@
                     <p class="txt">筛选</p>
                 </a>
             </div>
-            <mu-load-more class="flex1 fcol" :refreshing="refreshing" @refresh="refresh">
-                <div class="box flex1" v-loading="loading" v-if="list.length > 0">
-                    <div class="list">
-                        <mu-ripple class="item flex fcen" v-for="item,index in list" :key="'cus' + index">
-                            <div class="avatar fshrink0">
-                                <img v-if="item.coverImageUrl" :src="item.coverImageUrl" alt="头像">
-                                <img v-else :src="imgHost + '/def_tx.png'" alt="头像">
-                            </div>
-                            <div class="info flex1">
-                                <p class="nick">
-                                    <span class="sp bold">{{item.userName}}<span class="tag">{{levels[item.level]}}</span></span>
-                                </p>
-                                <p class="txt">姓名: {{item.realName}}</p>
-                                <p class="txt">手机号: {{item.mobileNum}}</p>
-                            </div>
-                        </mu-ripple>
-                    </div>
+            <div class="box flex1" v-loading="loading" v-if="list.length > 0">
+                <div class="list">
+                    <mu-ripple class="item flex fcen" v-for="item,index in list" :key="'cus' + index">
+                        <div class="avatar fshrink0">
+                            <img v-if="item.coverImageUrl" :src="item.coverImageUrl" alt="头像">
+                            <img v-else :src="imgHost + '/def_tx.png'" alt="头像">
+                        </div>
+                        <div class="info flex1">
+                            <p class="nick">
+                                <span class="sp bold">{{item.userName}}<span class="tag">{{levels[item.level]}}</span></span>
+                            </p>
+                            <p class="txt">姓名: {{item.realName}}</p>
+                            <p class="txt">手机号: {{item.mobileNum}}</p>
+                        </div>
+                    </mu-ripple>
                 </div>
-                <div class="no-data flex1 fcol fcen spc" v-else>
-                    <img :src="imgHost +'/error_zanwusj.png'" alt="暂无数据">
-                    <p class="txt">您还没有<template v-if="levelsTxt[type]">{{levelsTxt[type]}}</template>分销客户</p>
-                </div>
-            </mu-load-more>
+            </div>
+            <div class="no-data flex1 fcol fcen spc" v-else>
+                <img :src="imgHost +'/error_zanwusj.png'" alt="暂无数据">
+                <p class="txt">您还没有<template v-if="levelsTxt[type]">{{levelsTxt[type]}}</template>分销客户</p>
+            </div>
         </div>
         <div class="tabs-box" v-show="tabShow">
             <a href="javascript:;" class="mask" @click="closeTab"></a>
@@ -89,7 +87,7 @@ import 'muse-ui-loading/dist/muse-ui-loading.css';
 import Vue from 'vue';
 import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
-import { Tabs, Button, Snackbar, Icon, LoadMore } from 'muse-ui';
+import { Tabs, Button, Snackbar, Icon } from 'muse-ui';
 import { customers } from '../api/user';
 import { imgHost } from '../api/baseUrl';
 export default {
@@ -99,7 +97,6 @@ export default {
             loading: false,
             tabShow: false,
             type: '-1',
-            refreshing: false,
             list: [],
             levels: ['会员', '初级', '中级', '高级', '特约'],
             levelsTxt: {
@@ -121,7 +118,6 @@ export default {
             this.loading = true;
             customers({ level: Number(this.type) }).then(res => {
                 this.loading = false;
-                this.refreshing = false;
                 if(res.code == 1){
                     this.list = res.data.oneUser;
                 }else if(res.code == 4){
@@ -138,13 +134,12 @@ export default {
             })
             .catch(err => {
                 this.loading = false;
-                this.refreshing = false;
                 Toast.error('未知异常！');
                 console.log(err);
             })
         },
         changTab(e) {
-            let { type } = e.path[2].dataset;
+            let { type } = $(e.target).closest('.tab')[0].dataset;
             this.type = type;
             this.tabShow = false;
             if(type != '-2') {
@@ -168,10 +163,6 @@ export default {
         closeTab() {
             this.tabShow = false;
         },
-        refresh() {
-            this.refreshing = true;
-            this.getData();
-        },
     },
     mounted() {
         this.getData();
@@ -179,7 +170,6 @@ export default {
 }
 Vue.use(Loading);
 Vue.use(Toast);
-Vue.use(LoadMore);
 Vue.use(Tabs);
 Vue.use(Button);
 Vue.use(Snackbar);

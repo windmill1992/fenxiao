@@ -48,6 +48,21 @@ export const salesOrder = params => {
     return axios.post(`${baseUrl}/free/create/sales/order`, qs.stringify(params)).then(res => res.data);
 }
 
+//生成发货订单
+export const shipOrder = params => { 
+    return axios.post(`${baseUrl}/free/create/ship/order`, qs.stringify(params)).then(res => res.data);
+}
+
+//计算邮费
+export const express = params => { 
+    return axios.post(`${baseUrl}/free/calculate/express`, qs.stringify(params)).then(res => res.data);
+}
+
+//支付邮费
+export const payShip = params => { 
+    return axios.post(`${baseUrl}/free/ship`, qs.stringify(params)).then(res => res.data);
+}
+
 //订货
 export const orderGoods = params => { 
     return axios.post(`${baseUrl}/free/order/goods`, qs.stringify(params)).then(res => res.data);
@@ -63,13 +78,28 @@ export const cancelOrder2 = params => {
     return axios.post(`${baseUrl}/free/finish/order`, qs.stringify(params)).then(res => res.data);
 }
 
-//取消或完成订单
+//取消或完成订货订单
 export const cancelOrder = params => { 
     return axios.post(`${baseUrl}/order/cancel`, qs.stringify(params)).then(res => res.data);
 }
 
-//查询余额
+//取消或完成发货订单
+export const cancelShipOrder = params => { 
+    return axios.post(`${baseUrl}/product/cancel/goods`, qs.stringify(params)).then(res => res.data);
+}
+
+//订货查询余额
 export const getBalance = params => { 
     return axios.get(`${baseUrl}/user/balance`, { params: params }).then(res => res.data);
+}
+
+//发货查询余额
+export const getShipBalance = params => { 
+    return axios.get(`${baseUrl}/user/ship/balance`, { params: params }).then(res => res.data);
+}
+
+//查询物流
+export const trackInfo = params => { 
+    return axios.post(`${baseUrl}/product/express/info`, qs.stringify(params)).then(res => res.data);
 }
 

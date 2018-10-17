@@ -1,7 +1,7 @@
 <template>
-    <div id="pageContainer" class="first-point">
+    <div id="pageContainer" class="team-sales">
         <div class="header">
-                <p class="title">一阶积分</p>
+            <p class="title">团队销售额</p>
             <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
         </div>
         <div class="wrapper fcol">
@@ -11,39 +11,39 @@
                         <a href="javascript:;" class="sel bold flex fcen" @click="openSheet">{{year}}年{{month}}月</a>
                     </div>
                     <div class="point-box">
-                        <div class="flex fcen spb">
-                            <p class="txt">一阶积分</p>
-                            <!-- <a href="javascript:;" class="icon"><img src="../assets/img/icon_question.png" alt="规则说明"></a> -->
-                        </div>
                         <div class="point">
-                            <span class="num bold">{{point}}</span>
-                            <!-- <span class="txt1">(完成: 0%)</span> -->
+                            <span class="num bold">￥{{info.teamSaleTotal}}</span>
                         </div>
+                        <p class="txt">预计团队补贴 {{info.rewardMoney}}元</p>
                     </div>
                 </div>
-                <div class="tip">积分详情</div>
+                <div class="bb10"></div>
                 <div class="box">
                     <div class="th flex spb">
-                        <p class="td">会员名</p>
-                        <p class="td txtC">奖励积分</p>
-                        <p class="td txtR">时间</p>
+                        <p class="td">团队成员（特约）</p>
+                        <p class="td txtC">个人订货量</p>
+                        <p class="td txtR">团队订货</p>
                     </div>
                 </div>
                 <div class="box" v-if="hasmore != 0">
-                    <div class="th flex spb" v-for="item in list" :key="'first'+ item.num">
-                        <p class="td">{{item.secondUserName}}</p>
-                        <p class="td txtC">{{item.num}}</p>
-                        <p class="td txtR">{{item.createTime | fmt}}</p>
+                    <div class="th flex spb" v-for="item in list" :key="'team'+ item.id">
+                        <p class="td flex fcen">
+                            <img :src="item.coverImageUrl" v-if="item.coverImageUrl" alt="">
+                            <img :src="imgHost + '/def_tx.png'" v-else alt="">
+                            <span>{{item.realName}}</span>
+                        </p>
+                        <p class="td txtC">￥{{item.personSaleTotal}}</p>
+                        <p class="td txtR">￥{{item.teamSaleTotal}}</p>
                     </div>
                 </div>
                 <div class="box flex1 fcol" v-else>
-                    <div class="no-data fcol spc fcen flex1">
+                    <div class="no-data fcol spc fcen flex1" v-if="list.length == 0">
                         <img :src="imgHost + '/error_zanwusj.png'" alt="暂无数据">
-                        <p class="txt">暂无数据</p>
+                        <p class="txt">暂无团队数据</p>
                     </div>
                 </div>
-                <p class="no-more" v-if="hasmore == 1">没有更多数据了</p>
             </mu-load-more>
+            <p class="no-more" v-if="hasmore == 1">没有更多数据了</p>
         </div>
         <mu-bottom-sheet :open.sync="open" class="date-container">
             <div class="btn-box flex spb">
@@ -62,8 +62,8 @@ import Vue from 'vue';
 import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
 import { SlidePicker, BottomSheet, Button, Snackbar, Icon, LoadMore } from 'muse-ui';
-import { imgHost } from '../api/baseUrl';
-import { firstPoint } from '../api/user';
+import { imgHost, avatarHost } from '../api/baseUrl';
+import { teamSale } from '../api/user';
 import { util } from '../utils/base';
 
 const dates = {};
@@ -97,17 +97,21 @@ export default {
             month: month,
             list: [],
             imgHost: imgHost,
+            avatarHost: avatarHost,
+            hasmore: -1,
             page: 1,
             pageSize: 12,
-            hasmore: -1,
-            point: 0,
+            info: {
+                rewardMoney: 0,
+                teamSaleTotal: 0,
+            },
         }
     },
     methods: {
         getData() {
             this.loading2 = Loading({ target: document.getElementById('pageContainer') });
             let time = this.year + '-' + this.month;
-            firstPoint({ monthTime: time, pageNum: this.page, pageSize: this.pageSize }).then(res => {
+            teamSale({ monthTime: time, pageNum: this.page, pageSize: this.pageSize }).then(res => {
                 this.loading2.close();
                 this.loading = false;
                 if(res.code == 1){
@@ -115,7 +119,7 @@ export default {
                     if(this.page == 1){
                         this.list = [];
                     }
-                    this.point = res.data2;
+                    this.money = res.data2;
                     if(r.total == 0){
                         this.hasmore = 0;
                     }else if(r.total <= this.page * this.pageSize){
@@ -124,10 +128,11 @@ export default {
                         this.hasmore = 2;
                     }
                     this.list = [...this.list, ...r.resultData];
+                    this.info = res.data2;
                 }else if(res.code == 4){
-                    this.hasmore = 0;
-                    this.list = [];
-                    this.point = 0;
+                    this.hasmore = 1;
+                    this.list = [1];
+                    this.money = 0;
                 }else if(res.code == 2){
                     this.hasmore = 1;
                 }else if(res.code == 0){
@@ -169,12 +174,10 @@ export default {
             this.open = false;
         },
         sureSelect() {
-            if(this._year != this.year || this._month != this.month){
-                this.year = this._year | this.dates[0];
-                this.month = this._month | this.dates[1];
-                if(this.month < 10){
-                    this.month = '0' + this.month;
-                }
+            if(this._year != this.year || this._month != this.year){
+                this.year = this._year;
+                this.month = this._month;
+                this.loading = true;
                 this.getData();
             }else{
                 if(this.list.length == 0){
@@ -192,7 +195,7 @@ export default {
     },
     filters: {
         fmt(t) {
-            return util.formatTime(t, '-').substr(5);
+            return util.formatTime(t).substr(5);
         }
     },
     mounted() {
@@ -238,31 +241,20 @@ Vue.use(Icon);
     .point-box{
         border-top: 1px solid rgba(255, 255, 255, .2);
         padding: .15rem;
+        text-align: center;
         .txt{
             color: #fff;
-            font-size: .16rem;
-        }
-        .icon{
-            width: .16rem;
-            height: .16rem;
-            img{
-                width: 100%;
-                height: 100%;
-            }
+            font-size: .14rem;
         }
         .point{
-            padding: .3rem 0 .2rem;
+            padding: .15rem 0;
             color: #fff;
             line-height: 1;
             .num{
                 font-size: .3rem;
             }
-            .txt{
-                font-size: .14rem;
-            }
         }
     }
-
 }
 .box{
     border-top: 1px solid #f3f3f3;
@@ -284,16 +276,17 @@ Vue.use(Icon);
         }
     }
     .td{
-        width: 33.33%;
+        width: 25%;
         font-size: .12rem;
         color: #000;
+        white-space: nowrap;
+        img{
+            width: .24rem;
+            height: .24rem;
+            margin-right: 5px;
+            border-radius: 100%;
+        }
     }
-}
-.tip{
-    line-height: .38rem;
-    text-align: center;
-    font-size: .12rem;
-    color: #555;
 }
 .date-container{
     .btn-box{

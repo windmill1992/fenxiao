@@ -63,16 +63,21 @@ export default {
     },
     computed: {
         bankUrl() {
-            return `${bankHost}/${this.info.bankCode}.png`;
+            if(this.info.bankCode){
+                return `${bankHost}/${this.info.bankCode}.png`;
+            }
+            return '';
         }
     },
     methods: {
         getData() {
-            this.loading = Loading();
+            this.loading = Loading({ target: document.getElementById('pageContainer') });
             myBank().then(res => {
                 this.loading.close();
                 if(res.code == 1){
                     this.info = res.data;
+                }else if(res.code == 4){
+                    this.bindBank = false;
                 }else if(res.code == 0){
                     this.$router.push('/login?from='+ this.$route.name);
                 }else{

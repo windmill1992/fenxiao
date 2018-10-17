@@ -13,7 +13,6 @@
     "axios": "^0.18.0",
     "jquery": "^3.3.1",
     "js-cookie": "^2.2.0",
-    "mint-ui": "^2.2.13",
     "muse-ui": "^3.0.0",
     "muse-ui-loading": "^0.2.0",
     "muse-ui-message": "^0.2.0",
@@ -23,8 +22,7 @@
     "qs": "^6.5.2",
     "vue": "^2.5.2",
     "vue-clipboard2": "^0.2.1",
-    "vue-router": "^3.0.1",
-    "vue2-editor": "^2.6.6"
+    "vue-router": "^3.0.1"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

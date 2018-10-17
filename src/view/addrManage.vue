@@ -15,7 +15,7 @@
                         <div class="addr">{{item.province}} {{item.city}} {{item.area}} {{item.detailAddress}}</div>
                     </div>
                     <div class="op flex fcen spb">
-                        <mu-checkbox :label="item.isSelected ? '默认地址' : '设为默认'" v-model="check[index]" color="#ff7421" uncheck-icon="1" checked-icon="2" @change="setDef(index)"></mu-checkbox>
+                        <mu-radio :label="check == index + 1 ? '默认地址' : '设为默认'" :value="index + 1" v-model="check" color="#ff7421" uncheck-icon="1" checked-icon="2" @change="setDef(index)"></mu-radio>
                         <div class="flex">
                             <router-link :to="'/address?id='+ item.id" class="op-a flex fcen">
                                 <img src="../assets/img/bianji.png" alt="编辑">
@@ -31,12 +31,9 @@
             </div>
             <div class="no-data flex1 fcol spc fcen" v-else>
                 <img :src="imgHost + '/error_zanwusj.png'" alt="暂无数据">
-                <p class="txt">暂无数据</p>
+                <p class="txt">暂无地址信息</p>
             </div>
-
-            <router-link to="/address" class="btns">
-                <mu-ripple class="btn"><span class="bold">新增收货地址</span></mu-ripple>
-            </router-link>
+            <mu-button class="btn bold" to="/address" color="#ff7421" textColor="#fff" full-width>新增收货地址</mu-button>
         </div>
     </div>
 </template>
@@ -49,13 +46,13 @@ import Vue from 'vue';
 import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
 import Message from 'muse-ui-message';
-import { Checkbox, Dialog, Icon, Button, Snackbar } from 'muse-ui';
+import { Radio, Dialog, Icon, Button, Snackbar } from 'muse-ui';
 import { addressList, defaultAddress, deleteAddress } from '../api/user';
 import { imgHost } from '../api/baseUrl';
 export default {
     data() {
         return {
-            check: [],
+            check: 0,
             pageNum: 1,
             pageSize: 10,
             list: [],
@@ -65,7 +62,7 @@ export default {
     },
     methods: {
         getData() {
-            this.loading = Loading();
+            this.loading = Loading({ target: document.getElementById('pageContainer') });
             addressList({ pageNum: this.pageNum, pageSize: this.pageSize }).then(res => {
                 this.loading.close();
                 if(res.code == 1){
@@ -82,7 +79,7 @@ export default {
                     }
                     for(let i=0; i<this.list.length; i++){
                         if(this.list[i].isSelected == 1){
-                            this.check[i] = true;
+                            this.check = i + 1;
                         }
                     }
                 }else if(res.code == 4){
@@ -107,23 +104,11 @@ export default {
             })
         },
         setDef(idx) {
-            if(!this.check[idx] || this.loading2){
-                this.check[idx] = true;
-                return;
-            }
+            if(this.loading2) return;
             this.loading2 = true;
             defaultAddress({ id: this.list[idx].id }).then(res => {
                 this.loading2 = false;
                 if(res.code == 1){
-                    if(this.check.includes(true) && this.check.indexOf(true) != idx){
-                        this.check[this.check.indexOf(true)] = false;
-                    }
-                    if(this.check[idx]){
-                        for(let i=0; i<this.check.length; i++){
-                            if(i == idx) continue;
-                            this.check[i] = false;
-                        }
-                    }
                     Message.alert('设置默认地址成功！', '提示');
                 }else if(res.code == 0){
                     this.$router.push('/login?from='+ this.$route.name);
@@ -173,13 +158,13 @@ export default {
     }
 }
 Vue.use(Message);
-Vue.use(Checkbox);
+Vue.use(Toast);
+Vue.use(Loading);
 Vue.use(Dialog);
+Vue.use(Radio);
 Vue.use(Icon);
 Vue.use(Snackbar);
 Vue.use(Button);
-Vue.use(Toast);
-Vue.use(Loading);
 </script>
 
 <style scoped lang="less">
@@ -232,45 +217,38 @@ Vue.use(Loading);
         margin-top: .2rem;
     }
 }
-.btns{
+.btn{
     position: fixed;
     bottom: 0;
     left: 0;
-    width: 100%;
     height: .48rem;
-    .btn{
-        display: block;
-        position: relative;
-        height: .48rem;
-        line-height: .48rem;
-        text-align: center;
-        color: #fff;
-        font-size: .16rem;
-        background: #ff7421;
-        letter-spacing: 1px;
-    }
+    line-height: .48rem;
+    text-align: center;
+    font-size: .16rem;
+    letter-spacing: 1px;
 }
 </style>
 <style>
-.addr-manage .mu-checkbox-label{
+.addr-manage .mu-radio-label{
     color: #9c9c9c;
+    font-size: .14rem;
 }
-.addr-manage .mu-checkbox-icon{
+.addr-manage .mu-radio-icon{
     width: .16rem;
     height: .16rem;
     position: relative;
 }
-.addr-manage .mu-checkbox-icon-uncheck{
+.addr-manage .mu-radio-icon-uncheck{
     width: .16rem;
     height: .16rem;
     background: url(../assets/img/unchoose.png) no-repeat 0 0 / 100% 100%;
 }
-.addr-manage .mu-checkbox-icon-checked{
+.addr-manage .mu-radio-icon-checked{
     width: .16rem;
     height: .16rem;
     background: url(../assets/img/choose.png) no-repeat 0 0 / 100% 100%;
 }
-.addr-manage .mu-checkbox-ripple-wrapper{
+.addr-manage .mu-radio-ripple-wrapper{
     width: .44rem;
     height: .44rem;
     left: -.14rem;

@@ -1,45 +1,41 @@
 <template>
-    <div id="pageContainer" class="own-point">
+    <div id="pageContainer" class="team-sales">
         <div class="header">
-            <p class="title">自有积分</p>
+            <p class="title">我的补贴</p>
             <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
         </div>
         <div class="wrapper fcol">
             <mu-load-more class="flex1 fcol" :loading="loading" @load="load">
                 <div class="top">
+                    <div class="date-sel flex spc">
+                        <a href="javascript:;" class="sel">{{info.monthTime}}</a>
+                    </div>
                     <div class="point-box">
-                        <div class="flex fcen spb">
-                            <p class="txt">当月自有积分合计</p>
-                            <!-- <a href="javascript:;" class="icon"><img src="../assets/img/icon_question.png" alt="规则说明"></a> -->
-                        </div>
                         <div class="point">
-                            <span class="num bold">{{point.num}}</span>
+                            <span class="num bold">￥{{info.rewardMoney}}</span>
                         </div>
+                        <p class="txt">未结算</p>
                     </div>
                 </div>
-                <div class="box">
-                    <div class="li flex spb">
-                        <p class="txt">自有积分合计</p>
-                        <p class="num">{{point.totalNum}}</p>
-                    </div>
-                </div>
-                <div class="tip">积分详情</div>
+                <div class="bb10"></div>
                 <div class="box">
                     <div class="th flex spb">
-                        <p class="td">月份</p>
-                        <p class="td">自有积分</p>
+                        <p class="td">时间</p>
+                        <p class="td txtC">团队补贴</p>
+                        <p class="td txtR">积分补贴</p>
                     </div>
                 </div>
                 <div class="box" v-if="hasmore != 0">
-                    <div class="th flex spb" v-for="item,index in list" :key="'own'+ index">
-                        <p class="td">{{item.monthTime}}</p>
-                        <p class="td">{{item.num}}</p>
+                    <div class="th flex spb" v-for="item in list" :key="'all'+ item.id">
+                        <p class="td flex fcen">{{item.monthTime}}</p>
+                        <p class="td txtC">￥{{item.teamReward}}</p>
+                        <p class="td txtR">{{item.integralReward}} ({{item.rewardScale == 1 ? '100%' : (item.rewardScale == 2 ? '80%' : '0%')}})</p>
                     </div>
                 </div>
                 <div class="box flex1 fcol" v-else>
-                    <div class="no-data fcol spc fcen flex1">
-                        <img :src="imgHost +'/error_zanwusj.png'" alt="暂无数据">
-                        <p class="txt">暂无数据</p>
+                    <div class="no-data fcol spc fcen flex1" v-if="list.length == 0">
+                        <img :src="imgHost + '/error_zanwusj.png'" alt="暂无数据">
+                        <p class="txt">暂无补贴数据</p>
                     </div>
                 </div>
                 <p class="no-more" v-if="hasmore == 1">没有更多数据了</p>
@@ -56,31 +52,36 @@ import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
 import { Button, Snackbar, Icon, LoadMore } from 'muse-ui';
 import { imgHost } from '../api/baseUrl';
-import { ownPoint } from '../api/user';
+import { myAllowance } from '../api/user';
+import { util } from '../utils/base';
+
 export default {
     data() {
         return {
-            imgHost: imgHost,
+            loading: false,
             list: [],
+            imgHost: imgHost,
             hasmore: -1,
             page: 1,
             pageSize: 12,
-            point: 0,
-            loading: false,
+            info: {
+                money: 0,
+                time: '',
+            },
         }
     },
     methods: {
         getData() {
             this.loading2 = Loading({ target: document.getElementById('pageContainer') });
-            ownPoint({ pageNum: this.page, pageSize: this.pageSize }).then(res => {
+            myAllowance({ pageNum: this.page, pageSize: this.pageSize }).then(res => {
                 this.loading2.close();
                 this.loading = false;
                 if(res.code == 1){
-                    this.point = res.data2;
+                    let r = res.data;
                     if(this.page == 1){
                         this.list = [];
                     }
-                    let r = res.data;
+                    this.money = res.data2;
                     if(r.total == 0){
                         this.hasmore = 0;
                     }else if(r.total <= this.page * this.pageSize){
@@ -89,13 +90,11 @@ export default {
                         this.hasmore = 2;
                     }
                     this.list = [...this.list, ...r.resultData];
+                    this.info = res.data2;
                 }else if(res.code == 4){
                     this.hasmore = 0;
                     this.list = [];
-                    this.point = {
-                        num: 0,
-                        totalNum: 0,
-                    };
+                    this.money = 0;
                 }else if(res.code == 2){
                     this.hasmore = 1;
                 }else if(res.code == 0){
@@ -117,12 +116,22 @@ export default {
         },
         load() {
             if(this.hasmore != 2 || this.loading) return;
-            this.loading = true;
             this.page++;
+            this.loading = true;
             this.getData();
-        },
+        }
+    },
+    filters: {
+        fmt(t) {
+            return util.formatTime(t).substr(6);
+        }
     },
     mounted() {
+        const dd = new Date();
+        const year = dd.getFullYear().toString();
+        let month = dd.getMonth() + 1;
+        month = month < 10 ? '0' + month : month.toString();
+        this.time = `${year}年${month}月`;
         this.getData();
     }
 }
@@ -136,48 +145,44 @@ Vue.use(Icon);
 
 <style scoped lang="less">
 .top{
-    height: 1.19rem;
+    height: 1.4rem;
     background-image: linear-gradient(-183deg, #F87500 2%, #FEA04B 78%);
+    .date-sel{
+        height: .44rem;
+        line-height: .44rem;
+        font-size: .16rem;
+        .sel{
+            color: #fff;
+            letter-spacing: 1px;
+        }
+    }
     .point-box{
         padding: .15rem;
+        text-align: center;
         .txt{
             color: #fff;
-            font-size: .16rem;
-        }
-        .icon{
-            width: .16rem;
-            height: .16rem;
-            img{
-                width: 100%;
-                height: 100%;
-            }
+            font-size: .14rem;
+            margin-top: .15rem;
         }
         .point{
-            padding: .3rem 0 .2rem;
             color: #fff;
             line-height: 1;
             .num{
                 font-size: .3rem;
             }
-            .txt{
-                font-size: .14rem;
-            }
         }
     }
+
 }
 .box{
-    .li{
-        padding: 0 .15rem;
+    border-top: 1px solid #f3f3f3;
+    position: relative;
+    .list{
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
         background: #fff;
-        height: .42rem;
-        font-size: .14rem;
-        line-height: .42rem;
-        .txt{
-            color: #000;
-        }
-        .num{
-            color: #ff7421;
-        }
     }
     .th{
         background: #fff;
@@ -189,15 +194,15 @@ Vue.use(Icon);
         }
     }
     .td{
-        width: 50%;
+        width: 25%;
         font-size: .12rem;
         color: #000;
+        white-space: nowrap;
+        img{
+            width: .24rem;
+            height: .24rem;
+            margin-right: 5px;
+        }
     }
-}
-.tip{
-    line-height: .38rem;
-    text-align: center;
-    font-size: .12rem;
-    color: #555;
 }
 </style>

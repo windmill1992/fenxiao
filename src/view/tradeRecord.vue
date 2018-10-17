@@ -11,17 +11,18 @@
                     <a href="javascript:;" class="tab flex1 flex fcen spc" @click="showTab">分类<span class="arr"></span></a>
                 </div>
             </div>
-            <mu-load-more class="box flex1 fcol" @refresh="refresh" :refreshing="refreshing" :loading="loading" @load="load">
+            <mu-load-more class="box flex1 fcol" :loading="loading" @load="load">
                 <div class="list" v-if="hasmore != 0">
-                    <div class="item" v-for="item in list" :key="item.id">
+                    <div class="item" v-for="item,index in list" :key="item.id" @click="detail(index)">
                         <div class="top flex spb">
-                            <div class="title">{{item.inTypeChinese}}</div>
-                            <div class="price" :class="{ red: item.money < 0 }">{{item.money}}</div>
+                            <div class="title">{{item.inTypeChinese}}<span class="state"> ({{stateTxt[item.state]}})</span></div>
+                            <div class="price" v-if="item.type != 1 && item.type != 4">-{{item.money}}</div>
+                            <div class="price red" v-else>+{{item.money}}</div>
                         </div>
                         <div class="mid" v-if="item.type == 3">预计3个工作日到账(周末和节假日顺延)</div>
                         <div class="bot flex spb">
                             <p class="time">{{item.createTime | fmt}}</p>
-                            <p class="money">余额：{{item.balance ? item.balance : '--'}}</p>
+                            <p class="money">余额：{{item.balance != null ? item.balance : '---'}}</p>
                         </div>
                     </div>
                 </div>
@@ -39,6 +40,7 @@
                 <mu-button class="tab" :class="{ on: type == 1 }" data-type="1" data-name="充值" @click="changTab">充值</mu-button>
                 <mu-button class="tab" :class="{ on: type == 2 }" data-type="2" data-name="支出" @click="changTab">支出</mu-button>
                 <mu-button class="tab" :class="{ on: type == 3 }" data-type="3" data-name="提现" @click="changTab">提现</mu-button>
+                <mu-button class="tab" :class="{ on: type == 4 }" data-type="4" data-name="提现" @click="changTab">系统退回</mu-button>
             </div>
         </div>
     </div>
@@ -66,15 +68,20 @@ export default {
             page: 1,
             pageSize: 20,
             loading: false,
-            refreshing: false,
+            stateTxt: {
+                '201': '未完成',
+                '202': '成功',
+                '203':' 失败',
+                '204': '待打款',
+                '205': '待处理',
+            },
         }
     },
     methods: {
         getData() {
-            this.loading2 = Loading();
+            this.loading2 = Loading({ target: document.getElementById('pageContainer') });
             myTradeRecord({ pageNum: this.page, pageSize: this.pageSize, type: this.type }).then(res => {
                 this.loading2.close();
-                this.refreshing = false;
                 this.loading = false;
                 if(res.code == 1){
                     if(this.page == 1){
@@ -106,14 +113,13 @@ export default {
             })
             .catch(err => {
                 this.loading2.close();
-                this.refreshing = false;
                 this.loading = false;
                 Toast.error('未知异常！');
                 console.log(err);
             })
         },
         changTab(e) {
-            let { type, name } = e.path[2].dataset;
+            let { type, name } = $(e.target).closest('.tab')[0].dataset;
             this.typeName = name;
             this.type = type;
             this.tabShow = false;
@@ -126,16 +132,19 @@ export default {
         closeTab() {
             this.tabShow = false;
         },
-        refresh() {
-            this.refreshing = true;
-            this.page = 1;
-            this.getData();
-        },
         load() {
             if(this.hasmore != 2) return;
             this.loading = true;
             this.page++;
             this.getData();
+        },
+        detail(index) {
+            let a = this.list[index];
+            if(a.type == 3){
+                this.$router.push('/withdrawDetail/'+ a.payNum);
+            }else if(a.type == 1 && a.payType == 6){
+                this.$router.push('/rechargeDetail/'+ a.payNum);
+            }
         },
     },
     filters: {
@@ -164,6 +173,7 @@ Vue.use(Icon);
     top: .45rem;
     left: 0;
     width: 100%;
+    z-index: 9;
     .tabs{
         height: .32rem;
         line-height: .3rem;
@@ -206,6 +216,10 @@ Vue.use(Icon);
                 color: #000;
                 word-break: break-all;
                 max-width: 66%;
+                .state{
+                    color: #ff4521;
+                    font-size: .12rem;
+                }
             }
             .price{
                 font-size: .14rem;
@@ -251,16 +265,17 @@ Vue.use(Icon);
         padding: .15rem .15rem 0;
         overflow: hidden;
         .tab{
-            width: .7rem;
+            width: .6rem;
             height: .26rem;
             line-height: .24rem;
             min-width: auto;
             color: #000;
-            font-size: .13rem;
+            font-size: .12rem;
             border: 1px solid #c9c9c9;
             border-radius: .05rem;
             text-align: center;
             margin-bottom: .15rem;
+            white-space: nowrap;
             z-index: 19;
             -webkit-tap-highlight-color: rgba(0, 0, 0, .05);
             &.on{

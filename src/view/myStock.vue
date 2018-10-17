@@ -5,7 +5,7 @@
             <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
         </div>
         <div class="wrapper fcol" ref="wrapper">
-            <mu-load-more class="box flex1 fcol" @refresh="refresh" :refreshing="refreshing" :loading="loading" @load="load">
+            <mu-load-more class="box flex1 fcol" :loading="loading" @load="load">
                 <div class="list" v-if="hasmore != 0">
                     <div class="item" v-for="item in list" :key="item.id">
                         <div class="top flex fcen">
@@ -50,9 +50,9 @@
                 <mu-ripple class="btns flex1" @click="linkto('orderArea')">
                     <a href="javascript:;" class="btn btn1">订货</a>
                 </mu-ripple>
-                <!-- <mu-ripple class="btns flex1" @click="linkto('offlineRetail')">
+                <mu-ripple class="btns flex1" @click="linkto('offlineRetail')">
                     <a href="javascript:;" class="btn btn2">发货</a>
-                </mu-ripple> -->
+                </mu-ripple>
             </div>
 
             <mu-dialog title="设置利润" :open.sync="openDialog" width="400" max-width="84%" dialog-class="profit-d">
@@ -86,7 +86,6 @@ export default {
         return {
             list: [],
             loading: false,
-            refreshing: false,
             imgHost: imgHost,
             page: 1,
             pageSize: 10,
@@ -98,10 +97,9 @@ export default {
     },
     methods: {
         getData() {
-            this.loading2 = Loading();
+            this.loading2 = Loading({ target: document.getElementById('pageContainer') });
             myStock({ pageNum: this.page, pageSize: this.pageSize }).then(res => {
                 this.loading2.close();
-                this.refreshing = false;
                 this.loading = false;
                 if(res.code == 1){
                     if(this.page == 1){
@@ -133,7 +131,6 @@ export default {
             })
             .catch(err => {
                 this.loading2.close();
-                this.refreshing = false;
                 this.loading = false;
                 Toast.error('未知异常！');
                 console.log(err);
@@ -168,12 +165,6 @@ export default {
                 Toast.error('未知异常！');
                 console.log(err);
             })
-        },
-        refresh() {
-            this.refreshing = true;
-            this.$refs.wrapper.scrollTop = 0;
-            this.page = 1;
-            this.getData();
         },
         load() {
             this.loading = true;

@@ -61,6 +61,7 @@ export default {
     padding: 0 .15rem;
     .btn{
         display: block;
+        position: relative;
         .btn-a{
             display: block;
             width: 100%;

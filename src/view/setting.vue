@@ -31,10 +31,10 @@
                 <p class="label">客服电话</p>
                 <p class="txt1">13345678963</p>
             </mu-ripple>
-            <mu-ripple class="item flex fcen spb" @click="linkto('company')">
+            <!-- <mu-ripple class="item flex fcen spb" @click="linkto('company')">
                 <p class="label">公司简介</p>
                 <p class="arr-r gray"></p>
-            </mu-ripple>
+            </mu-ripple> -->
             
             <div class="btns">
                 <mu-button class="btn" full-width color="#ff7421" textColor="#fff" @click="logout">
@@ -62,7 +62,7 @@ export default {
     },
     methods: {
         getUserState() {
-            let loading2 = Loading();
+            let loading2 = Loading({ target: document.getElementById('pageContainer') });
             userState().then(res => {
                 if(loading2){
                     loading2.close();
@@ -99,20 +99,18 @@ export default {
             if(code){
                 param.code = code;
             }
-            this.loading = Loading({ text: '正在登录...' });
+            this.loading = Loading({ text: '正在登录...', target: document.getElementById('pageContainer') });
             wxBindLogin(param).then(res => {
                 this.loading.close();
-                if(res.code == 1){
+                if(res.code == 1 || res.code == 10026){
                     Toast.success('登录成功');
                     this.getUserState();
                     sessionStorage.setItem('wx', 1);
                 }else if(res.code == 10025 || res.code == 10007){
                     sessionStorage.removeItem('wx');
                     location.href = res.data;
-                }else if(res.code == 10026){
-                    Toast.success('登录成功');
                 }else{
-                    sessionStorage.setItem('wx', 1);
+                    sessionStorage.removeItem('wx');
                     if(res.msg){
                         Toast.error(res.msg);
                     }else{
@@ -127,11 +125,12 @@ export default {
             })
         },
         unbind() {
-            let loading = Loading({ text: '正在解绑...' });
+            let loading = Loading({ text: '正在解绑...', target: document.getElementById('pageContainer') });
             unbindWx().then(res => {
                 loading.close();
                 if(res.code == 1){
                     Toast.success('解绑成功！');
+                    sessionStorage.removeItem('wx');
                     this.getUserState();
                 }else if(res.code == 0){
                     this.$router.push('/login?from='+ this.$route.name);
@@ -150,11 +149,12 @@ export default {
             })
         },
         logout() {
-            this.loading = Loading({ text: '正在退出...' });
+            this.loading = Loading({ text: '正在退出...', target: document.getElementById('pageContainer') });
             logout().then(res => {
                 this.loading.close();
                 if(res.code == 1){
                     Toast.success('退出成功！');
+                    sessionStorage.removeItem('wx');
                     setTimeout(() => {
                         this.$router.replace('/login');
                     }, 1000);

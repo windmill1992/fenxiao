@@ -39,7 +39,7 @@ export default {
     },
     methods: {
         getUserState() {
-            this.loading = Loading();
+            this.loading = Loading({ target: document.getElementById('pageContainer') });
             userState().then(res => {
                 this.loading.close();
                 if(res.code == 1){

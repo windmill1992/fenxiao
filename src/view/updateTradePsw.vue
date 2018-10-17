@@ -63,7 +63,7 @@ export default {
                 Toast.error('两次交易密码不一致！');
                 return;
             }
-            this.loading = Loading({ text: '请稍等...' });
+            this.loading = Loading({ text: '请稍等...', target: document.getElementById('pageContainer') });
             this.f = true;
             updateTradePsw({ oldPassWord: this.oldpsw, password: this.psw, surePassword: this.psw2 }).then(res => {
                 this.loading.close();

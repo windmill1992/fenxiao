@@ -167,6 +167,14 @@ export default new Router({
       }
     },
     {
+      path: '/orderSure2',
+      name: 'orderSure2',
+      component: resolve =>  require(['../view/orderSure2.vue'], resolve),
+      meta: {
+        title: '确认订单'
+      }
+    },
+    {
       path: '/purchaseOrder',
       name: 'purchaseOrder',
       component: resolve =>  require(['../view/purchaseOrder.vue'], resolve),
@@ -191,11 +199,35 @@ export default new Router({
       }
     },
     {
+      path: '/recharge2',
+      name: 'recharge2',
+      component: resolve =>  require(['../view/recharge2.vue'], resolve),
+      meta: {
+        title: '充值'
+      }
+    },
+    {
+      path: '/rechargeDetail/:id',
+      name: 'rechargeDetail',
+      component: resolve =>  require(['../view/rechargeDetail.vue'], resolve),
+      meta: {
+        title: '充值详情'
+      }
+    },
+    {
       path: '/withdrawCash',
       name: 'withdrawCash',
       component: resolve =>  require(['../view/withdrawCash.vue'], resolve),
       meta: {
         title: '提现'
+      }
+    },
+    {
+      path: '/withdrawDetail/:id',
+      name: 'withdrawDetail',
+      component: resolve =>  require(['../view/withdrawDetail.vue'], resolve),
+      meta: {
+        title: '提现详情'
       }
     },
     {
@@ -223,6 +255,14 @@ export default new Router({
       }
     },
     {
+      path: '/shipOrders',
+      name: 'shipOrders',
+      component: resolve =>  require(['../view/shipOrders.vue'], resolve),
+      meta: {
+        title: '我的发货订单'
+      }
+    },
+    {
       path: '/orderDetail/:id',
       name: 'orderDetail',
       component: resolve =>  require(['../view/orderDetail.vue'], resolve),
@@ -236,6 +276,14 @@ export default new Router({
       component: resolve =>  require(['../view/orderDetail2.vue'], resolve),
       meta: {
         title: '分销客户订货详情'
+      }
+    },
+    {
+      path: '/orderDetail3/:id',
+      name: 'orderDetail3',
+      component: resolve =>  require(['../view/orderDetail3.vue'], resolve),
+      meta: {
+        title: '发货详情'
       }
     },
     {
@@ -276,14 +324,6 @@ export default new Router({
       component: resolve =>  require(['../view/checkPending.vue'], resolve),
       meta: {
         title: '待审核'
-      }
-    },
-    {
-      path: '/monthlyPoint',
-      name: 'monthlyPoint',
-      component: resolve =>  require(['../view/monthlyPoint.vue'], resolve),
-      meta: {
-        title: '分销客户月度积分情况'
       }
     },
     {
@@ -340,14 +380,6 @@ export default new Router({
       component: resolve =>  require(['../view/tradeRecord.vue'], resolve),
       meta: {
         title: '交易记录'
-      }
-    },
-    {
-      path: '/withholding',
-      name: 'withholding',
-      component: resolve =>  require(['../view/withholding.vue'], resolve),
-      meta: {
-        title: '扣款通知'
       }
     },
     {
@@ -460,6 +492,30 @@ export default new Router({
       component: resolve =>  require(['../view/loginPswManage.vue'], resolve),
       meta: {
         title: '登录密码管理'
+      }
+    },
+    {
+      path: '/orderTrack/:id',
+      name: 'orderTrack',
+      component: resolve =>  require(['../view/orderTrack.vue'], resolve),
+      meta: {
+        title: '订单跟踪'
+      }
+    },
+    {
+      path: '/teamSales',
+      name: 'teamSales',
+      component: resolve =>  require(['../view/teamSales.vue'], resolve),
+      meta: {
+        title: '团队销售额'
+      }
+    },
+    {
+      path: '/myAllowance',
+      name: 'myAllowance',
+      component: resolve =>  require(['../view/myAllowance.vue'], resolve),
+      meta: {
+        title: '我的补贴'
       }
     },
   ]

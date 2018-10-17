@@ -20,7 +20,7 @@
                 </div>
                 <div class="bb10"></div>
                 <div class="item">
-                    <mu-text-field type="number" v-model="money" :placeholder="'本次最多可提现'+ info.balance" class="inp" full-width underline-color="blue" prefix="充值金额" suffix="元"></mu-text-field>
+                    <mu-text-field type="number" v-model="money" :placeholder="'本次最多可提现'+ info.balance" class="inp" full-width underline-color="blue" prefix="提现金额" suffix="元"></mu-text-field>
                 </div>
             </div>
             <div class="tip flex fcen spb">
@@ -43,23 +43,29 @@ import 'muse-ui-loading/dist/muse-ui-loading.css';
 import Vue from 'vue';
 import Loading from 'muse-ui-loading';
 import Toast from 'muse-ui-toast';
-import { TextField, Button, Snackbar, Icon } from 'muse-ui';
-import { userInfo, myBank } from '../api/user';
+import Message from 'muse-ui-message';
+import { TextField, Button, Snackbar, Icon, Dialog } from 'muse-ui';
+import { userInfo, myBank, userState, cashApply } from '../api/user';
 export default {
     data() {
         return {
             open: true,
             money: '',
-            info: {},
+            info: {
+                balance: 0,
+            },
         }
     },
     methods: {
         getData() {
-            this.loading = Loading();
+            this.loading = Loading({ target: document.getElementById('pageContainer') });
             myBank().then(res => {
                 this.loading.close();
                 if(res.code == 1){
                     this.info = res.data;
+                    if(!this.state){
+                        this.getUserState();
+                    }
                 }else if(res.code == 0){
                     this.$router.push('/login?from='+ this.$route.name);
                 }else{
@@ -76,24 +82,89 @@ export default {
                 console.log(err);
             })
         },
+        getUserState() {
+            userState().then(res => {
+                if(res.code == 1){
+                    this.state = res.data;
+                    if(this.state.transactState == 0) {
+                        Message.confirm('您还未设置过交易密码，是否去设置？', '提示', {}).then(({ result }) => {
+                            if(result){
+                                this.$router.push('/setTradePsw');
+                            }
+                        })
+                    }
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                Toast.error('未知异常！');
+                console.log(err);
+            });
+        },
         withdrawAll() {
             this.money = this.info.balance;
         },
         submit() {
-            if(!this.bankNo){
-                Toast.error('请输入银行卡号！');
+            if(this.loading2) return;
+            if(this.state.transactState == 0) {
+                Message.confirm('您还未设置过交易密码，是否去设置？', '提示', {}).then(({ result }) => {
+                    if(result){
+                        this.$router.push('/setTradePsw');
+                    }
+                })
                 return;
             }
-            if(!this.backName){
-                Toast.error('请输入银行名称！');
-                return;
-            }
-            if(!this.money || !Number.isNaN(Number(this.money)) || this.money < 0.01){
+            if(!this.money || Number.isNaN(Number(this.money)) || this.money < 0.01){
                 Toast.error('请输入有效的提现金额！');
                 return;
             }
-            this.loading = Loading();
-            
+            if(this.money > this.info.balance){
+                Toast.error('提现金额不能超过账户余额！');
+                return;
+            }
+            Message.prompt('', '交易密码', {
+                validator(value) {
+                    return {
+                        valid: /\d{6}/.test(value),
+                        message: '请输入6位交易密码！',
+                    }
+                },
+                className: 'trade-p4',
+                inputType: 'password',
+                inputPlaceholder: '请输入交易密码',
+            }).then(({ result, value }) => {
+                if(result){
+                    this.loading = Loading({ text: '正在提交...', target: document.getElementById('pageContainer') });
+                    this.loading2 = true;
+                    cashApply({ type: 200, applyMoney: this.money, transactPassWord: value }).then(res => {
+                        this.loading.close();
+                        if(res.code == 1){
+                            Toast.success('提交成功，请等待审核。');
+                            setTimeout(() => {
+                                this.$router.push('/wallet');
+                            }, 1000);
+                        }else{
+                            this.loading2 = false;
+                            if(res.msg){
+                                Toast.error(res.msg);
+                            }else{
+                                Toast.error('服务器开了小差，请稍后再试！');
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        this.loading.close();
+                        this.loading2 = false;
+                        Toast.error('未知异常！');
+                        console.log(err);
+                    });
+                }
+            })
         }
     },
     mounted() {
@@ -102,10 +173,12 @@ export default {
 }
 Vue.use(Loading);
 Vue.use(Toast);
+Vue.use(Message);
 Vue.use(Button);
 Vue.use(Snackbar);
 Vue.use(Icon);
 Vue.use(TextField);
+Vue.use(Dialog);
 </script>
 
 <style scoped lang="less">
@@ -183,5 +256,13 @@ Vue.use(TextField);
 }
 .withdraw-cash .mu-input-line, .withdraw-cash .mu-input-focus-line{
     left: .15rem;
+}
+.trade-p4 .mu-input{
+    margin: 0;
+    padding: 0;
+    min-height: auto;
+}
+.trade-p4 .mu-input-help{
+    display: block!important;
 }
 </style>

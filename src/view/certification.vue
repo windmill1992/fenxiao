@@ -33,13 +33,13 @@
                 <input type="file" id="sc_bank" class="file-input" @change="upload('sc_bank')">
                 <p class="txt2">点击上传手持银行卡</p>
             </div>
-            <p class="tip bold">易宝验证码</p>
+            <!-- <p class="tip bold">易宝验证码</p>
             <div class="item1 flex fcen spb">
                 <mu-text-field type="number" v-model="code" placeholder="请输入验证码" class="inp yzm" max-length="6" full-width underline-color="blue" prefix="验证码"></mu-text-field>
                 <a href="javascript:;" class="code-a" v-if="loading2" v-loading="loading2" data-mu-loading-size="20"></a>
                 <a href="javascript:;" class="code-a" @click="getCode" v-else-if="!waiting">获取验证码</a>
                 <a href="javascript:;" class="code-a no" v-else>{{time}}s重新获取</a>
-            </div>
+            </div> -->
             <mu-ripple class="btns" @click="submit">
                 <a href="javascript:;" class="btn bold">立即认证</a>
             </mu-ripple>
@@ -53,7 +53,7 @@ import 'muse-ui-toast/dist/muse-ui-toast.all.css';
 import Vue from 'vue';
 import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
-import { Icon, Snackbar, Button, TextField } from 'muse-ui';
+import { Icon, Snackbar, Button, TextField, Dialog } from 'muse-ui';
 import { uploadImage } from '../api/image';
 import { certification, resendYopCode, authorize } from '../api/user';
 import { imgHost } from '../api/baseUrl';
@@ -107,66 +107,65 @@ export default {
                 console.log(err);
             })
         },
-        getCode() {
-            if(this.sending){
-                this.sendCode();
-            }else{
-                if(!this.ids.zm){
-                    Toast.error('请上传身份证正面！');
-                    return;
-                }
-                if(!this.ids.fm){
-                    Toast.error('请上传身份证反面！');
-                    return;
-                }
-                if(!this.ids.sc){
-                    Toast.error('请上传手持身份证正面！');
-                    return;
-                }
-                if(!this.ids.bank){
-                    Toast.error('请上传银行卡正面！');
-                    return;
-                }
-                if(!this.ids.sc_bank){
-                    Toast.error('请上传手持银行卡！');
-                    return;
-                }
-                this.loading2 = true;
-                let param = Object.assign({
-                    idFaceId: this.ids.zm,
-                    idBackId: this.ids.fm,
-                    idHandId: this.ids.sc,
-                    bankFaceId: this.ids.bank,
-                    bankFaceHandId: this.ids.sc_bank,
-                    idFaceUrl: this.urls.zm,
-                    idBackUrl: this.urls.fm,
-                    idHandUrl: this.urls.sc,
-                    bankFaceUrl: this.urls.bank,
-                    bankFaceHandUrl: this.urls.sc_bank,
-                }, this.saveObj);
-                certification(param).then(res => {
-                    this.loading2 = false;
-                    if(res.code == 1){
-                        Toast.info('易宝验证码已发送，请注意查收！');
-                        this.countdown();
-                    }else if(res.code == 0){
-                        this.$router.push('/login?from='+ this.$route.name);
-                    }else{
-                        if(res.msg){
-                            Toast.error(res.msg);
-                        }else{
-                            Toast.error('服务器开了小差，请稍后再试！');
-                        }
-                    }
-                })
-                .catch(err => {
-                    this.loading2 = false;
-                    Toast.error('未知异常！');
-                    console.log(err);
-                })
+        submit() {
+            if(!this.ids.zm){
+                Toast.error('请上传身份证正面！');
+                return;
             }
+            if(!this.ids.fm){
+                Toast.error('请上传身份证反面！');
+                return;
+            }
+            if(!this.ids.sc){
+                Toast.error('请上传手持身份证正面！');
+                return;
+            }
+            if(!this.ids.bank){
+                Toast.error('请上传银行卡正面！');
+                return;
+            }
+            if(!this.ids.sc_bank){
+                Toast.error('请上传手持银行卡！');
+                return;
+            }
+            this.loading2 = true;
+            let param = Object.assign({
+                idFaceId: this.ids.zm,
+                idBackId: this.ids.fm,
+                idHandId: this.ids.sc,
+                bankFaceId: this.ids.bank,
+                bankFaceHandId: this.ids.sc_bank,
+                idFaceUrl: this.urls.zm,
+                idBackUrl: this.urls.fm,
+                idHandUrl: this.urls.sc,
+                bankFaceUrl: this.urls.bank,
+                bankFaceHandUrl: this.urls.sc_bank,
+            }, this.saveObj);
+            certification(param).then(res => {
+                this.loading2 = false;
+                if(res.code == 1){
+                    Toast.success('提交成功！');
+                    sessionStorage.removeItem('saveObj');
+                    setTimeout(() => {
+                        this.$router.replace('/certSuccess');
+                    }, 1000);
+                }else if(res.code == 0){
+                    this.$router.push('/login?from='+ this.$route.name);
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                this.loading2 = false;
+                Toast.error('未知异常！');
+                console.log(err);
+            })
         },
-        sendCode() {
+        /* sendCode() {
             this.loading2 = true;
             resendYopCode({ mobile: this.saveObj.merLegalPhone }).then(res => {
                 this.loading2 = false;
@@ -193,7 +192,7 @@ export default {
                 Toast.error('验证码错误！');
                 return;
             }
-            this.loading = Loading({ text: '请稍等...' });
+            this.loading = Loading({ text: '请稍等...', target: document.getElementById('pageContainer') });
             this.loading3 = true;
             authorize({ merAuthorizeNum: this.code, mobile: this.saveObj.merLegalPhone }).then(res => {
                 this.loading.close();
@@ -230,7 +229,7 @@ export default {
                     this.time = 60;
                 }
             }, 1000);
-        }
+        } */
     },
     mounted() {
         if(sessionStorage.saveObj){

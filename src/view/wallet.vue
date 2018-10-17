@@ -3,7 +3,7 @@
         <div class="header">
             <p class="title">我的钱包</p>
             <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
-            <a href="javascript:;" class="help">帮助</a>
+            <!-- <a href="javascript:;" class="help">帮助</a> -->
         </div>
         <div class="wrapper">
             <div class="account">
@@ -132,7 +132,7 @@ export default {
     },
     methods: {
         getData() {
-            this.loading = Loading();
+            this.loading = Loading({ target: document.getElementById('pageContainer') });
             integral().then(res => {
                 this.loading.close();
                 if(res.code == 1){
@@ -153,10 +153,10 @@ export default {
                 console.log(err);
             })
         },
-        nocert() {
+        noCert() {
             this.$router.push('/qualifacationCert');
         },
-        inreal() {
+        inReal() {
             alert('实名认证审核中。')
         },
         linkto(name) {

@@ -79,7 +79,7 @@ export default {
         },
         login() {
             if(this.disabled || this.f) return;
-            this.loading = Loading({ text: '正在登录...' });
+            this.loading = Loading({ text: '正在登录...', target: document.getElementById('pageContainer') });
             this.f = true;
             login({ userName: this.account, password: this.psw }).then(res => {
                 this.loading.close();
@@ -120,7 +120,7 @@ export default {
             if(code){
                 param.code = code;
             }
-            this.loading = Loading({ text: '正在登录...' });
+            this.loading = Loading({ text: '正在登录...', target: document.getElementById('pageContainer') });
             wxlogin(param).then(res => {
                 this.loading.close();
                 if(res.code == 1){

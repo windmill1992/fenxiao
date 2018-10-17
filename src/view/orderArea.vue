@@ -10,7 +10,7 @@
                 <mu-tab class="tab"><span :class="{bold: active == 1}">普通订货</span></mu-tab>
             </mu-tabs>
             
-            <mu-load-more class="box flex1 fcol" @refresh="refresh" :refreshing="refreshing" :loading="loading" @load="load">
+            <mu-load-more class="box flex1 fcol" :loading="loading" @load="load">
                 <div class="box flex1 fcol" v-show="active == 0">
                     <div class="list" v-if="hasmore1 > 0">
                         <div class="item flex fcen" v-for="item in list1" :key="'box'+ item.id">
@@ -20,7 +20,7 @@
                             </div>
                             <div class="info flex1">
                                 <p class="title title1 bold">{{item.productName}}</p>
-                                <p class="txt">饼干服务套组(16盒),直升中级经销商,厉害！</p>
+                                <p class="txt">直升中级经销商,厉害！</p>
                                 <p class="tag">套组价</p>
                                 <div class="flex spb">
                                     <p class="price fcol fend">￥{{item.price}}</p>
@@ -32,9 +32,9 @@
                     </div>
                     <div class="no-data flex1 fcol fcen spc" v-else>
                         <img :src="imgHost + '/error_zanwusj.png'" alt="暂无数据">
-                        <p class="txt">暂无数据</p>
+                        <p class="txt">暂无商品数据</p>
                     </div>
-                    <p class="no-more" v-if="hasmore1 == 1">没有更多数据了</p>
+                    <p class="no-more" v-if="hasmore1 == 1">没有更多商品了</p>
                 </div>
 
                 <div class="box box1" v-show="active == 1">
@@ -56,9 +56,9 @@
                     </div>
                     <div class="no-data flex1 fcol fcen spc" v-else>
                         <img :src="imgHost + '/error_zanwusj.png'" alt="暂无数据">
-                        <p class="txt">暂无数据</p>
+                        <p class="txt">暂无商品数据</p>
                     </div>
-                    <p class="no-more" v-if="hasmore2 == 1">没有更多数据了</p>
+                    <p class="no-more" v-if="hasmore2 == 1">没有更多商品了</p>
                 </div>
              </mu-load-more>
             <template v-if="active == 1">
@@ -91,7 +91,6 @@ export default {
             list1: [],
             list2: [],
             loading: false,
-            refreshing: false,
             total: 0,
             page1: 1,
             pageSize1: 15,
@@ -106,13 +105,12 @@ export default {
     },
     methods: {
         getData1() {
-            this.loading2 = Loading();
+            this.loading2 = Loading({ target: document.getElementById('pageContainer') });
             this.loading = true;
             salesProdList({ pageNum: this.page1, pageSize: this.pageSize1 }).then(res => {
                 this.hasHighLevel = res.data2 == 1;
                 this.loading2.close();
                 this.loading = false;
-                this.refreshing = false;
                 if(!this.hasHighLevel){
                     this.$router.replace('/');
                     return;
@@ -148,7 +146,6 @@ export default {
             .catch(err => {
                 this.loading2.close();
                 this.loading = false;
-                this.refreshing = false;
                 Toast.error('未知异常！');
                 console.log(err);
             })
@@ -222,19 +219,6 @@ export default {
                 console.log(err);
             })
         },
-        refresh() {
-            this.refreshing = true;
-            this.$refs.wrapper.scrollTop = 0;
-            if(this.active == 0){
-                this.page1 = 1;
-                this.getData1();
-            }else{
-                this.loading2 = Loading();
-                this.loading = true;
-                this.page2 = 1;
-                this.getData2();
-            }
-        },
         load() {
             if(this.loading) return;
             if(this.active == 0){
@@ -243,7 +227,7 @@ export default {
                 this.getData1();
             }else{
                 if(this.hasmore2 != 2) return;
-                this.loading2 = Loading();
+                this.loading2 = Loading({ target: document.getElementById('pageContainer') });
                 this.loading = true;
                 this.getData2();
             }
@@ -262,7 +246,7 @@ export default {
     mounted() {
         let winh = $(window).height();
         let h = $('.header').height() + $('.mu-tabs').height() + $('.btns').height();
-        $('.box').height(winh - h - 5);
+        $('.order-area .box').eq(0).height(winh - h - 5);
 
         this.getData1();
         this.getData2();
@@ -336,12 +320,13 @@ Vue.use(Icon);
                     overflow: hidden;
                     &.title1{
                         -webkit-line-clamp: 1;
-                        height: .22rem;
+                        height: .24rem;
                     }
                 }
                 .txt{
                     font-size: .12rem;
                     color: #555;
+                    margin-top: 5px;
                 }
                 .tag{
                     display: inline-block;

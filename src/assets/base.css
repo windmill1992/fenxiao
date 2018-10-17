@@ -433,3 +433,6 @@ img[lazy=loaded] {
 .mu-option{
 	padding: 0 .1rem;
 }
+.mu-infinite-scroll{
+	display: none!important;
+}

@@ -161,7 +161,7 @@ export default {
                 Toast.error('请同意用户协议！');
                 return;
             }
-            this.loading = Loading();
+            this.loading = Loading({ target: document.getElementById('pageContainer') });
             this.loading3 = true;
             let param = {
                 invitationCode: this.invitationCode,

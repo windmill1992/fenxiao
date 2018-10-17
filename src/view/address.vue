@@ -70,7 +70,7 @@ export default {
     },
     methods: {
         getData() {
-            this.loading = Loading();
+            this.loading = Loading({ target: document.getElementById('pageContainer') });
             addressInfo({ id: this.id }).then(res => {
                 this.loading.close();
                 if(res.code == 1){
@@ -189,7 +189,7 @@ export default {
             }else{
                 urls = saveAddress;
             }
-            this.loading = Loading();
+            this.loading = Loading({ target: document.getElementById('pageContainer') });
             urls(param).then(res => {
                 this.loading.close();
                 if(res.code == 1){

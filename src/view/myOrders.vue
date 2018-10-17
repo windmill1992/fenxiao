@@ -1,5 +1,5 @@
 <template>
-    <div id="pageContainer" class="orders">
+    <div id="pageContainer" class="my-orders">
         <div class="header">
             <p class="title">我的订货订单</p>
             <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
@@ -12,7 +12,7 @@
                 <mu-tab class="tab">已取消</mu-tab>
             </mu-tabs>
             
-            <mu-load-more class="box flex1 fcol" @refresh="refresh" :refreshing="refreshing" :loading="loading" @load="load">
+            <mu-load-more class="box flex1 fcol" :loading="loading" @load="load">
                 <div class="list" v-if="hasmore != 0">
                     <div class="item" v-for="item,index in list" :key="item.id">
                         <div class="top flex spb">
@@ -29,7 +29,7 @@
                                     <p class="title">{{item.productName}}</p>
                                     <div class="flex spb">
                                         <p class="bold">￥{{item.price}}</p>
-                                        <p>x{{item.shipmentNum}}</p>
+                                        <p>×{{item.shipmentNum}}</p>
                                     </div>
                                 </div>
                             </div>
@@ -81,9 +81,9 @@ import Vue from 'vue';
 import Loading from 'muse-ui-loading';
 import Toast from 'muse-ui-toast';
 import Message from 'muse-ui-message';
-import { Tabs, LoadMore, Button, Snackbar, Icon, BottomSheet, Dialog } from 'muse-ui';
+import { Tabs, LoadMore, Button, Snackbar, Icon, BottomSheet, Dialog, TextField } from 'muse-ui';
 import { myOrders, userState } from '../api/user';
-import { getBalance, cancelOrder } from '../api/product';
+import { getBalance, cancelOrder, orderGoods } from '../api/product';
 import { imgHost } from '../api/baseUrl';
 export default {
     data() {
@@ -91,7 +91,6 @@ export default {
             active: 0,
             list: [],
             loading: false,
-            refreshing: false,
             imgHost: imgHost,
             state: '',
             page: 1,
@@ -112,7 +111,7 @@ export default {
     },
     methods: {
         getData() {
-            this.loading2 = Loading();
+            this.loading2 = Loading({ target: document.getElementById('pageContainer') });
             let param = {
                 pageNum: this.page, 
                 pageSize: this.pageSize,
@@ -120,7 +119,6 @@ export default {
             }
             myOrders(param).then(res => {
                 this.loading2.close();
-                this.refreshing = false;
                 this.loading = false;
                 if(res.code == 1){
                     if(this.page == 1){
@@ -153,7 +151,6 @@ export default {
             })
             .catch(err => {
                 this.loading2.close();
-                this.refreshing = false;
                 this.loading = false;
                 Toast.error('未知异常！');
                 console.log(err);
@@ -177,12 +174,6 @@ export default {
             });
         },
         switchTab() {
-            this.page = 1;
-            this.getData();
-        },
-        refresh() {
-            this.refreshing = true;
-            this.$refs.wrapper.scrollTop = 0;
             this.page = 1;
             this.getData();
         },
@@ -220,9 +211,9 @@ export default {
         },
         pay(index) {
             this.id = this.list[index].id;
-            this.loading = Loading();
+            this.loading2 = Loading({ target: document.getElementById('pageContainer') });
             getBalance({ orderId: this.id }).then(res => {
-                this.loading.close();
+                this.loading2.close();
                 this.amountMoney = this.list[index].amountMoney;
                 this.openSheet = true;
                 if(res.code == 1){
@@ -242,6 +233,7 @@ export default {
                 }
             })
             .catch(err => {
+                this.loading2.close();
                 Toast.error('未知异常！');
                 console.log(err);
             })
@@ -273,6 +265,7 @@ export default {
             })
         },
         submit() {
+            if(this.loading3) return;
             if(this.state.transactState == 0) {
                 Message.confirm('您还未设置过交易密码，是否去设置？', '提示', {}).then(({ result }) => {
                     if(result){
@@ -281,18 +274,26 @@ export default {
                 });
                 return;
             }
-            Message.prompt('请输入交易密码', '', {
+            Message.prompt('', '交易密码', {
                 validator(value) {
                     return {
                         valid: /\d{6}/.test(value),
-                        message: '交易密码不正确！',
+                        message: '请输入6位交易密码！',
                     }
-                }
+                },
+                className: 'trade-p0',
+                inputType: 'password',
+                inputPlaceholder: '请输入交易密码',
             }).then(({ result, value }) => {
                 if(result){
+                    this.loading3 = true;
                     orderGoods({ orderId: this.id, transactPassWord: value }).then(res => {
+                        this.loading3 = false;
                         if(res.code == 1){
                             Toast.success('订货成功！');
+                            this.openSheet = false;
+                            this.active = 2;
+                            this.page = 1;
                             this.getData();
                         }else if(res.code == 0){
                             this.$router.push('/login?from='+ this.$route.name);
@@ -305,6 +306,7 @@ export default {
                         }
                     })
                     .catch(err => {
+                        this.loading3 = false;
                         Toast.error('未知异常！');
                         console.log(err);
                     })
@@ -318,7 +320,7 @@ export default {
     mounted() {
         let winh = $(window).height();
         let h = $('.header').height() + $('.mu-tabs').height();
-        $('.box').height(winh - h - 1);
+        $('.my-orders .box').height(winh - h - 1);
 
         this.getData();
     }
@@ -329,6 +331,7 @@ Vue.use(Message);
 Vue.use(Tabs);
 Vue.use(LoadMore);
 Vue.use(Dialog);
+Vue.use(TextField);
 Vue.use(Button);
 Vue.use(Snackbar);
 Vue.use(Icon);
@@ -486,10 +489,10 @@ Vue.use(BottomSheet);
 }
 </style>
 <style>
-.orders .mu-tabs, .orders .mu-tab-active{
+.my-orders .mu-tabs, .my-orders .mu-tab-active{
     color: #000;
 }
-.orders .mu-tab-link-highlight{
+.my-orders .mu-tab-link-highlight{
     width: .5rem!important;
     height: 3px;
     left: 12.5%;
@@ -498,5 +501,13 @@ Vue.use(BottomSheet);
 .order-d .mu-dialog-body{
     padding: 0;
     position: relative;
+}
+.trade-p0 .mu-input{
+    margin: 0;
+    padding: 0;
+    min-height: auto;
+}
+.trade-p0 .mu-input-help{
+    display: block!important;
 }
 </style>

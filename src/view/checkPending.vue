@@ -5,7 +5,7 @@
             <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
         </div>
         <div class="wrapper fcol" ref="wrapper" v-if="hasmore > 0">
-            <mu-load-more class="box flex1 fcol" @refresh="refresh" :refreshing="refreshing" @load="load" :loading="loading">
+            <mu-load-more class="box flex1 fcol" @load="load" :loading="loading">
                 <div class="list">
                     <div class="item flex spb fcen" v-for="item in list" :key="item.id">
                         <mu-ripple class="rip flex fcen flex1">
@@ -49,7 +49,6 @@ import { imgHost } from '../api/baseUrl';
 export default {
     data() {
         return {
-            refreshing: false,
             loading: false,
             page: 1,
             pageSize: 10,
@@ -61,10 +60,9 @@ export default {
     },
     methods: {
         getData() {
-            this.loading2 = Loading();
+            this.loading2 = Loading({ target: document.getElementById('pageContainer') });
             auditUsers({ pageNum: this.page, pageSize: this.pageSize }).then(res => {
                 this.loading2.close();
-                this.refreshing = false;
                 this.loading = false;
                 if(res.code == 1){
                     if(this.page == 1){
@@ -97,7 +95,6 @@ export default {
             })
             .catch(err => {
                 this.loading2.close();
-                this.refreshing = false;
                 this.loading = false;
                 Toast.error('未知异常！');
                 console.log(err);
@@ -109,11 +106,6 @@ export default {
             this.page++;
             this.getData();
         },
-        refresh() {
-            this.refreshing = true;
-            this.page = 1;
-            this.getData();
-        },
         checkSure() {
             if(this.loading) return;
             this.loading = true;
@@ -121,7 +113,8 @@ export default {
                 this.loading = false;
                 if(res.code == 1){
                     Toast.success('审核通过成功！');
-                    this.refresh();
+                    this.page = 1;
+                    this.getData();
                 }else if(res.code == 0){
                     this.$router.push('/login?from='+ this.$route.name);
                 }else{

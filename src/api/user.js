@@ -203,4 +203,53 @@ export const updateBank = params => {
     return axios.post(`${baseUrl}/user/update/bank`, qs.stringify(params)).then(res => res.data);
 }
 
+//发货订单详情
+export const shipInfo = params => { 
+    return axios.get(`${baseUrl}/user/center/myReallyShipment`, { params: params }).then(res => res.data);
+}
+
+//发货列表
+export const shipList = params => { 
+    return axios.get(`${baseUrl}/user/center/myShipmentList`, { params: params }).then(res => res.data);
+}
+
+//发货确认订单
+export const shipOrderList = params => { 
+    return axios.get(`${baseUrl}/product/list/ids`, { params: params }).then(res => res.data);
+}
+
+//确认收货
+export const confirmShip = params => { 
+    return axios.post(`${baseUrl}/product/comfirm/goods`, qs.stringify(params)).then(res => res.data);
+}
+
+//余额充值申请,提现申请
+export const cashApply = params => { 
+    return axios.post(`${baseUrl}/withdraw/cash`, qs.stringify(params)).then(res => res.data);
+}
+
+//查询用户最新充值余额记录
+export const userRechargeInfo = () => { 
+    return axios.get(`${baseUrl}/withdraw/last`,).then(res => res.data);
+}
+
+//查询用户最新充值余额详情
+export const rechargeInfo = params => { 
+    return axios.get(`${baseUrl}/withdraw/${params.payNum}/detail`,).then(res => res.data);
+}
+
+//查询用户提现详情
+export const withdrawInfo = params => { 
+    return axios.get(`${baseUrl}/withdraw/reCharge/${params.payNum}/detail`,).then(res => res.data);
+}
+
+//我的补贴
+export const myAllowance = params => { 
+    return axios.get(`${baseUrl}/user/center/myTeamSaleList`, { params: params }).then(res => res.data);
+}
+
+//团队销量
+export const teamSale = params => { 
+    return axios.get(`${baseUrl}/user/center/myTeamSale`, { params: params }).then(res => res.data);
+}
 

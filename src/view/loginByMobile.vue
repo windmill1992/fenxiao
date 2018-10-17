@@ -108,7 +108,7 @@ export default {
                 return;
             }
             this.loading2 = true;
-            this.loading3 = Loading();
+            this.loading3 = Loading({ target: document.getElementById('pageContainer') });
             codeLogin({ mobile: this.mobile, code: this.code, type: 'login' }).then(res => {
                 this.loading3.close();
                 if(res.code == 1){

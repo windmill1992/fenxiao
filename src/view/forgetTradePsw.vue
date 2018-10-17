@@ -130,7 +130,7 @@ export default {
                 Toast.error('两次密码不一致！');
                 return;
             }
-            this.loading = Loading({ text: '请稍等...' });
+            this.loading = Loading({ text: '请稍等...', target: document.getElementById('pageContainer') });
             this.loading2 = true;
             let param = {
                 card: this.bank,

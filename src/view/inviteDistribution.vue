@@ -1,22 +1,19 @@
 <template>
     <div id="pageContainer" class="invite-dist">
-        <div class="header">
-            <p class="title">邀请分销客户</p>
-            <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
-        </div>
         <div class="wrapper">
             <div class="top-bg">
                 <img :src="imgHost + '/bk.png'" alt="bk">
+                <a href="javascript:;" class="back-a" onclick="history.go(-1)"></a>
             </div>
             <div class="card" :style="'background: url('+ imgHost +'/yqfxkh.png) no-repeat 0 0 / 100% 100%;'">
                 <p class="txt">邀请更多人一起创业</p>
                 <p class="txt2 bold">大健康之路在此起航!</p>
                 <div class="share-box flex">
-                    <a href="javascript:;" class="item" @click="wxSendAppMessage">
+                    <a href="javascript:;" class="item" @click="showShare">
                         <img src="../assets/img/wechat.png" alt="微信好友">
                         <p>微信好友</p>
                     </a>
-                    <a href="javascript:;" class="item" @click="wxShareTimeline">
+                    <a href="javascript:;" class="item" @click="showShare">
                         <img src="../assets/img/pyq.png" alt="朋友圈">
                         <p>朋友圈</p>
                     </a>
@@ -36,15 +33,23 @@
                 <p class="txt">2.一旦审核通过后，双方关系确定，将无法调整。</p>
             </div>
         </div>
+        <div class="share-dialog" :class="{show: showDialog}">
+            <div class="mask"></div>
+            <div class="con" @click="showDialog = false;">
+                <img src="../assets/img/hand.png" class="hand" />
+                <div class="txt">
+                    <p class="flex fcen">1.点击右上角的<img src="../assets/img/dot.png" class="dot"></p>
+                    <p>2.您可转发至朋友圈、QQ空间</p>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
 import 'muse-ui-toast/dist/muse-ui-toast.all.css';
-import 'muse-ui-loading/dist/muse-ui-loading.css';
 import Vue from 'vue';
 import Toast from 'muse-ui-toast';
-import Loading from 'muse-ui-loading';
 import { Button, Snackbar, Icon } from 'muse-ui';
 import { imgHost } from '../api/baseUrl';
 import { myCode } from '../api/user';
@@ -52,34 +57,84 @@ import VueClipboard from 'vue-clipboard2';
 export default {
     data() {
         return {
-            share: {},
             imgHost: imgHost,
             inviteCode: '',
-            wxConfig: {},
+            showDialog: false,
         }
     },
     methods: {
         getData() {
             let host = location.protocol + "//" + location.hostname;
-            myCode({ url: location.href }).then(res => {
+            let url = location.href;
+            if(this.isWx && !!navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/) && sessionStorage.getItem('ios') != 1){
+                sessionStorage.setItem('ios', 1);
+                location.href = host + '/inviteDistribution';
+                return;
+            }
+            myCode({ url: url }).then(res => {
+                sessionStorage.removeItem('ios');
                 if(res.code == 1){
                     this.inviteCode = res.data.code;
                     this.inviter = res.data.userName;
-                    this.wxConfig = res.data2;
-                    this.share = {
-                        "img_url": "",
+                    let share = {
+                        "img_url": `${imgHost}/logo.png`,
                         "link": `${host}/shareReg?inviter=${this.inviter}&invitationCode=${this.inviteCode}`,
                         "desc": `您的好友${this.inviter}邀请您注册成为经销商啦~`,
                         "title": "享瘦伴侣",
                     }
                     if(this.isWx){
                         wx.config({
+                            debug: false,
                             appId: res.data2.appId,
                             nonceStr: res.data2.nonceStr,
                             signature: res.data2.signature,
                             timestamp: res.data2.timeStamp,
-                            jsApiList: ["onMenuShareTimeline", "onMenuShareAppMessage"],
-                        })
+                            jsApiList: ["updateTimelineShareData", "updateAppMessageShareData", "onMenuShareTimeline", "onMenuShareAppMessage"],
+                        });
+                        wx.ready(function(){
+                            wx.checkJsApi({
+                                jsApiList: [
+                                    'updateAppMessageShareData',
+                                    'updateTimelineShareData',
+                                    'onMenuShareAppMessage',
+                                    'onMenuShareTimeline'
+                                ],
+                                success: function(res) {
+                                    console.log(res);
+                                    let r = res.checkResult;
+                                    if(r.updateAppMessageShareData){
+                                        wx.updateAppMessageShareData({
+                                            "imgUrl": share.img_url,
+                                            "link": share.link,
+                                            "desc": share.desc,
+                                            "title": share.title,
+                                        });
+                                    }
+                                    if(r.updateTimelineShareData){
+                                        wx.updateTimelineShareData({
+                                            "imgUrl": share.img_url,
+                                            "link": share.link,
+                                            "title": share.title,
+                                        });
+                                    }
+                                    if(r['menu:share:appmessage'] || r.onMenuShareAppMessage){
+                                        wx.onMenuShareAppMessage({
+                                            "imgUrl": share.img_url,
+                                            "link": share.link,
+                                            "desc": share.desc,
+                                            "title": share.title,
+                                        });
+                                    }
+                                    if(r['menu:share:timeline'] || r.onMenuShareTimeline){
+                                        wx.onMenuShareTimeline({
+                                            "imgUrl": share.img_url,
+                                            "link": share.link,
+                                            "title": share.title,
+                                        });
+                                    }
+                                }
+                            });
+                        });
                     }
                 }else if(res.code == 0){
                     this.$router.push('/login?from='+ this.$route.name);
@@ -92,51 +147,13 @@ export default {
                 }
             })
             .catch(err => {
+                sessionStorage.removeItem('ios');
                 Toast.error('未知异常！');
                 console.log(err);
             })
         },
-        wxSendAppMessage() {
-            const _this = this;
-            if(this.isWx){
-                wx.ready(function(){
-                    // WeixinJSBridge.invoke('sendAppMessage',{
-                    //     "img_url": _this.share.imgUrl,
-                    //     "link": _this.share.link,
-                    //     "desc": _this.share.desc,
-                    //     "title": _this.share.title,
-                    // });
-                    wx.onMenuShareAppMessage({
-                        "img_url": _this.share.imgUrl,
-                        "link": _this.share.link,
-                        "desc": _this.share.desc,
-                        "title": _this.share.title,
-                    })
-                })
-            }else{
-                alert('请在微信浏览器打开链接！');
-            }
-        },
-        wxShareTimeline() {
-            const _this = this;
-            if(this.isWx){
-                wx.ready(function(){
-                    // WeixinJSBridge.invoke('shareTimeline',{
-                    //     "img_url": _this.share.imgUrl,
-                    //     "link": _this.share.link,
-                    //     "desc": _this.share.desc,
-                    //     "title": _this.share.title,
-                    // });
-                    wx.onMenuShareTimeline({
-                        "img_url": _this.share.imgUrl,
-                        "link": _this.share.link,
-                        "desc": _this.share.desc,
-                        "title": _this.share.title,
-                    })
-                })
-            }else{
-                alert('请在微信浏览器打开链接！');
-            }
+        showShare() {
+            this.showDialog = true;
         },
         copyLink() {
             let link = location.hostname + '/shareReg?invitationCode='+ this.inviteCode +'&inviter='+ this.inviter;
@@ -153,11 +170,13 @@ export default {
     },
     mounted() {
         this.isWx = this.$util.isWx();
+        if(this.isWx && (navigator.userAgent.indexOf('Android') > -1 || u.indexOf('Linux') > -1)){
+            Toast.info('安卓微信版本6.7.2部分机型分享功能暂不可用，请升级或降低版本！');
+        }
         this.getData();
     }
 }
 Vue.use(Toast);
-Vue.use(Loading);
 Vue.use(Button);
 Vue.use(Snackbar);
 Vue.use(Icon);
@@ -165,10 +184,25 @@ Vue.use(VueClipboard);
 </script>
 
 <style scoped lang="less">
+.wrapper{
+    padding-top: 0;
+}
 .top-bg{
+    position: relative;
     img{
         width: 100%;
         height: auto;
+    }
+    .back-a{
+        position: absolute;
+        top: .2rem;
+        left: .15rem;
+        width: .15rem;
+        height: .15rem;
+        border-left: 2px solid #fff;
+        border-bottom: 2px solid #fff;
+        -webkit-transform: rotate(45deg);
+        transform: rotate(45deg);
     }
 }
 .card{
@@ -215,6 +249,48 @@ Vue.use(VueClipboard);
         font-size: .14rem;
         color: #9c9c9c;
         margin-top: .1rem;
+    }
+}
+.share-dialog{
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: none;
+    .mask{
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, .6);
+    }
+    .con{
+        color: #fff;
+        font-size: .16rem;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: 2;
+        .txt{
+            max-width: 1.57rem;
+            position: absolute;
+            top: 1.1rem;
+            right: .2rem;
+        }
+        .hand{
+            width: .53rem;
+            height: .9rem;
+            position: absolute;
+            top: .05rem;
+            right: .3rem;
+        }
+        .dot{
+            width: .23rem;
+            height: .17rem;
+            margin-left: .05rem;
+        }
     }
 }
 </style>

@@ -41,7 +41,7 @@
                     </mu-select>
                 </div>
                 <div class="item flex fcen spb">
-                    <mu-text-field type="number" v-model="code" placeholder="请输入验证码" class="inp yzm" max-length="6" full-width underline-color="blue" prefix="验证码"></mu-text-field>
+                    <mu-text-field type="number" v-model="code" :placeholder="'发送到'+ mobile.substr(0,3) + '****'+ mobile.substr(7,11)" class="inp yzm" max-length="6" full-width underline-color="blue" prefix="验证码"></mu-text-field>
                     <a href="javascript:;" class="code-a" v-if="loading" v-loading="loading" data-mu-loading-size="20"></a>
                     <a href="javascript:;" class="code-a" @click="getCode" v-else-if="!waiting">获取验证码</a>
                     <a href="javascript:;" class="code-a no" v-else>{{time}}s重新获取</a>
@@ -53,6 +53,14 @@
                 </mu-button>
             </div>
         </div>
+        <mu-dialog title="验证码" width="360" :open.sync="openYzm" dialog-class="yzm-d">
+            <div class="flex fcen spb">
+                <img :src="yzmUrl" alt="验证码">
+                <mu-text-field type="number" v-model="yzmCode" max-length="4" class="inp-yzm" underline-color="blue"></mu-text-field>
+            </div>
+            <mu-button slot="actions" flat color="#555" @click="closeDialog">取消</mu-button>
+            <mu-button slot="actions" flat color="primary" @click="sureYzm">确定</mu-button>
+        </mu-dialog>
     </div>
 </template>
 
@@ -64,7 +72,8 @@ import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
 import { TextField, Select, Snackbar, Icon, Button } from 'muse-ui';
 import { $city } from '../assets/js/city2.min';
-import { bankList, cityInfo, bankListInfo, updateBank, sendYopCode } from '../api/user';
+import { bankList, cityInfo, bankListInfo, updateBank, userInfo } from '../api/user';
+import { getMobileCode } from '../api/login';
 import { baseUrl } from '../api/baseUrl';
 export default {
     data() {
@@ -83,9 +92,33 @@ export default {
             time: 60,
             waiting: false,
             code: '',
+            openYzm: false,
+            yzmUrl: '',
+            yzmCode: '',
+            mobile: '',
         }
     },
     methods: {
+        getData() {
+            this.loading2 = Loading({ target: document.getElementById('pageContainer') });
+            userInfo().then(res => {
+                this.loading2.close();
+                if(res.code == 1){
+                    this.mobile = res.data.mobileNum;
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                this.loading2.close();
+                Toast.error('获取手机号失败！');
+                console.log(err);
+            })
+        },
         getBankList() {
             bankList().then(res => {
                 if(res.code == 1){
@@ -106,7 +139,7 @@ export default {
             })
         },
         getBankInfoList() {
-            this.loading2 = Loading({ text: '正在查询开户行，请稍等...' });
+            this.loading2 = Loading({ text: '正在查询开户行，请稍等...', target: document.getElementById('pageContainer') });
             cityInfo({ province: this.formdata.province, city: this.formdata.city }).then(res => {
                 if(res.code == 1){
                     let r = res.data;
@@ -187,27 +220,8 @@ export default {
             this.bankDeposit = '';
         },
         getCode() {
-            this.loading = true;
-            sendYopCode().then(res => {
-                this.loading = false;
-                if(res.code == 1){
-                    Toast.success('验证码已发送，请注意查收！');
-                    this.countdown();
-                }else if(res.code == 0){
-                    this.$router.push('/login?from='+ this.$route.name);
-                }else{
-                    if(res.msg){
-                        Toast.error(res.msg);
-                    }else{
-                        Toast.error('服务器开了小差，请稍后再试！');
-                    }
-                }
-            })
-            .catch(err => {
-                this.loading = false;
-                Toast.error('未知异常！');
-                console.log(err);
-            })
+            this.freshCode();
+            this.openYzm = true;
         },
         save() {
             if((this.loading2 && this.loading2.instance != null) || this.loading3) return;
@@ -227,11 +241,11 @@ export default {
                 Toast.error('请选择开户行！');
                 return;
             }
-            if(!this.code){
-                Toast.error('请填写验证码！');
+            if(!this.code || !Number.isInteger(Number(this.code))){
+                Toast.error('手机验证码错误！');
                 return;
             }
-            this.loading2 = Loading({ text: '正在提交...' });
+            this.loading2 = Loading({ text: '正在提交...', target: document.getElementById('pageContainer') });
             this.loading3 = true;
             let param = Object.assign({
                 card: this.formdata.bankNo,
@@ -242,6 +256,7 @@ export default {
                 headBankCode: this.bankCode,
                 bankCode: this.bankList2[this.bankDeposit].k,
                 merAuthorizeNum: this.code,
+                type: 'edit_bank',
             }, this.codeObj);
             updateBank(param).then(res => {
                 this.loading2.close();
@@ -279,7 +294,36 @@ export default {
                     this.time = 60;
                 }
             }, 1000);
-        }
+        },
+        freshCode() {
+            this.yzmUrl = `${baseUrl}/user/edit_bank/code?t=`+ Date.now();
+        },
+        closeDialog() {
+            this.openYzm = false;
+        },
+        sureYzm() {
+            if(!this.yzmCode || this.yzmCode.length != 4){
+                Toast.error('验证码错误！');
+                return;
+            }
+            this.closeDialog();
+            getMobileCode({ mobile: this.mobile, code: this.yzmCode, type: 'edit_bank' }).then(res => {
+                if(res.code == 1){
+                    this.countdown();
+                    Toast.success('手机验证码发送成功，请查收！');
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                Toast.error('未知异常！');
+                console.log(err);
+            })
+        },
     },
     mounted() {
         this.formdata = {
@@ -295,6 +339,7 @@ export default {
             arr.push(v.value);
         }
         this.provinceArr = arr;
+        this.getData();
         this.getBankList();
     }
 }

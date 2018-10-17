@@ -1,83 +1,63 @@
 <template>
-    <div id="pageContainer" class="recharge">
+    <div id="pageContainer">
         <div class="header">
             <p class="title">充值</p>
             <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
-            <a href="javascript:;" class="refresh" @click="refresh">刷新</a>
         </div>
         <div class="wrapper">
-            <div class="box">
-                <div class="item flex fcen spb">
-                    <mu-text-field v-model="uname" placeholder="会员名" class="inp" full-width underline-color="blue" prefix="会员名" readonly></mu-text-field>
+            <div class="top" :style="'background-image: url(' + imgHost + '/rec_bg.png)'">
+                <p class="txt">请通过网银汇款至以下账号，然后回填充值信息即可</p>
+                <p class="txt">为了快速充值，请在转账附言填写充值账号</p>
+                <div class="info flex fcen">
+                    <p class="txt">您的账号</p>
+                    <p class="txt1 flex1">{{account}}</p>
+                    <a href="javascript:;" class="copy" @click="copyAccount">复制账号</a>
                 </div>
-                <div class="item flex fcen spb">
-                    <mu-text-field type="number" v-model="mobile" placeholder="手机号" class="inp" full-width underline-color="blue" prefix="手机号" readonly></mu-text-field>
-                </div>
-                <!-- <div class="bb10"></div>
-                <div class="item flex fcen spb">
-                    <mu-text-field v-model="way" placeholder="请选择充值方式" class="inp inp2" full-width underline-color="blue" readonly prefix="充值方式" @click="showSheet"></mu-text-field>
-                    <div class="arr-r gray"></div>
-                </div> -->
-                <div class="bb10"></div>
-                <div class="item flex fcen spb">
-                    <mu-text-field type="number" v-model="amount" placeholder="充值1元起" class="inp" full-width underline-color="blue" prefix="充值金额" suffix="元"></mu-text-field>
-                </div>
-                <!-- <div class="bb10"></div>
-                <mu-ripple class="item flex fcen spb" @click="toTradePsw">
-                    <p class="txt">交易密码设置/修改</p>
-                    <div class="arr-r gray"></div>
-                </mu-ripple> -->
             </div>
-
-            <div class="btn-wrapper">
-                <mu-button color="#ff7421" textColor="#fff" class="btn" full-width @click="submit">
-                    <span class="bold">确认充值</span>
-                </mu-button>
+            <div class="con fcol" :style="'background-image: url(' + imgHost + '/box_bg.png)'">
+                <div class="item flex1 flex fcen">开户名：张三</div>
+                <div class="item flex1 flex fcen">开户行：招商银行杭州钱塘支行</div>
+                <div class="item flex1 flex fcen">卡号：6222222222222222 <a href="javascript:;" class="copy" @click="copyBankNo">复制卡号</a></div>
             </div>
-
-            <div class="txts">
-                <p class="txt flex fcen">充值如果要提现需收取0.5%手续费；</p>
-                <p class="txt flex fcen">POS、信用卡充值无法提现。</p>
+            <div class="btns">
+                <mu-button color="#ff7421" textColor="#fff" full-width class="btn bold" @click="showDialog">我已充值，开始订货</mu-button>
+            </div>
+            <div class="other">
+                <p>客服电话：0571-87165191</p>
+                <p>在班时间：9:00-18:00</p>
             </div>
         </div>
-        <mu-bottom-sheet :open.sync="open">
-            <div class="top">
-                <p class="title">请选择充值方式</p>
-                <mu-ripple class="close" @click="open = false"><img src="../assets/img/close.png" alt="关闭"></mu-ripple>
+        <mu-dialog :open.sync="show" dialog-class="rec-d" width="400" max-width="80%">
+            <p class="title">请回填充值的信息</p>
+            <div class="box">
+                <div class="item">
+                    <mu-text-field type="text" v-model="uname" placeholder="" max-length="15" class="inp" full-width underline-color="blue" prefix="开户名:"></mu-text-field>
+                </div>
+                <div class="item flex fcen" v-if="bankList.length > 0">
+                    <p>开户行:</p>
+                    <mu-select v-model="bank" full-width placeholder="" class="sel inp" underline-color="blue" @change="selBank">
+                        <mu-option label="请选择" value="-1" disabled></mu-option>
+                        <mu-option :label="item.bankName" :value="index" v-for="item,index in bankList" :key="item.id"></mu-option>
+                    </mu-select>
+                </div>
+                <div class="item" v-else>
+                    <mu-text-field type="text" v-model="bankName" placeholder="" max-length="20" class="inp" full-width underline-color="blue" prefix="开户行:"></mu-text-field>
+                </div>
+                <div class="item">
+                    <mu-text-field type="number" v-model="bankNo" placeholder="" max-length="20" class="inp" full-width underline-color="blue" prefix="卡号:"></mu-text-field>
+                </div>
+                <div class="item">
+                    <mu-text-field type="number" v-model="money" placeholder="" max-length="10" class="inp" full-width underline-color="blue" prefix="充值金额:"></mu-text-field>
+                </div>
             </div>
-            <mu-list @item-click="closeSheet">
-                <mu-list-item button :data-index="0" data-name="微信支付">
-                    <mu-list-item-title class="flex fcen spb">
-                        <p>微信支付(单日限额3000元)</p>
-                        <mu-radio :value="0" v-model="wayRad" class="rad" color="#ff4521" uncheck-icon="1"></mu-radio>
-                    </mu-list-item-title>
-                </mu-list-item>
-                <mu-list-item button :data-index="1" data-name="储蓄卡快捷支付">
-                    <mu-list-item-title class="flex fcen spb">
-                        <p>储蓄卡快捷支付</p>
-                        <mu-radio :value="1" v-model="wayRad" class="rad" color="#ff4521" uncheck-icon="1"></mu-radio>
-                    </mu-list-item-title>
-                </mu-list-item>
-                <mu-list-item button :data-index="2" data-name="信用卡快捷支付">
-                    <mu-list-item-title class="flex fcen spb">
-                        <p>信用卡快捷支付<span style="color: #9c9c9c;">(无法提现)</span></p>
-                        <mu-radio :value="2" v-model="wayRad" class="rad" color="#ff4521" uncheck-icon="1"></mu-radio>
-                    </mu-list-item-title>
-                </mu-list-item>
-                <mu-list-item button :data-index="3" data-name="银行卡绑卡支付">
-                    <mu-list-item-title class="flex fcen spb">
-                        <p>银行卡绑卡支付</p>
-                        <mu-radio :value="3" v-model="wayRad" class="rad" color="#ff4521" uncheck-icon="1"></mu-radio>
-                    </mu-list-item-title>
-                </mu-list-item>
-                <mu-list-item button :data-index="4" data-name="POS支付">
-                    <mu-list-item-title class="flex fcen spb">
-                        <p>POS支付<span style="color: #9c9c9c;">(公司线下活动现场当面使用)</span></p>
-                        <mu-radio :value="4" v-model="wayRad" class="rad" color="#ff4521" uncheck-icon="1"></mu-radio>
-                    </mu-list-item-title>
-                </mu-list-item>
-            </mu-list>
-        </mu-bottom-sheet>
+            <div class="btn-box">
+                <mu-button color="#ff7421" textColor="#fff" full-width class="btn bold" @click="submit">确认提交</mu-button>
+            </div>
+            <div class="other">
+                <p>客服电话：0571-87165191</p>
+                <p>在班时间：9:00-18:00</p>
+            </div>
+        </mu-dialog>
     </div>
 </template>
 
@@ -87,33 +67,60 @@ import 'muse-ui-toast/dist/muse-ui-toast.all.css';
 import Vue from 'vue';
 import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
-import { TextField, Select, Radio, List, BottomSheet, Button, Snackbar, Icon } from 'muse-ui';
-import { recharge, userInfo } from '../api/user';
+import { TextField, Button, Snackbar, Icon, Dialog, Select } from 'muse-ui';
+import { imgHost } from '../api/baseUrl';
+import { userInfo, userRechargeInfo, cashApply, bankList } from '../api/user';
+import VueClipboard from 'vue-clipboard2';
 export default {
     data() {
         return {
-            open: false,
-            wayRad: 0,
+            imgHost: imgHost,
+            account: '',
+            show: false,
             uname: '',
-            mobile: '',
-            way: '',
-            amount: '',
-            loading: false,
+            bankName: '',
+            bankNo: '',
+            money: '',
+            bankList: [],
+            bank: '',
         }
     },
     methods: {
-        refresh() {
-            this.getData();
-        },
-        getData() {
-            this.loading = Loading();
-            userInfo().then(res => {
-                this.loading.close();
-                if(res.code == 1){
-                    this.uname = res.data.userName;
-                    this.mobile = res.data.mobileNum;
+        getRecInfo() {
+            userRechargeInfo().then(res => {
+                if(res.code == 1) {
+                    let r = res.data;
+                    this.uname = r.realName;
+                    this.bankName = r.bankName;
+                    this.bankNo = r.card;
+                    if(r.userName){
+                        this.account = r.userName;
+                    }else{
+                        this.getUserInfo();
+                    }
+                }else if(res.code == 4){
+                    this.getUserInfo();
                 }else if(res.code == 0){
-                    this.$router.push('/login?from='+ this.$route.name);
+                    this.$router.push('/login');
+                }else{
+                    this.getUserInfo();
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                this.getUserInfo();
+                Toast.error('未知异常！');
+                console.log(err);
+            });
+        },
+        getUserInfo() {
+            userInfo().then(res => {
+                if(res.code == 1){
+                    this.account = res.data.userName;
                 }else{
                     if(res.msg){
                         Toast.error(res.msg);
@@ -123,52 +130,57 @@ export default {
                 }
             })
             .catch(err => {
-                this.loading.close();
-                Toast.error('')
+                Toast.error('未知异常！');
+                console.log(err);
+            });
+        },
+        getBanks() {
+            bankList().then(res => {
+                if(res.code == 1){
+                    this.bankList = res.data;
+                    for (let i=0; i<res.data.length; i++){
+                        if(res.data[i].bankName == this.bankName){
+                            this.bank = i;
+                            break;
+                        }
+                    }
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                Toast.error('获取银行列表失败！');
+                console.log(err);
             })
         },
-        showSheet() {
-            this.open = true;
-        },
-        closeSheet(e) {
-            this.open = false;
-            this.wayRad = Number(e.$el.dataset.index);
-            this.way = e.$el.dataset.name;
-        },
-        toTradePsw() {
-
+        selBank(index) {
+            this.bankName = this.bankList[index].bankName;
         },
         submit() {
-            if(this.loading && this.loading.instance != null) return;
-            if(!this.uname){
-                Toast.error('请输入会员名！');
+            if(this.loading2) return;
+            if(!this.uname || !this.bankName || !this.bankNo || !this.money){
+                Toast.error('请填写完整的充值信息！');
                 return;
             }
-            if(!this.mobile || !this.$util.telValidate(this.mobile)){
-                Toast.error('请输入正确的手机号！');
-                return;
-            }
-            // if(!this.way){
-            //     Toast.error('请选择充值方式！');
-            //     return;
-            // }
-            if(!this.amount || this.amount < 0.01){
+            if(this.money < 0.01 || Number.isNaN(Number(this.money))){
                 Toast.error('请输入有效充值金额！');
                 return;
             }
-            this.loading = Loading();
-            recharge({ orderType: 1, orderAmount: this.amount }).then(res => {
+            this.loading = Loading({ text: '正在提交...', target: document.getElementById('pageContainer') });
+            this.loading2 = true;
+            cashApply({ type: 100, applyMoney: this.money, card: this.bankNo, bankName: this.bankName, realName: this.uname }).then(res => {
                 this.loading.close();
                 if(res.code == 1){
-                    // window.location.href = encodeURI(res.data);
-                    let link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
-                    link.href = encodeURI(res.data);
-                    let event = document.createEvent('MouseEvents');
-                    event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-                    link.dispatchEvent(event);
-                }else if(res.code == 0){
-                    this.$router.push('/login?from='+ this.$route.name);
+                    Toast.success('提交成功！');
+                    setTimeout(() => {
+                        this.$router.push('/rechargeDetail/'+ res.data);
+                    }, 1000);
                 }else{
+                    this.loading2 = false;
                     if(res.msg){
                         Toast.error(res.msg);
                     }else{
@@ -178,44 +190,138 @@ export default {
             })
             .catch(err => {
                 this.loading.close();
+                this.loading2 = false;
                 Toast.error('未知异常！');
                 console.log(err);
+            });
+        },
+        showDialog() {
+            this.show = true;
+            this.getBanks();
+        },
+        copyAccount() {
+            this.$copyText(this.account).then(e => {
+                Toast.success('账号复制成功！');
+            }, err => {
+                Toast.error('账号复制失败！');
+                console.log(err);
             })
-        }
+        },
+        copyBankNo() {
+            this.$copyText('6228480329014204476').then(e => {
+                Toast.success('卡号复制成功！');
+            }, err => {
+                Toast.error('卡号复制失败！');
+                console.log(err);
+            })
+        },
     },
     mounted() {
-        this.getData();
+        this.getRecInfo();
     }
 }
 Vue.use(Toast);
 Vue.use(Loading);
 Vue.use(TextField);
 Vue.use(Select);
-Vue.use(Radio);
-Vue.use(List);
 Vue.use(Button);
 Vue.use(Snackbar);
 Vue.use(Icon);
-Vue.use(BottomSheet);
+Vue.use(Dialog);
+Vue.use(VueClipboard);
 </script>
 
 <style scoped lang="less">
-.header .refresh{
-    position: absolute;
-    right: .15rem;
-    top: 0;
-    line-height: .45rem;
-    color: #ff7421;
-    font-size: .14rem;
+.top{
+    height: 1.04rem;
+    margin-top: 2px;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-position: center center;
+    color: #fff;
+    padding: .08rem .15rem;
+    .txt{
+        font-size: .14rem;
+    }
+    .txt1{
+        margin: 0 .2rem 0 .1rem;
+        height: .25rem;
+        line-height: .25rem;
+        background: #fff;
+        padding: 0 .1rem;
+        border-radius: .05rem;
+        color: #000;
+        font-size: .14rem;
+    }
+    .info{
+        margin-top: .15rem;
+    }
+    .copy{
+        font-size: .12rem;
+        color: #fff;
+    }
 }
-.box{
-    background: #fff;
-    border-top: 2px solid #f3f3f3;
+.con{
+    margin: .1rem .05rem;
+    height: 1.5rem;
+    padding: .08rem .1rem .12rem;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-position: center center;
+    .item{
+        border-bottom: 1px solid #f3f3f3;
+        font-size: .14rem;
+        color: #000;
+        padding: 0 .15rem;
+        position: relative;
+        &:last-child{
+            border-bottom: 0;
+        }
+        .copy{
+            font-size: .12rem;
+            color: #979797;
+            position: absolute;
+            right: .2rem;
+            top: 50%;
+            -webkit-transform: translate3d(0, -50%, 0);
+            transform: translate3d(0, -50%, 0);
+        }
+    }
+}
+.btns{
+    margin-top: .15rem;
+    padding: 0 .15rem;
+    .btn{
+        position: relative;
+        height: .42rem;
+        font-size: .16rem;
+        letter-spacing: 1px;
+    }
+}
+.other{
+    width: 1.5rem;
+    font-size: .12rem;
+    color: #979797;
+    margin: .15rem auto 0;
+    line-height: 2;
+    white-space: nowrap;
+}
+.rec-d{
+    .title{
+        font-size: .16rem;
+        color: #000;
+        text-align: center;
+        padding: .1rem 0;
+        margin: 0 .15rem;
+        border-bottom: 1px solid #f3f3f3;
+    }
     .item{
         height: .42rem;
         line-height: .42rem;
         padding: 0 .15rem;
         position: relative;
+        font-size: .14rem;
+        color: #000;
         .inp{
             position: absolute;
             left: 0;
@@ -225,110 +331,41 @@ Vue.use(BottomSheet);
             margin: 0;
             padding: 0;
             color: #000;
-            font-size: .16rem;
+            font-size: .14rem;
             min-height: auto;
         }
-        .arr-r{
-            position: absolute;
-            right: .15rem;
-            top: 0;
-        }
-        .txt{
-            font-size: .16rem;
-            color: #000;
-        }
     }
-}
-.btn-wrapper{
-    padding: 0 .15rem;
-    margin-top: .2rem;
-    margin-bottom: .1rem;
-    .btn{
-        height: .42rem;
-        font-size: .18rem;
-        border-radius: .05rem;
-        letter-spacing: 1px;
-    }
-}
-.txts{
-    padding: 0 .15rem;
-    .txt{
-        font-size: .12rem;
-        color: #555;
-        line-height: 2;
-        &::before{
-            content: '';
-            display: inline-block;
-            width: .07rem;
-            height: .07rem;
-            background: #ff7421;
-            border-radius: 100%;
-            margin-right: .05rem;
-        }
-    }
-}
-.mu-bottom-sheet{
-    .top{
-        width: 100%;
-        height: .48rem;
-        line-height: .48rem;
-        position: relative;
-        color: #000;
-        font-size: .16rem;
-        text-align: center;
-        border-bottom: 1px solid #f3f3f3;
-        .close{
-            position: absolute;
-            width: .48rem;
-            height: .48rem;
-            right: 0;
-            top: 0;
-            img{
-                width: .14rem;
-                height: .14rem;
-                vertical-align: top;
-                margin: .17rem;
-            }
-        }
-    }
-    .mu-list{
-        padding: 0;
-        li{
-            margin-left: .15rem;
-            border-bottom: 1px solid #f3f3f3;
-            .mu-item-title{
-                font-size: .14rem;
-                padding-right: .15rem;
-            }
+    .btn-box{
+        margin-top: .15rem;
+        padding: 0 .15rem;
+        .btn{
+            height: .35rem;
+            font-size: .14rem;
+            letter-spacing: 1px;
         }
     }
 }
 </style>
 <style>
-.recharge .mu-input-content{
+.rec-d .mu-dialog-body{
+    padding: .1rem 0;
+    border-radius: .05rem;
+}
+.rec-d .mu-input-content{
     padding: 0 .15rem;
 }
-.recharge .mu-input-content .mu-text-field-input{
+.rec-d .mu-text-field-input{
     padding: .05rem 0;
     height: .42rem;
-    text-align: right;
 }
-.recharge .inp2 .mu-input-content .mu-text-field-input{
-    padding: .05rem .15rem .05rem 0;
-}
-.recharge .mu-input-content .mu-input-prefix-text, .recharge .mu-input-content .mu-input-suffix-text{
+.rec-d .mu-input-prefix-text{
     color: #000;
+    min-width: .65rem;
 }
-.recharge .mu-input-content .mu-input-line{
+.rec-d .mu-input-line{
     background-color: #f3f3f3;
 }
-.mu-item{
-    padding: 0;
-}
-.rad .mu-radio-icon-uncheck{
-    background-image: url(../assets/img/unchoose.png);
-    background-repeat: no-repeat;
-    background-size: 20px 20px;
-    background-position: center;
+.rec-d .mu-select-input{
+    padding-left: .65rem;
 }
 </style>

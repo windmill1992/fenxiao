@@ -38,13 +38,13 @@
                             <div class="btn">查看详情</div>
                         </mu-ripple>
                     </router-link>
-                    <!-- <router-link to="" class="item fcol">
+                    <router-link to="/teamSales" class="item fcol">
                         <mu-ripple class="rip fcol spb flex1">
-                            <p class="txt">本月总积分</p>
-                            <p class="num bold">0</p>
+                            <p class="txt">团队销售额</p>
+                            <p class="num bold">{{info.teamSale ? info.teamSale : 0}}</p>
                             <div class="btn">查看详情</div>
                         </mu-ripple>
-                    </router-link> -->
+                    </router-link>
                 </div>
             </div>
             <!-- <div class="bb10"></div>
@@ -117,7 +117,7 @@ export default {
     },
     methods: {
         getData() {
-            this.loading = Loading();
+            this.loading = Loading({ target: document.getElementById('pageContainer') });
             integral().then(res => {
                 this.loading.close();
                 if(res.code == 1){

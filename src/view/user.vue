@@ -101,7 +101,7 @@ export default {
     },
     methods: {
         getData() {
-            this.loading = Loading();
+            this.loading = Loading({ target: document.getElementById('pageContainer') });
             userInfo().then(res => {
                 this.loading.close();
                 if(res.code == 1){
@@ -147,7 +147,7 @@ export default {
 
             formData.append('file', file, file.name);
             formData.append('type', 1);
-            this.loading = Loading({ text: '正在上传头像...' });
+            this.loading = Loading({ text: '正在上传头像...', target: document.getElementById('pageContainer') });
             uploadImage(formData).then(res => {
                 this.loading.close();
                 if(res.code == 1){

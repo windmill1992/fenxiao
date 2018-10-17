@@ -47,7 +47,7 @@ export default {
     },
     methods: {
         getData() {
-            this.loading = Loading();
+            this.loading = Loading({ target: document.getElementById('pageContainer') });
             prodDetail({ id: this.id }).then(res => {
                 this.loading.close();
                 if(res.code == 1){

@@ -1,11 +1,11 @@
 <template>
-    <div id="pageContainer" class="dynamic-point">
+    <div id="pageContainer" class="second-point">
         <div class="header">
             <p class="title">二阶积分</p>
             <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
         </div>
         <div class="wrapper fcol">
-            <mu-load-more class="flex1 fcol" :refreshing="refreshing" :loading="loading" @refresh="refresh" @load="load">
+            <mu-load-more class="flex1 fcol" :loading="loading" @load="load">
                 <div class="top">
                     <div class="date-sel flex spc">
                         <a href="javascript:;" class="sel bold flex fcen" @click="openSheet">{{year}}年{{month}}月</a>
@@ -42,8 +42,8 @@
                         <p class="txt">暂无数据</p>
                     </div>
                 </div>
+                <p class="no-more" v-if="hasmore == 1">没有更多数据了</p>
             </mu-load-more>
-            <p class="no-more" v-if="hasmore == 1">没有更多数据了</p>
         </div>
         <mu-bottom-sheet :open.sync="open" class="date-container">
             <div class="btn-box flex spb">
@@ -100,18 +100,16 @@ export default {
             hasmore: -1,
             page: 1,
             pageSize: 12,
-            refreshing: false,
             point: 0,
         }
     },
     methods: {
         getData() {
-            this.loading2 = Loading();
+            this.loading2 = Loading({ target: document.getElementById('pageContainer') });
             let time = this.year + '-' + this.month;
             secondPoint({ monthTime: time, pageNum: this.page, pageSize: this.pageSize }).then(res => {
                 this.loading2.close();
                 this.loading = false;
-                this.refreshing = false;
                 if(res.code == 1){
                     let r = res.data;
                     if(this.page == 1){
@@ -144,7 +142,6 @@ export default {
             })
             .catch(err => {
                 this.loading = false;
-                this.refreshing = false;
                 this.loading2.close();
                 Toast.error('未知异常！');
                 console.log(err);
@@ -183,11 +180,6 @@ export default {
                 }
             }
             this.open = false;
-        },
-        refresh() {
-            this.refreshing = true;
-            this.page = 1;
-            this.getData();
         },
         load() {
             if(this.hasmore != 2 || this.loading) return;

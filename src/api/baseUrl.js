@@ -8,3 +8,5 @@ export const baseUrl = base;
 export const imgHost = 'http://api.51xsbl.com/res/icon';
 
 export const bankHost = 'http://api.51xsbl.com/res/banks';
+
+export const avatarHost = 'http://res.51xsbl.com/picture/';

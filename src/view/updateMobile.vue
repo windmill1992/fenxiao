@@ -154,7 +154,7 @@ export default {
                 Toast.error('请输入登录密码！');
                 return;
             }
-            this.loading = Loading();
+            this.loading = Loading({ target: document.getElementById('pageContainer') });
             updateMobile({ mobile: this.mobile, code: this.code, password: this.psw, type: 'edit' }).then(res => {
                 this.loading.close();
                 if(res.code == 1){

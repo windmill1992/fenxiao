@@ -20,6 +20,7 @@
                     <a><img class="qr" :src="qrurl" ref="qr" /></a>
                     <p class="txt">保存二维码或让朋友扫一扫二维码，邀请TA成为经销商</p>
                 </div>
+                <a href="javascript:;" class="back-a" onclick="history.go(-1)"></a>
             </div>
             <!-- <mu-button class="btn" color="#ff4521" textColor="#fff" @click="save">保存图片</mu-button> -->
         </div>
@@ -44,11 +45,12 @@ export default {
             inviteCode: '',
             qrurl: '',
             user: {},
+            imgHost: imgHost,
         }
     },
     methods: {
         getData() {
-            this.loading = Loading();
+            this.loading = Loading({ target: document.getElementById('pageContainer') });
             userInfo().then(res => {
                 if(res.code == 1){
                     this.user = res.data;
@@ -292,6 +294,17 @@ Vue.use(Icon);
             color: #9c9c9c;
             padding: 0 .15rem;
         }
+    }
+    .back-a{
+        position: absolute;
+        top: .2rem;
+        left: .15rem;
+        width: .15rem;
+        height: .15rem;
+        border-left: 2px solid #fff;
+        border-bottom: 2px solid #fff;
+        -webkit-transform: rotate(45deg);
+        transform: rotate(45deg);
     }
 }
 .btn{
