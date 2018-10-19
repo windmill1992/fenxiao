@@ -23,7 +23,7 @@
                                 <p class="txt">直升中级经销商,厉害！</p>
                                 <p class="tag">套组价</p>
                                 <div class="flex spb">
-                                    <p class="price fcol fend">￥{{item.price}}</p>
+                                    <p class="price fcol fend bold">￥{{item.price}}</p>
                                     <router-link :to="'/orderSure?ids='+ item.id" class="btn" v-if="hasHighLevel">去订货</router-link>
                                     <a href="javascript:;" class="btn" v-else @click="noorder">去订货</a>
                                 </div>
@@ -48,7 +48,7 @@
                                 <p class="title bold">{{item.productName}}</p>
                                 <p class="tag">特惠价</p>
                                 <div class="flex spb">
-                                    <p class="price fcol fend">￥{{item.salesPrice}}</p>
+                                    <p class="price fcol fend bold">￥{{item.salesPrice}}</p>
                                     <mu-radio v-model="selects" :value="item.id" uncheck-icon="1" checked-icon="2" class="chk" color="#ff4521"></mu-radio>
                                 </div>
                             </div>
@@ -81,7 +81,6 @@ import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
 import { Tabs, Radio, LoadMore, Snackbar, Button, Icon } from 'muse-ui';
 import { prodList, salesProdList } from '../api/product';
-import { integral } from '../api/user';
 import { imgHost } from '../api/baseUrl';
 export default {
     data() {
@@ -100,7 +99,6 @@ export default {
             hasmore1: -1,
             hasmore2: -1,
             hasHighLevel: false,
-            user: {},
         }
     },
     methods: {
@@ -200,25 +198,6 @@ export default {
                 console.log(err);
             });
         },
-        getState() {
-            integral().then(res => {
-                if(res.code == 1){
-                    this.user = res.data;
-                }else if(res.code == 0){
-                    
-                }else{
-                    if(res.msg){
-                        Toast.error(res.msg);
-                    }else{
-                        Toast.error('服务器开了小差，请稍后再试！');
-                    }
-                }
-            })
-            .catch(err => {
-                Toast.error('未知异常！');
-                console.log(err);
-            })
-        },
         load() {
             if(this.loading) return;
             if(this.active == 0){
@@ -288,71 +267,69 @@ Vue.use(Icon);
     &.box1{
         padding-bottom: .5rem;
     }
-    .list{
-        .item{
-            padding: .15rem;
-            border-top: 1px solid #f3f3f3;
-            .pic{
-                width: 1.3rem;
+    .item{
+        padding: .15rem;
+        border-top: 1px solid #f3f3f3;
+        .pic{
+            width: 1.3rem;
+            height: 1.15rem;
+            overflow: hidden;
+            margin-right: .15rem;
+            img{
+                width: 100%;
+                height: 100%;
+            }
+        }
+        .info{
+            overflow: hidden;
+            &.info1{
                 height: 1.15rem;
+            }
+            .title{
+                font-size: .16rem;
+                color: #000;
+                display: -webkit-box;
+                /*! autoprefixer: off */
+                -webkit-box-orient: vertical;
+                /* autoprefixer: on */
+                -webkit-line-clamp: 2;
+                line-height: 1.5;
+                height: .42rem;
                 overflow: hidden;
-                margin-right: .15rem;
-                img{
-                    width: 100%;
-                    height: 100%;
+                &.title1{
+                    -webkit-line-clamp: 1;
+                    height: .24rem;
                 }
             }
-            .info{
-                overflow: hidden;
-                &.info1{
-                    height: 1.15rem;
-                }
-                .title{
-                    font-size: .14rem;
-                    color: #000;
-                    display: -webkit-box;
-                    /*! autoprefixer: off */
-                    -webkit-box-orient: vertical;
-                    /* autoprefixer: on */
-                    -webkit-line-clamp: 2;
-                    line-height: 1.5;
-                    height: .42rem;
-                    overflow: hidden;
-                    &.title1{
-                        -webkit-line-clamp: 1;
-                        height: .24rem;
-                    }
-                }
-                .txt{
-                    font-size: .12rem;
-                    color: #555;
-                    margin-top: 5px;
-                }
-                .tag{
-                    display: inline-block;
-                    padding: 0 .03rem;
-                    border: 1px solid #ff7421;
+            .txt{
+                font-size: .12rem;
+                color: #555;
+                margin-top: 5px;
+            }
+            .tag{
+                display: inline-block;
+                padding: 0 .03rem;
+                border: 1px solid #ff7421;
+                color: #ff7421;
+                border-radius: .05rem;
+                font-size: .14rem;
+                margin-top: .1rem;
+            }
+            div{
+                margin-top: .05rem;
+                .price{
                     color: #ff7421;
-                    border-radius: .05rem;
-                    font-size: .14rem;
-                    margin-top: .1rem;
+                    font-size: .16rem;
                 }
-                div{
-                    margin-top: .05rem;
-                    .price{
-                        color: #ff7421;
-                        font-size: .14rem;
-                    }
-                    .btn{
-                        width: .54rem;
-                        height: .25rem;
-                        line-height: .25rem;
-                        text-align: center;
-                        color: #fff;
-                        font-size: .12rem;
-                        background: #ff4521;
-                        border-radius: .05rem;
-                    }
+                .btn{
+                    width: .54rem;
+                    height: .25rem;
+                    line-height: .25rem;
+                    text-align: center;
+                    color: #fff;
+                    font-size: .12rem;
+                    background: #ff4521;
+                    border-radius: .05rem;
                 }
             }
         }

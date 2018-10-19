@@ -145,8 +145,8 @@ export default {
                 if(res.code == 1){
                     Toast.success('重置成功！');
                     setTimeout(() => {
-                        this.$router.push('/setting');
-                    }, 1500);
+                        this.$router.replace('/login');
+                    }, 1000);
                 }else if(res.code == 0){
                     this.$router.push('/login?from='+ this.$route.name);
                 }else{

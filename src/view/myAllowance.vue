@@ -27,13 +27,13 @@
                 </div>
                 <div class="box" v-if="hasmore != 0">
                     <div class="th flex spb" v-for="item in list" :key="'all'+ item.id">
-                        <p class="td flex fcen">{{item.monthTime}}</p>
+                        <p class="td">{{item.monthTime}}</p>
                         <p class="td txtC">￥{{item.teamReward}}</p>
                         <p class="td txtR">{{item.integralReward}} ({{item.rewardScale == 1 ? '100%' : (item.rewardScale == 2 ? '80%' : '0%')}})</p>
                     </div>
                 </div>
                 <div class="box flex1 fcol" v-else>
-                    <div class="no-data fcol spc fcen flex1" v-if="list.length == 0">
+                    <div class="no-data fcol spc fcen flex1">
                         <img :src="imgHost + '/error_zanwusj.png'" alt="暂无数据">
                         <p class="txt">暂无补贴数据</p>
                     </div>
@@ -53,7 +53,6 @@ import Loading from 'muse-ui-loading';
 import { Button, Snackbar, Icon, LoadMore } from 'muse-ui';
 import { imgHost } from '../api/baseUrl';
 import { myAllowance } from '../api/user';
-import { util } from '../utils/base';
 
 export default {
     data() {
@@ -65,8 +64,8 @@ export default {
             page: 1,
             pageSize: 12,
             info: {
-                money: 0,
-                time: '',
+                rewardMoney: 0,
+                monthTime: '',
             },
         }
     },
@@ -81,7 +80,6 @@ export default {
                     if(this.page == 1){
                         this.list = [];
                     }
-                    this.money = res.data2;
                     if(r.total == 0){
                         this.hasmore = 0;
                     }else if(r.total <= this.page * this.pageSize){
@@ -94,7 +92,6 @@ export default {
                 }else if(res.code == 4){
                     this.hasmore = 0;
                     this.list = [];
-                    this.money = 0;
                 }else if(res.code == 2){
                     this.hasmore = 1;
                 }else if(res.code == 0){
@@ -119,11 +116,6 @@ export default {
             this.page++;
             this.loading = true;
             this.getData();
-        }
-    },
-    filters: {
-        fmt(t) {
-            return util.formatTime(t).substr(6);
         }
     },
     mounted() {
@@ -198,11 +190,6 @@ Vue.use(Icon);
         font-size: .12rem;
         color: #000;
         white-space: nowrap;
-        img{
-            width: .24rem;
-            height: .24rem;
-            margin-right: 5px;
-        }
     }
 }
 </style>

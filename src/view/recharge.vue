@@ -15,9 +15,9 @@
                 </div>
             </div>
             <div class="con fcol" :style="'background-image: url(' + imgHost + '/box_bg.png)'">
-                <div class="item flex1 flex fcen">开户名：张三</div>
-                <div class="item flex1 flex fcen">开户行：招商银行杭州钱塘支行</div>
-                <div class="item flex1 flex fcen">卡号：6222222222222222 <a href="javascript:;" class="copy" @click="copyBankNo">复制卡号</a></div>
+                <div class="item flex1 flex fcen">开户名：{{uName}}</div>
+                <div class="item flex1 flex fcen">开户行：{{uBankName}}</div>
+                <div class="item flex1 flex fcen">卡号：{{uBankNo}} <a href="javascript:;" class="copy" @click="copyBankNo">复制卡号</a></div>
             </div>
             <div class="btns">
                 <mu-button color="#ff7421" textColor="#fff" full-width class="btn bold" @click="showDialog">我已充值，开始订货</mu-button>
@@ -83,6 +83,9 @@ export default {
             money: '',
             bankList: [],
             bank: '',
+            uBankNo: '6222222222222222',
+            uBankName: '招商银行杭州钱塘支行',
+            uName: '张三',
         }
     },
     methods: {
@@ -208,7 +211,7 @@ export default {
             })
         },
         copyBankNo() {
-            this.$copyText('6228480329014204476').then(e => {
+            this.$copyText(this.userBankNo).then(e => {
                 Toast.success('卡号复制成功！');
             }, err => {
                 Toast.error('卡号复制失败！');

@@ -228,7 +228,11 @@ export default {
         },
         order() {
             if(this.info.highLevelId || this.info.highLevelId == 0){
-                this.$router.push({ name: 'orderArea' });
+                if(this.info.auditState == '102'){
+                    this.$router.push({ name: 'orderArea' });
+                }else{
+                    alert('您还未成为经销商，请联系您的上阶。');
+                }
             }else{
                 alert('您还未成为经销商，请联系客服！');
             }
@@ -275,15 +279,17 @@ Vue.use(Icon);
     .user-info{
         overflow: hidden;
         .nick{
-            font-size: .24rem;
+            font-size: .2rem;
             color: #000;
             display: -webkit-box;
+            /*! autoprefixer: off */
             -webkit-box-orient: vertical;
             -webkit-line-clamp: 1;
+            /*! autoprefixer: on */
             white-space: nowrap;
         }
         .link{
-            font-size: .16rem;
+            font-size: .14rem;
             color: #555;
             margin-top: .06rem;
         }
@@ -335,7 +341,7 @@ Vue.use(Icon);
             line-height: 1;
         }
         .txt{
-            font-size: .14rem;
+            font-size: .13rem;
             color: #555;
         }
     }
@@ -408,7 +414,7 @@ Vue.use(Icon);
             }
             .txt{
                 color: #000;
-                font-size: .14rem;
+                font-size: .13rem;
             }
             .badge{
                 position: absolute;

@@ -231,8 +231,6 @@ export default {
                                 setTimeout(() => {
                                     this.$router.push('/orderDetail3/'+ this.orderId);
                                 }, 1000);
-                            }else if(res.code == 0){
-                                this.$router.push('/login?from='+ this.$route.name +'&params=id_'+ this.id);
                             }else{
                                 this.loading.close();
                                 if(res.msg){

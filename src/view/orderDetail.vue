@@ -189,21 +189,7 @@ export default {
         cancelOrder() {
             Message.confirm('确定取消订单吗？', '提示', {}).then(({ result }) => {
                 if(result){
-                    cancelOrder({ orderId: this.id }).then(res => {
-                        if(res.code == 1){
-                            this.getData();
-                        }else{
-                            if(res.msg){
-                                Toast.error(res.msg);
-                            }else{
-                                Toast.error('服务器开了小差，请稍后再试！');
-                            }
-                        }
-                    })
-                    .catch(err => {
-                        Toast.error('未知异常！');
-                        console.log(err);
-                    })
+                   this.cancelOrder2();
                 }
             })
         },

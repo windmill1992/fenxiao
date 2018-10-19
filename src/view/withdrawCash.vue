@@ -146,7 +146,7 @@ export default {
                         if(res.code == 1){
                             Toast.success('提交成功，请等待审核。');
                             setTimeout(() => {
-                                this.$router.push('/wallet');
+                                this.$router.push('/withdrawDetail/'+ res.data);
                             }, 1000);
                         }else{
                             this.loading2 = false;
