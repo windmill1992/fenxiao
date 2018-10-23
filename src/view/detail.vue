@@ -77,6 +77,7 @@ export default {
         }
     },
     mounted() {
+        this.isWx = this.$util.isWx();
         this.id = this.$route.params.id;
         if(this.id){
             this.getData();
@@ -155,10 +156,12 @@ Vue.use(Icon);
     line-height: 1.5;
     padding: .15rem;
     background: #fff;
-    img{
-        width: 100%;
-        max-width: 100%;
-        margin: .1rem 0;
-    }
+}
+</style>
+<style>
+.detail .content img{
+    width: 100%;
+    max-width: 100%;
+    margin: .1rem 0;
 }
 </style>

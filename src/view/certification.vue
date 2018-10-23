@@ -232,6 +232,7 @@ export default {
         } */
     },
     mounted() {
+        this.isWx = this.$util.isWx();
         if(sessionStorage.saveObj){
             this.saveObj = JSON.parse(sessionStorage.saveObj);
         }else{

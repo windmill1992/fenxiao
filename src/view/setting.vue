@@ -176,6 +176,7 @@ export default {
         },
     },
     mounted() {
+        this.isWx = this.$util.isWx();
         let code = this.$route.query.code;
         let wx = sessionStorage.getItem('wx');
         if(code && wx != 1){

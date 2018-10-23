@@ -131,6 +131,7 @@ export default {
         }
     },
     mounted() {
+        this.isWx = this.$util.isWx();
         this.loading = Loading({ target: document.getElementById('pageContainer') });
         this.getData(1);
         this.getData(2);

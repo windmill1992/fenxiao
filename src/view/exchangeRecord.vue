@@ -77,6 +77,7 @@ export default {
         }
     },
     mounted() {
+        this.isWx = this.$util.isWx();
         this.loading2 = Loading();
         this.getData();
     }

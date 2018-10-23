@@ -48,7 +48,7 @@
                     </mu-select>
                 </div>
                 <div class="item">
-                    <mu-select v-model="bankDeposit" filterable full-width placeholder="选择开户行" @change="selDeposit" class="sel inp" underline-color="blue">
+                    <mu-select v-model="bankDeposit" filterable full-width placeholder="选择开户行" @change="selDeposit" class="sel inp" underline-color="blue" popover-class="deposit" label-float>
                         <mu-option label="请选择" value="-1" disabled></mu-option>
                         <mu-option :label="item.v" :value="index" v-for="item,index in bankList2" :key="'dep'+ index"></mu-option>
                     </mu-select>
@@ -102,7 +102,7 @@ export default {
                 if(res.code == 1){
                     this.bankList = res.data;
                 }else if(res.code == 0){
-                    this.$router.push('/login?from='+ this.$route.name);
+                    this.$router.push('/login');
                 }else{
                     if(res.msg){
                         Toast.error(res.msg);
@@ -282,6 +282,7 @@ export default {
         },
     },
     mounted() {
+        this.isWx = this.$util.isWx();
         this.formdata = {
             uname: '',
             mobile: '',
@@ -321,7 +322,7 @@ Vue.use(Button);
     .item{
         height: .44rem;
         line-height: .44rem;
-        padding: 0 .15rem;
+        // padding: 0 .15rem;
         position: relative;
         &.item2{
             padding: 0;
@@ -330,7 +331,7 @@ Vue.use(Button);
             }
         }
         .inp{
-            position: absolute;
+            // position: absolute;
             left: 0;
             top: 0;
             width: 100%;
@@ -421,5 +422,8 @@ Vue.use(Button);
 }
 .qualifacation-cert .mu-input-content .mu-input-focus-line {
     left: .15rem;
+}
+.deposit{
+    top: 0!important;
 }
 </style>

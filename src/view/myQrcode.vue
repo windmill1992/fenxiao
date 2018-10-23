@@ -1,9 +1,5 @@
 <template>
     <div id="pageContainer">
-        <!-- <div class="header">
-            <p class="title">我的二维码</p>
-            <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
-        </div> -->
         <div class="wrapper fcol">
             <div class="box flex1 fcol fcen spc">
                 <div class="code-box">
@@ -229,7 +225,6 @@ export default {
         }
     },
     mounted() {
-        this.isWx = this.$util.isWx();
         this.getData();
     }
 }

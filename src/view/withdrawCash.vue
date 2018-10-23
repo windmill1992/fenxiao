@@ -68,6 +68,8 @@ export default {
                     }
                 }else if(res.code == 0){
                     this.$router.push('/login?from='+ this.$route.name);
+                }else if(res.code == 4){
+                    Toast.error('您还未绑定过银行卡，不能提现！');
                 }else{
                     if(res.msg){
                         Toast.error(res.msg);
@@ -168,6 +170,7 @@ export default {
         }
     },
     mounted() {
+        this.isWx = this.$util.isWx();
         this.getData();
     }
 }

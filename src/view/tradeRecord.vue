@@ -153,6 +153,10 @@ export default {
         },
     },
     mounted() {
+        this.isWx = this.$util.isWx();
+        if(this.isWx){
+            $('.hd-tab').css({ 'padding-top': 0 });
+        }
         this.getData();
     }
 }

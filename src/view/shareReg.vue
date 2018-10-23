@@ -43,6 +43,7 @@ export default {
         }
     },
     mounted() {
+        this.isWx = this.$util.isWx();
         let { inviter, invitationCode } = this.$route.query;
         if(inviter && invitationCode){
             this.inviter = inviter;

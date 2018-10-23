@@ -2,6 +2,8 @@ export const util = {
 	isWx: function(){
 		const ua = navigator.userAgent.toLowerCase();
 		if(ua.match(/MicroMessenger/i) == 'micromessenger'){
+			$('.header:not(.index)').remove();
+			$('.wrapper').css('padding-top', '0');
 			return true;
 		}else{
 			return false;

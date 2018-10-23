@@ -1,6 +1,6 @@
 <template>
     <div id="pageContainer">
-        <div class="header flex spb fcen">
+        <div class="header index flex spb fcen">
             <mu-ripple class="set" @click="linkto('setting')">
                 <img src="../assets/img/icon_set.png" alt="设置">
             </mu-ripple>

@@ -12,7 +12,7 @@
                     </div>
                     <div class="point-box">
                         <div class="point">
-                            <span class="num bold">￥{{info.rewardMoney}}</span>
+                            <span class="num bold">￥{{info.rewardMoney ? info.rewardMoney : 0}}</span>
                         </div>
                         <p class="txt">未结算</p>
                     </div>
@@ -88,7 +88,7 @@ export default {
                         this.hasmore = 2;
                     }
                     this.list = [...this.list, ...r.resultData];
-                    this.info = res.data2;
+                    this.info = res.data2 ? res.data2 : this.info;
                 }else if(res.code == 4){
                     this.hasmore = 0;
                     this.list = [];
@@ -119,11 +119,13 @@ export default {
         }
     },
     mounted() {
+        this.isWx = this.$util.isWx();
         const dd = new Date();
         const year = dd.getFullYear().toString();
         let month = dd.getMonth() + 1;
         month = month < 10 ? '0' + month : month.toString();
         this.time = `${year}年${month}月`;
+        this.info.monthTime = `${year}-${month}`;
         this.getData();
     }
 }

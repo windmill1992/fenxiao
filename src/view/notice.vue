@@ -130,6 +130,7 @@ export default {
         }
     },
     mounted() {
+        this.isWx = this.$util.isWx();
         let t = this.$route.query.type;
         if(!t){
             this.$router.replace({ path: '/notify' });

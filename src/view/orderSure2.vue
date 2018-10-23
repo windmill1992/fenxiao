@@ -323,6 +323,7 @@ export default {
         },
     },
     mounted() {
+        this.isWx = this.$util.isWx();
         if(sessionStorage.sendObj){
             let so = JSON.parse(sessionStorage.sendObj);
             let { ids, nums } = so;

@@ -263,6 +263,7 @@ export default {
         },
     },
     mounted() {
+        this.isWx = this.$util.isWx();
         let ids = this.$route.query.ids;
         if(ids){
             this.ids = ids;

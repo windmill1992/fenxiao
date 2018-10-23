@@ -151,6 +151,7 @@ export default {
         }
     },
     mounted() {
+        this.isWx = this.$util.isWx();
         this.from = this.$route.query.from;
         this.params = this.$route.query.params;
         this.query = this.$route.query.query;

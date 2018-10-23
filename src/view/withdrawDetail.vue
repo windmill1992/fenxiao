@@ -74,6 +74,7 @@ export default {
         },
     },
     mounted() {
+        this.isWx = this.$util.isWx();
         this.payNum = this.$route.params.id;
         if(this.payNum){
             this.getData();

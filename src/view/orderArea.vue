@@ -223,8 +223,9 @@ export default {
         }
     },
     mounted() {
+        this.isWx = this.$util.isWx();
         let winh = $(window).height();
-        let h = $('.header').height() + $('.mu-tabs').height() + $('.btns').height();
+        let h = this.isWx ? 0 : $('.header').height() + $('.mu-tabs').height() + $('.btns').height();
         $('.order-area .box').eq(0).height(winh - h - 5);
 
         this.getData1();

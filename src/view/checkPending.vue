@@ -133,6 +133,7 @@ export default {
         },
     },
     mounted() {
+        this.isWx = this.$util.isWx();
         this.getData();
     }
 }

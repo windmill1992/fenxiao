@@ -207,6 +207,7 @@ export default {
         }
     },
     mounted() {
+        this.isWx = this.$util.isWx();
         this.invitationCode = this.$route.query.invitationCode;
         this.inviter = this.$route.query.inviter;
     }

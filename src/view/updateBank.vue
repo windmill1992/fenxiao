@@ -326,6 +326,7 @@ export default {
         },
     },
     mounted() {
+        this.isWx = this.$util.isWx();
         this.formdata = {
             bankKind: '借记卡（建议银联卡）',
             bankNo: '',

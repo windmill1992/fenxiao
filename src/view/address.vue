@@ -223,6 +223,7 @@ export default {
             this.title = '新增收货地址';
         }
         setTitle(this.title);
+        this.isWx = this.$util.isWx();
         
         this.formdata = {
             uname: '',

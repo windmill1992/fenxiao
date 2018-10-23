@@ -120,6 +120,7 @@ export default {
         },
     },
     mounted() {
+        this.isWx = this.$util.isWx();
         this.id = this.$route.params.id;
         if(this.id){
             this.getData();

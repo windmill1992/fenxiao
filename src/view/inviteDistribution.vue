@@ -66,13 +66,13 @@ export default {
         getData() {
             let host = location.protocol + "//" + location.hostname;
             let url = location.href;
-            if(this.isWx && !!navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/) && sessionStorage.getItem('ios') != 1){
-                sessionStorage.setItem('ios', 1);
+            if(this.isWx && !!navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/) && localStorage.getItem('ios') != 1){
+                localStorage.setItem('ios', 1);
                 location.href = host + '/inviteDistribution';
                 return;
             }
             myCode({ url: url }).then(res => {
-                sessionStorage.removeItem('ios');
+                localStorage.removeItem('ios');
                 if(res.code == 1){
                     this.inviteCode = res.data.code;
                     this.inviter = res.data.userName;
@@ -104,32 +104,32 @@ export default {
                                     let r = res.checkResult;
                                     if(r.updateAppMessageShareData){
                                         wx.updateAppMessageShareData({
-                                            "imgUrl": share.img_url,
-                                            "link": share.link,
-                                            "desc": share.desc,
-                                            "title": share.title,
+                                            imgUrl: share.img_url,
+                                            link: share.link,
+                                            desc: share.desc,
+                                            title: share.title,
                                         });
                                     }
                                     if(r.updateTimelineShareData){
                                         wx.updateTimelineShareData({
-                                            "imgUrl": share.img_url,
-                                            "link": share.link,
-                                            "title": share.title,
+                                            imgUrl: share.img_url,
+                                            link: share.link,
+                                            title: share.title,
                                         });
                                     }
                                     if(r['menu:share:appmessage'] || r.onMenuShareAppMessage){
                                         wx.onMenuShareAppMessage({
-                                            "imgUrl": share.img_url,
-                                            "link": share.link,
-                                            "desc": share.desc,
-                                            "title": share.title,
+                                            imgUrl: share.img_url,
+                                            link: share.link,
+                                            desc: share.desc,
+                                            title: share.title,
                                         });
                                     }
                                     if(r['menu:share:timeline'] || r.onMenuShareTimeline){
                                         wx.onMenuShareTimeline({
-                                            "imgUrl": share.img_url,
-                                            "link": share.link,
-                                            "title": share.title,
+                                            imgUrl: share.img_url,
+                                            link: share.link,
+                                            title: share.title,
                                         });
                                     }
                                 }
@@ -170,11 +170,11 @@ export default {
     },
     mounted() {
         this.isWx = this.$util.isWx();
+        this.getData();
         if(this.isWx && (navigator.userAgent.indexOf('Android') > -1 || u.indexOf('Linux') > -1)){
             Toast.info('安卓微信版本6.7.2部分机型分享功能暂不可用，请升级或降低版本！');
         }
-        this.getData();
-    }
+    },
 }
 Vue.use(Toast);
 Vue.use(Button);

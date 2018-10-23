@@ -32,6 +32,9 @@ export default {
         toOrder() {
             this.$router.push('/orderArea');
         }
+    },
+    mounted() {
+        this.isWx = this.$util.isWx();
     }
 }
 </script>
