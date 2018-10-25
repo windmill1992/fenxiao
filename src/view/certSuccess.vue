@@ -11,8 +11,9 @@
                 <p class="txt1">认证通过后方可收到货款</p>
             </div>
             <div class="btns">
-                <mu-ripple class="btn" @click="toOrder">
-                    <a href="javascript:;" class="btn-a btn1 bold">立即订货</a>
+                <mu-ripple class="btn" @click="linkto">
+                    <a href="javascript:;" class="btn-a btn1 bold" v-if="hasHigh">立即订货</a>
+                    <a href="javascript:;" class="btn-a btn1 bold" v-else>返回首页</a>
                 </mu-ripple>
             </div>
         </div>
@@ -21,16 +22,41 @@
 
 <script>
 import Vue from 'vue';
+import { integral } from '../api/user';
 import { imgHost } from '../api/baseUrl';
 export default {
     data() {
         return {
             imgHost: imgHost,
+            hasHigh: false,
         }
     },
     methods: {
-        toOrder() {
-            this.$router.push('/orderArea');
+        getData() {
+            integral().then(res => {
+                if(res.code == 1){
+                    if(res.data.highLevelId || res.data.highLevelId == 0){
+                        this.hasHigh = true;
+                    }
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                Toast.error('未知异常！');
+                console.log(err);
+            })
+        },
+        linkto() {
+            if(this.hasHigh){
+                this.$router.replace('/orderArea');
+            }else{
+                this.$router.replace('/');
+            }
         }
     },
     mounted() {

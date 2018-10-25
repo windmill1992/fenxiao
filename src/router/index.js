@@ -127,6 +127,14 @@ export default new Router({
       }
     },
     {
+      path: '/regSuc',
+      name: 'regSuc',
+      component: resolve =>  require(['../view/regSuc.vue'], resolve),
+      meta: {
+        title: '注册成功'
+      }
+    },
+    {
       path: '/qualifacationCert',
       name: 'qualifacationCert',
       component: resolve =>  require(['../view/qualifacationCert.vue'], resolve),

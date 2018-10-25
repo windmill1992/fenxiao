@@ -7,7 +7,7 @@
         <div class="wrapper fcol" ref="wrapper">
             <mu-tabs :value.sync="active" color="white" indicator-color="#ff7421" full-width @change="switchTab">
                 <mu-tab>全部</mu-tab>
-                <mu-tab class="tab">已付款</mu-tab>
+                <mu-tab class="tab">已完成</mu-tab>
                 <mu-tab class="tab">待补单</mu-tab>
                 <mu-tab class="tab">已取消</mu-tab>
             </mu-tabs>
@@ -27,8 +27,12 @@
                                 </div>
                                 <div class="info flex1 fcol spb">
                                     <p class="title">{{item.productName}}</p>
-                                    <div class="flex spb">
+                                    <div class="flex spb fcen">
                                         <p class="bold">￥{{item.price}}</p>
+                                        <div class="txt-tip">
+                                            <p v-if="item.stockState == 1">(您的库存不足需补货)</p>
+                                            <p v-if="item.priceState == 1">(订货价与您利润不符)</p>
+                                        </div>
                                         <p>×{{item.orderNum}}</p>
                                     </div>
                                 </div>
@@ -36,9 +40,17 @@
                         </div>
                         <div class="total">共 {{item.orderNum}} 件商品,总价: ￥{{item.amountMoney}}</div>
                         <div class="bot flex fend">
-                            <router-link to="/orderArea" v-if="state[active] == 101" class="btn-a">
-                                <mu-ripple class="btn">去补货</mu-ripple>
-                            </router-link>
+                            <template v-if="item.state == 101">
+                                <router-link to="/orderArea" class="btn-a">
+                                    <mu-ripple class="btn">去补货</mu-ripple>
+                                </router-link>
+                                <a href="javascript:;" class="btn-a">
+                                    <mu-ripple class="btn" @click="sureOrder(item.id)">确认出货</mu-ripple>
+                                </a>
+                                <a href="javascript:;" class="btn-a">
+                                    <mu-ripple class="btn" @click="refuseOrder(item.id)">拒绝出货</mu-ripple>
+                                </a>
+                            </template>
                             <router-link :to="'/orderDetail2/'+ item.id" class="btn-a" >
                                 <mu-ripple class="btn">查看详情</mu-ripple>
                             </router-link>
@@ -61,9 +73,11 @@ import 'muse-ui-loading/dist/muse-ui-loading.css';
 import Vue from 'vue';
 import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
-import { Tabs, LoadMore, Button, Snackbar, Icon } from 'muse-ui';
+import Message from 'muse-ui-message';
+import { Tabs, LoadMore, Button, Snackbar, Icon, Dialog } from 'muse-ui';
 import { imgHost } from '../api/baseUrl';
 import { order2List } from '../api/user';
+import { cancelOrder2 } from '../api/product';
 export default {
     data() {
         return {
@@ -73,7 +87,7 @@ export default {
             imgHost: imgHost,
             state: ['', '102', '101', '103'],
             stateTxt: {
-                '102': '已付款',
+                '102': '已完成',
                 '101': '待补单',
                 '103': '已取消',
             },
@@ -107,7 +121,7 @@ export default {
                 }else if(res.code == 2){
                     this.hasmore = 1;
                 }else if(res.code == 0){
-                    this.$router.push('/login?from='+ this.$route.name);
+                    this.$router.push('/login');
                 }else{
                     if(res.msg){
                         Toast.error(res.msg);
@@ -121,6 +135,52 @@ export default {
                 this.loading = false;
                 Toast.error('未知异常！');
                 console.log(err);
+            })
+        },
+        sureOrder(id) {
+            Message.confirm('确认补货吗？', '提示', {}).then(({ result }) => {
+                if(result){
+                    cancelOrder2({ orderId: id, orderType: 1 }).then(res => {
+                        if(res.code == 1){
+                            Toast.success('操作成功');
+                            this.getData();
+                        }else{
+                            if(res.msg){
+                                Toast.error(res.msg);
+                            }else{
+                                Toast.error('服务器开了小差，请稍后再试！');
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        Toast.error('未知异常！');
+                        console.log(err);
+                    })
+                }
+            })
+        },
+        refuseOrder(id) {
+            Message.confirm('确定拒绝补货吗？', '提示', {
+                type: 'error',
+            }).then(({ result }) => {
+                if(result){
+                    cancelOrder2({ orderId: id, orderType: 0 }).then(res => {
+                        if(res.code == 1){
+                            Toast.success('操作成功');
+                            this.getData();
+                        }else{
+                            if(res.msg){
+                                Toast.error(res.msg);
+                            }else{
+                                Toast.error('服务器开了小差，请稍后再试！');
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        Toast.error('未知异常！');
+                        console.log(err);
+                    })
+                }
             })
         },
         load() {
@@ -145,6 +205,8 @@ export default {
 }
 Vue.use(Loading);
 Vue.use(Toast);
+Vue.use(Message);
+Vue.use(Dialog);
 Vue.use(Tabs);
 Vue.use(LoadMore);
 Vue.use(Button);
@@ -177,73 +239,77 @@ Vue.use(Icon);
 .box{
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    .list{
-        .item{
-            border-top: 1px solid #f3f3f3;
-            margin-bottom: .1rem;
-            background: #fff;
-            .top{
-                padding: .1rem .15rem;
+    .item{
+        border-top: 1px solid #f3f3f3;
+        margin-bottom: .1rem;
+        background: #fff;
+        .top{
+            padding: .1rem .15rem;
+            color: #000;
+            font-size: .12rem;
+        }
+        .item1{
+            background: #f6f6f6;
+            margin-bottom: .05rem;
+            padding: .1rem .15rem;
+            &:last-child{
+                margin-bottom: 0;
+            }
+            .pic{
+                width: .7rem;
+                height: .62rem;
+                overflow: hidden;
+                margin-right: .15rem;
+                img{
+                    width: 100%;
+                    height: 100%;
+                }
+            }
+            .info{
+                height: .62rem;
+                font-size: .14rem;
                 color: #000;
-                font-size: .12rem;
-            }
-            .item1{
-                background: #f6f6f6;
-                margin-bottom: .05rem;
-                padding: .1rem .15rem;
-                &:last-child{
-                    margin-bottom: 0;
-                }
-                .pic{
-                    width: .7rem;
-                    height: .62rem;
+                .title{
+                    /*! autoprefixer: off */
+                    display: -webkit-box;
+                    -webkit-box-orient: vertical;
+                    -webkit-line-clamp: 1;
+                    /*! autoprefixer: on */
+                    line-height: 2;
                     overflow: hidden;
-                    margin-right: .15rem;
-                    img{
-                        width: 100%;
-                        height: 100%;
-                    }
-                }
-                .info{
-                    height: .62rem;
-                    font-size: .14rem;
-                    color: #000;
-                    .title{
-                        display: -webkit-box;
-                        -webkit-box-orient: vertical;
-                        -webkit-line-clamp: 1;
-                        line-height: 2;
-                        overflow: hidden;
-                    }
-                }
-            }
-            .total{
-                font-size: .12rem;
-                color: #000;
-                text-align: right;
-                padding: .1rem .15rem;
-            }
-            .bot{
-                padding: .1rem .15rem;
-                border-top: 1px solid #f3f3f3;
-                .btn-a{
-                    color: #000;
-                    font-size: .12rem;
-                    display: block;
-                    width: .87rem;
-                    height: .26rem;
-                    line-height: .24rem;
-                    border: 1px solid #555;
-                    border-radius: .05rem;
-                    text-align: center;
-                    overflow: hidden;
-                    margin-left: .1rem;
-                    .btn{
-                        position: relative;
-                    }
                 }
             }
         }
+        .total{
+            font-size: .12rem;
+            color: #000;
+            text-align: right;
+            padding: .1rem .15rem;
+        }
+        .bot{
+            padding: .1rem .15rem;
+            border-top: 1px solid #f3f3f3;
+            .btn-a{
+                color: #000;
+                font-size: .12rem;
+                display: block;
+                width: .87rem;
+                height: .26rem;
+                line-height: .24rem;
+                border: 1px solid #555;
+                border-radius: .05rem;
+                text-align: center;
+                overflow: hidden;
+                margin-left: .1rem;
+                .btn{
+                    position: relative;
+                }
+            }
+        }
+    }
+    .txt-tip{
+        font-size: .12rem;
+        color: #ff4521;
     }
 }
 </style>

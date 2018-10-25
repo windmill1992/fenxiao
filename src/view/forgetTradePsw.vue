@@ -145,7 +145,7 @@ export default {
                 if(res.code == 1){
                     Toast.success('重置成功！');
                     setTimeout(() => {
-                        this.$router.replace('/login');
+                        this.$router.go(-1);
                     }, 1000);
                 }else if(res.code == 0){
                     this.$router.push('/login?from='+ this.$route.name);
@@ -180,6 +180,9 @@ export default {
     },
     mounted() {
         this.isWx = this.$util.isWx();
+    },
+    beforeDestroy() {
+        clearInterval(this.timer);
     }
 }
 Vue.use(Button);

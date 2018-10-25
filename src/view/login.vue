@@ -25,7 +25,7 @@
             <div class="quick-login">
                 <p class="txt1 flex fcen">快捷登录</p>
                 <div class="way flex">
-                    <a href="javascript:;" class="btn">
+                    <a href="javascript:;" class="btn" v-if="isWx">
                         <mu-ripple class="rip" @click="wxLogin">
                             <img src="../assets/img/wechat.png" alt="微信登录">
                             <p class="txt">微信登录</p>
@@ -61,6 +61,7 @@ export default {
             disabled: true,
             loading: false,
             imgHost: imgHost,
+            isWx: false,
         }
     },
     methods: {
@@ -163,6 +164,7 @@ export default {
         },
     },
     mounted() {
+        this.isWx = this.$util.isWx();
         this.from = this.$route.query.from;
         this.params = this.$route.query.params;
         this.query = this.$route.query.query;

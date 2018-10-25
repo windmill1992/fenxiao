@@ -11,7 +11,7 @@
                         <div class="time">{{item.createTime | fmt}}</div>
                         <div class="con">
                             <div class="title">{{item.title}}</div>
-                            <div class="txt" v-if="item.content">{{item.content}}</div>
+                            <div class="txt" v-if="item.content" v-html="item.content"></div>
                             <div class="txt" v-else>暂无内容</div>
                             <div class="link txtR">
                                 <router-link :to="'/msgDetail/'+ item.id" class="link-a arr-r gray">查看详情</router-link>
@@ -196,6 +196,12 @@ Vue.use(Icon);
                 color: #9c9c9c;
                 border-top: 1px solid #f3f3f3;
                 padding: .1rem;
+                /*! autoprefixer: off */
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 5;
+                /*! autoprefixer: on */
+                overflow: hidden;
             }
             .link{
                 line-height: .42rem;

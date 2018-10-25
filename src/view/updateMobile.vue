@@ -155,13 +155,13 @@ export default {
                 return;
             }
             this.loading = Loading({ target: document.getElementById('pageContainer') });
-            updateMobile({ mobile: this.mobile, code: this.code, password: this.psw, type: 'edit' }).then(res => {
+            updateMobile({ mobile: this.mobile, code: this.code, psw: this.psw, type: 'edit' }).then(res => {
                 this.loading.close();
                 if(res.code == 1){
                     Toast.success('修改成功，正在跳转...');
                     setTimeout(() => {
-                        this.$router.go(-1);
-                    }, 1500);
+                        this.$router.replace('/user');
+                    }, 1000);
                 }else{
                     if(res.msg){
                         Toast.error(res.msg);

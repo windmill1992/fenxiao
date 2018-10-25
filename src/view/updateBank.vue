@@ -19,26 +19,26 @@
                     <mu-text-field type="number" v-model="formdata.bankNo" placeholder="银行卡号" class="inp" full-width underline-color="blue" prefix="银行卡号"></mu-text-field>
                 </div>
                 <div class="item">
-                    <mu-select v-model="bank" full-width placeholder="选择银行" class="sel inp" underline-color="blue" @change="selBank">
-                        <mu-option label="请选择" value="-1" disabled></mu-option>
-                        <mu-option :label="item.bankName" :value="index" v-for="item,index in bankList" :key="item.id"></mu-option>
-                    </mu-select>
+                    <select v-model="bank" placeholder="选择银行" class="sel inp" @change="selBank">
+                        <option value="" disabled selected style="display: none;">选择银行</option>
+                        <option :value="index" v-for="item,index in bankList" :key="'bank'+ item.id">{{item.bankName}}</option>
+                    </select>
                 </div>
-                <div class="item item2 flex fcen spb">
-                    <mu-select v-model="province" full-width placeholder="选择开户省份" class="sel" underline-color="blue" @change="selProvince">
-                        <mu-option label="请选择" value="-1" disabled></mu-option>
-                        <mu-option :label="item" :value="index" v-for="item,index in provinceArr" :key="'prov'+ index" v-if="item != '其他'"></mu-option>
-                    </mu-select>
-                    <mu-select v-model="city" full-width placeholder="选择开户城市" class="sel" underline-color="blue" @change="selCity">
-                        <mu-option label="请选择" value="-1" disabled></mu-option>
-                        <mu-option :label="item" :value="index" v-for="item,index in cityArr" :key="'city'+ index" v-if="item != '其他'"></mu-option>
-                    </mu-select>
+                <div class="item flex fcen spb">
+                    <select v-model="province" placeholder="开户省份" class="sel flex1" @change="selProvince">
+                        <option value="" disabled selected style="display: none;">开户省份</option>
+                        <option :value="index" v-for="item,index in provinceArr" :key="'prov'+ index" v-if="item != '其他'">{{item}}</option>
+                    </select>
+                    <select v-model="city" placeholder="开户城市" class="sel flex1" @change="selCity">
+                        <option value="" disabled selected style="display: none;">开户城市</option>
+                        <option :value="index" v-for="item,index in cityArr" :key="'city'+ index" v-if="item != '其他'">{{item}}</option>
+                    </select>
                 </div>
                 <div class="item">
-                    <mu-select v-model="bankDeposit" filterable full-width placeholder="选择开户行" class="sel inp" underline-color="blue">
-                        <mu-option label="请选择" value="-1" disabled></mu-option>
-                        <mu-option :label="item.v" :value="index" v-for="item,index in bankList2" :key="'dep'+ index"></mu-option>
-                    </mu-select>
+                    <select v-model="bankDeposit" placeholder="选择开户行" class="sel inp" @change="selDeposit">
+                        <option value="" disabled selected style="display: none;">选择开户行</option>
+                        <option :value="index" v-for="item,index in bankList2" :key="'dep'+ index">{{item.v}}</option>
+                    </select>
                 </div>
                 <div class="item flex fcen spb">
                     <mu-text-field type="number" v-model="code" :placeholder="'发送到'+ mobile.substr(0,3) + '****'+ mobile.substr(7,11)" class="inp yzm" max-length="6" full-width underline-color="blue" prefix="验证码"></mu-text-field>
@@ -70,7 +70,7 @@ import 'muse-ui-loading/dist/muse-ui-loading.css';
 import Vue from 'vue';
 import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
-import { TextField, Select, Snackbar, Icon, Button } from 'muse-ui';
+import { TextField, Snackbar, Icon, Button } from 'muse-ui';
 import { $city } from '../assets/js/city2.min';
 import { bankList, cityInfo, bankListInfo, updateBank, userInfo } from '../api/user';
 import { getMobileCode } from '../api/login';
@@ -105,6 +105,8 @@ export default {
                 this.loading2.close();
                 if(res.code == 1){
                     this.mobile = res.data.mobileNum;
+                }else if(res.code == 0){
+                    this.$router.push('/login');
                 }else{
                     if(res.msg){
                         Toast.error(res.msg);
@@ -123,8 +125,6 @@ export default {
             bankList().then(res => {
                 if(res.code == 1){
                     this.bankList = res.data;
-                }else if(res.code == 0){
-                    this.$router.push('/login?from='+ this.$route.name);
                 }else{
                     if(res.msg){
                         Toast.error(res.msg);
@@ -157,7 +157,7 @@ export default {
                             }
                             this.bankList2 = arr;
                         }else if(res.code == 0){
-                            this.$router.push('/login?from='+ this.$route.name);
+                            this.$router.push('/login');
                         }else{
                             if(res.msg){
                                 Toast.error(res.msg);
@@ -188,7 +188,8 @@ export default {
                 console.log(err);
             })
         },
-        selBank(index) {
+        selBank(e) {
+            let index = $(e.target).find(':selected').index() - 1;
             this.province = '';
             this.formdata.province = '';
             this.city = '';
@@ -199,7 +200,8 @@ export default {
             this.formdata.bankName = this.bankList[index].bankName;
             this.bankCode = this.bankList[index].bankCode;
         },
-        selProvince(index) {
+        selProvince(e) {
+            let index = $(e.target).find(':selected').index() - 1;
             console.log('pro---'+ index);
             this.formdata.province = $city[index].value;
             this.province = index;
@@ -212,7 +214,8 @@ export default {
             this.bankList2 = [];
             this.bankDeposit = '';
         },
-        selCity(index) {
+        selCity(e) {
+            let index = $(e.target).find(':selected').index() - 1;
             console.log('city---'+ index);
             this.formdata.city = $city[this.province].child[index].value;
             this.city = index;
@@ -347,7 +350,6 @@ export default {
 Vue.use(Loading);
 Vue.use(Toast);
 Vue.use(TextField);
-Vue.use(Select);
 Vue.use(Snackbar);
 Vue.use(Icon);
 Vue.use(Button);
@@ -359,18 +361,8 @@ Vue.use(Button);
     .item{
         height: .44rem;
         line-height: .44rem;
-        padding: 0 .15rem;
         position: relative;
-        &.item2{
-            padding: 0;
-            .sel{
-                padding: 0;
-            }
-        }
         .inp{
-            position: absolute;
-            left: 0;
-            top: 0;
             width: 100%;
             height: .44rem;
             margin: 0;
@@ -382,10 +374,18 @@ Vue.use(Button);
         .sel{
             height: .44rem;
             margin: 0;
-            padding: 0;
+            padding-left: .1rem;
             color: #000;
             font-size: .14rem;
             min-height: auto;
+            border: none;
+            outline: none;
+            border-bottom: 1px solid #f3f3f3;
+            background: transparent;
+            &.flex1{
+                width: 50%;
+                white-space: nowrap;
+            }
         }
         .code-a{
             position: absolute;
@@ -448,9 +448,5 @@ Vue.use(Button);
 }
 .update-bank .mu-input-content .mu-input-line{
     background-color: #f3f3f3;
-    left: .15rem;
-}
-.update-bank .mu-input-content .mu-input-focus-line {
-    left: .15rem;
 }
 </style>

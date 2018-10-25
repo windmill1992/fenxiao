@@ -26,6 +26,7 @@ html, body, ul, li, ol, p, div, h1, h2, h3, h4, h5, h6, nav, header, footer, tab
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
+	-webkit-overflow-scrolling: touch;
 }
 *::-webkit-scrollbar{
 	display: none;
@@ -346,7 +347,8 @@ img[lazy=loaded] {
 .wrapper{
 	min-height: 100%;
     background: #f6f6f6;
-    padding-top: .45rem;
+	padding-top: .45rem;
+	position: relative;
 }
 .arrow-r{
 	display: block;
@@ -432,9 +434,6 @@ img[lazy=loaded] {
 }
 .mu-select-no-data{
 	display: none;
-}
-.mu-option{
-	padding: 0 .1rem;
 }
 .mu-infinite-scroll{
 	display: none!important;

@@ -32,7 +32,7 @@
                         <p class="title">{{info.productName}}</p>
                         <p class="flex spb bold">
                             <span>￥{{info.price}}</span>
-                            <span class="num">X{{info.orderNum}}</span>
+                            <span class="num">×{{info.orderNum}}</span>
                         </p>
                     </div>
                 </div>
@@ -50,6 +50,20 @@
                     <p class="txt" v-if="info.lastUpdateTime">付款时间: {{info.lastUpdateTime | fmt}}</p>
                 </div>
             </div>
+            <div class="btns0 flex spc" v-if="info.state == 102">
+                <mu-button class="btn" textColor="#fff" color="#ff7421" href="/">返回分销中心</mu-button>
+            </div>
+            <div class="btns1 flex fend" v-if="info.state == 101">
+                <a href="javascript:;" class="btn-a">
+                    <mu-ripple class="btn" @click="sureOrder">确认出货</mu-ripple>
+                </a>
+                <a href="javascript:;" class="btn-a">
+                    <mu-ripple class="btn" @click="refuseOrder">拒绝出货</mu-ripple>
+                </a>
+                <router-link to="/orderArea" class="btn-a">
+                    <mu-ripple class="btn">去补货</mu-ripple>
+                </router-link>
+            </div>
         </div>
     </div>
 </template>
@@ -60,10 +74,12 @@ import 'muse-ui-loading/dist/muse-ui-loading.css';
 import Vue from 'vue';
 import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
+import Message from 'muse-ui-message';
 import VueClipboard from 'vue-clipboard2';
-import { Button, Snackbar, Icon } from 'muse-ui';
+import { Button, Snackbar, Icon, Dialog } from 'muse-ui';
 import { imgHost } from '../api/baseUrl';
 import { order2Detail } from '../api/user';
+import { cancelOrder2 } from '../api/product';
 import { util } from '../utils/base';
 export default {
     data() {
@@ -95,6 +111,52 @@ export default {
                 console.log(err);
             })
         },
+        sureOrder() {
+            Message.confirm('确认补货吗？', '提示', {}).then(({ result }) => {
+                if(result){
+                    cancelOrder2({ orderId: this.id, orderType: 1 }).then(res => {
+                        if(res.code == 1){
+                            Toast.success('操作成功');
+                            this.getData();
+                        }else{
+                            if(res.msg){
+                                Toast.error(res.msg);
+                            }else{
+                                Toast.error('服务器开了小差，请稍后再试！');
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        Toast.error('未知异常！');
+                        console.log(err);
+                    })
+                }
+            })
+        },
+        refuseOrder() {
+            Message.confirm('确定拒绝补货吗？', '提示', {
+                type: 'error',
+            }).then(({ result }) => {
+                if(result){
+                    cancelOrder2({ orderId: this.id, orderType: 0 }).then(res => {
+                        if(res.code == 1){
+                            Toast.success('操作成功');
+                            this.getData();
+                        }else{
+                            if(res.msg){
+                                Toast.error(res.msg);
+                            }else{
+                                Toast.error('服务器开了小差，请稍后再试！');
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        Toast.error('未知异常！');
+                        console.log(err);
+                    })
+                }
+            })
+        },
         copyText() {
             this.$copyText(this.info.payNum).then(e => {
                 Toast.success('订单号复制成功！');
@@ -121,6 +183,8 @@ export default {
 }
 Vue.use(Toast);
 Vue.use(Loading);
+Vue.use(Message);
+Vue.use(Dialog);
 Vue.use(Button);
 Vue.use(Snackbar);
 Vue.use(Icon);
@@ -197,6 +261,43 @@ Vue.use(VueClipboard);
         .copy{
             color: #ff7421;
             font-size: .12rem;
+        }
+    }
+}
+.btns0{
+    margin-top: .3rem;
+    .btn{
+        width: 1.4rem;
+        height: .36rem;
+        line-height: .36rem;
+        position: relative;
+        font-size: .14rem;
+        letter-spacing: 1px;
+    }
+}
+.btns1{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: .48rem;
+    padding: .1rem .15rem;
+    background: #fff;
+    border-top: 1px solid #f3f3f3;
+    .btn-a{
+        color: #000;
+        font-size: .12rem;
+        display: block;
+        width: .82rem;
+        height: .26rem;
+        line-height: .24rem;
+        border: 1px solid #555;
+        border-radius: .05rem;
+        text-align: center;
+        overflow: hidden;
+        margin-left: .1rem;
+        .btn{
+            position: relative;
         }
     }
 }

@@ -43,7 +43,7 @@
                         <p class="title">{{info.productName}}</p>
                         <p class="flex spb bold">
                             <span>￥{{info.price}}</span>
-                            <span class="num">X{{info.shipmentNum}}</span>
+                            <span class="num">×{{info.shipmentNum}}</span>
                         </p>
                     </div>
                 </div>
@@ -64,6 +64,9 @@
                         时间: {{info.lastUpdateTime | fmt}}
                     </p>
                 </div>
+            </div>
+            <div class="btns0 flex spc" v-if="info.state == 102">
+                <mu-button class="btn" textColor="#fff" color="#ff7421" href="/">返回分销中心</mu-button>
             </div>
             <div class="btns1 flex fend" v-if="info.state == 101">
                 <mu-button class="btn" textColor="#000" @click="cancelOrder">取消订单</mu-button>
@@ -420,6 +423,17 @@ Vue.use(VueClipboard);
             color: #ff7421;
             font-size: .12rem;
         }
+    }
+}
+.btns0{
+    margin-top: .3rem;
+    .btn{
+        width: 1.4rem;
+        height: .36rem;
+        line-height: .36rem;
+        position: relative;
+        font-size: .14rem;
+        letter-spacing: 1px;
     }
 }
 .btns1{

@@ -36,6 +36,7 @@
                     <span class="bold">注册</span>
                 </mu-button>
             </div>
+            <p class="to-index">已是会员？<router-link to="/" class="link">前往经销中心</router-link></p>
         </div>
         <mu-dialog title="验证码" width="360" :open.sync="openYzm" dialog-class="yzm-d">
             <div class="flex fcen spb">
@@ -175,8 +176,8 @@ export default {
                 if(res.code == 1){
                     Toast.success('注册成功，正在跳转...');
                     setTimeout(() => {
-                        this.$router.push('/index');
-                    }, 1500);
+                        this.$router.push('/regSuc');
+                    }, 1000);
                 }else{
                     this.loading3 = false;
                     if(res.msg){
@@ -290,6 +291,16 @@ Vue.use(Icon);
     padding: 0 .15rem .1rem;
     color: #ff7421;
     font-size: .14rem;
+}
+.to-index{
+    text-align: center;
+    color: #9c9c9c;
+    font-size: .12rem;
+    margin: .15rem 0;
+    .link{
+        color: #ff7421;
+        text-decoration: underline;
+    }
 }
 </style>
 <style>

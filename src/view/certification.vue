@@ -14,7 +14,7 @@
                 <input type="file" id="zm" class="file-input" @change="upload('zm')">
                 <p class="txt2">点击上传身份证正面</p>
 
-                <label for="fm" class="item fm" ref="fm" v-loading="loading_fm" :style="'background-image: url('+ imgHost +'/sfzbeimian.png)'"></label>
+                <!-- <label for="fm" class="item fm" ref="fm" v-loading="loading_fm" :style="'background-image: url('+ imgHost +'/sfzbeimian.png)'"></label>
                 <input type="file" id="fm" class="file-input" @change="upload('fm')">
                 <p class="txt2">点击上传身份证反面</p>
 
@@ -31,7 +31,7 @@
 
                 <label for="sc_bank" class="item bank" ref="sc_bank" v-loading="loading_sc_bank" :style="'background-image: url('+ imgHost +'/creditcard.png)'"></label>
                 <input type="file" id="sc_bank" class="file-input" @change="upload('sc_bank')">
-                <p class="txt2">点击上传手持银行卡</p>
+                <p class="txt2">点击上传手持银行卡</p> -->
             </div>
             <!-- <p class="tip bold">易宝验证码</p>
             <div class="item1 flex fcen spb">
@@ -66,7 +66,6 @@ export default {
             loading_bank: false,
             loading_sc_bank: false,
             ids: {},
-            urls: {},
             imgHost: imgHost,
             saveObj: {},
             loading2: false,
@@ -79,7 +78,8 @@ export default {
     },
     methods: {
         upload(name) {
-            let t = name == 'zm' ? 2 : (name == 'fm' ? 3 : (name == 'sc' ? 4 : (name == 'bank' ? 5 : 7)));
+            // let t = name == 'zm' ? 2 : (name == 'fm' ? 3 : (name == 'sc' ? 4 : (name == 'bank' ? 5 : 7)));
+            let t = 2;
             let formData = new FormData();
             let file = $(`#${name}`)[0].files[0];
 
@@ -90,7 +90,6 @@ export default {
                 this['loading_' + name] = false;
                 if(res.code == 1){
                     this.ids[name] = res.data.imageId;
-                    this.urls[name] = res.data.imageUrl;
                     Toast.success('上传成功！');
                     this.$refs[name].style.backgroundImage = 'url('+ res.data.imageUrl +')';
                 }else{
@@ -112,34 +111,9 @@ export default {
                 Toast.error('请上传身份证正面！');
                 return;
             }
-            if(!this.ids.fm){
-                Toast.error('请上传身份证反面！');
-                return;
-            }
-            if(!this.ids.sc){
-                Toast.error('请上传手持身份证正面！');
-                return;
-            }
-            if(!this.ids.bank){
-                Toast.error('请上传银行卡正面！');
-                return;
-            }
-            if(!this.ids.sc_bank){
-                Toast.error('请上传手持银行卡！');
-                return;
-            }
             this.loading2 = true;
             let param = Object.assign({
                 idFaceId: this.ids.zm,
-                idBackId: this.ids.fm,
-                idHandId: this.ids.sc,
-                bankFaceId: this.ids.bank,
-                bankFaceHandId: this.ids.sc_bank,
-                idFaceUrl: this.urls.zm,
-                idBackUrl: this.urls.fm,
-                idHandUrl: this.urls.sc,
-                bankFaceUrl: this.urls.bank,
-                bankFaceHandUrl: this.urls.sc_bank,
             }, this.saveObj);
             certification(param).then(res => {
                 this.loading2 = false;
@@ -251,6 +225,9 @@ Vue.use(Button);
 </script>
 
 <style scoped lang="less">
+.wrapper{
+    padding-bottom: .5rem;
+}
 .tip{
     line-height: .5rem;
     padding: 0 .15rem;
@@ -331,8 +308,10 @@ Vue.use(Button);
 .btns{
     width: 100%;
     height: .48rem;
-    position: relative;
+    position: absolute;
     margin-top: .2rem;
+    bottom: 0;
+    left: 0;
     .btn{
         display: block;
         line-height: .48rem;

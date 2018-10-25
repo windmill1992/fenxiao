@@ -29,7 +29,7 @@
             <div class="bb10"></div>
             <mu-ripple class="item flex fcen spb">
                 <p class="label">客服电话</p>
-                <p class="txt1">13345678963</p>
+                <p class="txt1">0571-88581506</p>
             </mu-ripple>
             <!-- <mu-ripple class="item flex fcen spb" @click="linkto('company')">
                 <p class="label">公司简介</p>

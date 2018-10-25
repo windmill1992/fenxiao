@@ -24,7 +24,7 @@
                 <mu-button color="#ff7421" textColor="#fff" full-width class="btn" href="/">返回分销中心</mu-button>
             </div>
             <div class="other">
-                <p>客服电话：0571-87165191</p>
+                <p>客服电话：0571-88581506</p>
                 <p>在班时间：9:00-18:00</p>
             </div>
         </div>

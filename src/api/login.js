@@ -25,7 +25,7 @@ export const regist = params => {
 
 //修改手机号
 export const updateMobile = params => { 
-    return axios.post(`${baseUrl}/user/edit/mobile/${params.mobile}/${params.code}`, qs.stringify({ type: params.type })).then(res => res.data);
+    return axios.post(`${baseUrl}/user/edit/mobile/${params.mobile}/${params.code}`, qs.stringify({ type: params.type, password: params.psw })).then(res => res.data);
 }
 
 //绑定手机号

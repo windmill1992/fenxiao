@@ -15,19 +15,19 @@
                 <div class="item flex fcen spb">
                     <mu-text-field v-model="formdata.postcode" placeholder="选填" class="inp" full-width underline-color="blue" prefix="邮编"></mu-text-field>
                 </div>
-                <div class="item item2 flex fcen spb">
-                    <mu-select v-model="province" class="sel flex1" underline-color="blue" placeholder="选择省" @change="selProvince">
-                        <mu-option label="请选择" value="-1" disabled></mu-option>
-                        <mu-option :label="item" :value="index" v-for="item,index in provinceArr" :key="'prov'+ index"></mu-option>
-                    </mu-select>
-                    <mu-select v-model="city" class="sel flex1" underline-color="blue" placeholder="选择市" @change="selCity">
-                        <mu-option label="请选择" value="-1" disabled></mu-option>
-                        <mu-option :label="item" :value="index" v-for="item,index in cityArr" :key="'city'+ index"></mu-option>
-                    </mu-select>
-                    <mu-select v-model="area" class="sel flex1" underline-color="blue" placeholder="选择区" @change="selArea">
-                        <mu-option label="请选择" value="-1" disabled></mu-option>
-                        <mu-option :label="item" :value="index" v-for="item,index in areaArr" :key="'area'+ index"></mu-option>
-                    </mu-select>
+                <div class="item flex fcen spb">
+                    <select v-model="province" placeholder="选择省" class="sel flex1" @change="selProvince">
+                        <option value="" disabled selected style="display: none;">选择省</option>
+                        <option :value="index" v-for="item,index in provinceArr" :key="'prov'+ index" v-if="item != '其他'">{{item}}</option>
+                    </select>
+                    <select v-model="city" placeholder="选择市" class="sel flex1" @change="selCity">
+                        <option value="" disabled selected style="display: none;">选择市</option>
+                        <option :value="index" v-for="item,index in cityArr" :key="'city'+ index" v-if="item != '其他'">{{item}}</option>
+                    </select>
+                    <select v-model="area" placeholder="选择区" class="sel flex1" @change="selArea">
+                        <option value="" disabled selected style="display: none;">选择区</option>
+                        <option :value="index" v-for="item,index in areaArr" :key="'area'+ index" v-if="item != '其他'">{{item}}</option>
+                    </select>
                 </div>
                 <div class="item item3 flex fcen spb">
                     <mu-text-field v-model="formdata.detailAddr" placeholder="例如街道名称,门牌号码,楼层和房间号等信息" class="inp2" full-width underline-color="blue" multi-line :rows="3" :rows-max="3"></mu-text-field>
@@ -49,7 +49,7 @@
 import 'muse-ui-loading/dist/muse-ui-loading.css';
 import 'muse-ui-toast/dist/muse-ui-toast.all.css';
 import Vue from 'vue';
-import { TextField, Select, Switch, Snackbar, Button, Icon } from 'muse-ui';
+import { TextField, Switch, Snackbar, Button, Icon } from 'muse-ui';
 import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
 import { $city } from '../assets/js/city2.min';
@@ -121,7 +121,8 @@ export default {
                 console.log(err);
             })
         },
-        selProvince(index) {
+        selProvince(e) {
+            let index = $(e.target).find(':selected').index() - 1;
             console.log('pro---'+ index);
             this.formdata.province = $city[index].value;
             this.province = index;
@@ -134,7 +135,8 @@ export default {
             this.areaArr = [];
             this.area = '';
         },
-        selCity(index) {
+        selCity(e) {
+            let index = $(e.target).find(':selected').index() - 1;
             console.log('city---'+ index);
             this.formdata.city = $city[this.province].child[index].value;
             this.city = index;
@@ -150,7 +152,8 @@ export default {
                 this.area = '';
             }
         },
-        selArea(index) {
+        selArea(e) {
+            let index = $(e.target).find(':selected').index() - 1;
             console.log('area---'+ index);
             this.formdata.area = $city[this.province].child[this.city].child[index].value;
             this.area = index;
@@ -248,7 +251,6 @@ export default {
 Vue.use(Toast);
 Vue.use(Loading);
 Vue.use(TextField);
-Vue.use(Select);
 Vue.use(Switch);
 Vue.use(Snackbar);
 Vue.use(Button);
@@ -262,12 +264,8 @@ Vue.use(Icon);
     .item{
         height: .42rem;
         line-height: .42rem;
-        padding: 0 .15rem;
         position: relative;
         .inp{
-            position: absolute;
-            left: 0;
-            top: 0;
             width: 100%;
             height: .42rem;
             margin: 0;
@@ -277,15 +275,20 @@ Vue.use(Icon);
             min-height: auto;
         }
         .sel{
-            height: .42rem;
+            height: .44rem;
             margin: 0;
-            padding: 0;
+            padding-left: .1rem;
             color: #000;
             font-size: .14rem;
             min-height: auto;
-        }
-        &.item2{
-            padding: 0;
+            border: none;
+            outline: none;
+            border-bottom: 1px solid #f3f3f3;
+            background: transparent;
+            &.flex1{
+                width: 33.33%;
+                white-space: nowrap;
+            }
         }
         &.item3{
             padding: 0;

@@ -65,7 +65,7 @@
                     <p class="num">{{amountMoney}}元</p>
                 </div>
                 <div class="btns">
-                    <mu-button class="btn" color="#ff7421" textColor="#fff" full-width @click="linkto('recharge')" v-if="!enough">去充值</mu-button>
+                    <mu-button class="btn" color="#ff7421" textColor="#fff" full-width href="/recharge" v-if="!enough">去充值</mu-button>
                     <mu-button class="btn" color="#ff7421" textColor="#fff" full-width @click="submit" v-else>立即订货</mu-button>
                 </div>
                 <a href="javascript:;" class="close" @click="closeSheet"><img src="../assets/img/close.png" alt="关闭"></a>
@@ -294,7 +294,9 @@ export default {
                             this.openSheet = false;
                             this.active = 2;
                             this.page = 1;
-                            this.getData();
+                            setTimeout(() => {
+                                this.$router.push('/orderDetail/'+ this.id);
+                            }, 1000);
                         }else if(res.code == 0){
                             this.$router.push('/login?from='+ this.$route.name);
                         }else{

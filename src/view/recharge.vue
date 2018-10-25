@@ -23,7 +23,7 @@
                 <mu-button color="#ff7421" textColor="#fff" full-width class="btn bold" @click="showDialog">我已充值，开始订货</mu-button>
             </div>
             <div class="other">
-                <p>客服电话：0571-87165191</p>
+                <p>客服电话：0571-88581506</p>
                 <p>在班时间：9:00-18:00</p>
             </div>
         </div>
@@ -35,10 +35,10 @@
                 </div>
                 <div class="item flex fcen" v-if="bankList.length > 0">
                     <p>开户行:</p>
-                    <mu-select v-model="bank" full-width placeholder="" class="sel inp" underline-color="blue" @change="selBank">
-                        <mu-option label="请选择" value="-1" disabled></mu-option>
-                        <mu-option :label="item.bankName" :value="index" v-for="item,index in bankList" :key="item.id"></mu-option>
-                    </mu-select>
+                    <select v-model="bank" class="sel inp" @change="selBank">
+                        <option value="-1" disabled>请选择</option>
+                        <option :value="index" v-for="item,index in bankList" :key="'bn'+ item.id">{{item.bankName}}</option>
+                    </select>
                 </div>
                 <div class="item" v-else>
                     <mu-text-field type="text" v-model="bankName" placeholder="" max-length="20" class="inp" full-width underline-color="blue" prefix="开户行:"></mu-text-field>
@@ -54,7 +54,7 @@
                 <mu-button color="#ff7421" textColor="#fff" full-width class="btn bold" @click="submit">确认提交</mu-button>
             </div>
             <div class="other">
-                <p>客服电话：0571-87165191</p>
+                <p>客服电话：0571-88581506</p>
                 <p>在班时间：9:00-18:00</p>
             </div>
         </mu-dialog>
@@ -67,7 +67,8 @@ import 'muse-ui-toast/dist/muse-ui-toast.all.css';
 import Vue from 'vue';
 import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
-import { TextField, Button, Snackbar, Icon, Dialog, Select } from 'muse-ui';
+import Message from 'muse-ui-message';
+import { TextField, Button, Snackbar, Icon, Dialog } from 'muse-ui';
 import { imgHost } from '../api/baseUrl';
 import { userInfo, userRechargeInfo, cashApply, bankList } from '../api/user';
 import VueClipboard from 'vue-clipboard2';
@@ -96,6 +97,18 @@ export default {
                     this.uname = r.realName;
                     this.bankName = r.bankName;
                     this.bankNo = r.card;
+                    if(r.state == 101){
+                        Message.confirm('您有一笔充值申请没有完成，请联系客服尽快充值', '提示', {
+                            cancelLabel: '再等等',
+                            okLabel: '联系客服',
+                        }).then(({ result }) => {
+                            if(result){
+                                this.$router.push('/rechargeDetail/'+ r.payNum);
+                            }else{
+                                this.$router.replace('/');
+                            }
+                        })
+                    }
                     if(r.userName){
                         this.account = r.userName;
                     }else{
@@ -160,8 +173,9 @@ export default {
                 console.log(err);
             })
         },
-        selBank(index) {
-            this.bankName = this.bankList[index].bankName;
+        selBank(e) {
+            let i = $(e.target).find(':selected').index() - 1;
+            this.bankName = this.bankList[i].bankName;
         },
         submit() {
             if(this.loading2) return;
@@ -226,8 +240,8 @@ export default {
 }
 Vue.use(Toast);
 Vue.use(Loading);
+Vue.use(Message);
 Vue.use(TextField);
-Vue.use(Select);
 Vue.use(Button);
 Vue.use(Snackbar);
 Vue.use(Icon);
@@ -338,6 +352,15 @@ Vue.use(VueClipboard);
             font-size: .14rem;
             min-height: auto;
         }
+        .sel{
+            padding-left: .65rem;
+            padding-right: .1rem;
+            border: 0;
+            background: transparent;
+            outline: none;
+            border-bottom: 1px solid #f3f3f3;
+            max-height: 3rem;
+        }
     }
     .btn-box{
         margin-top: .15rem;
@@ -360,7 +383,8 @@ Vue.use(VueClipboard);
 }
 .rec-d .mu-text-field-input{
     padding: .05rem 0;
-    height: .42rem;
+    height: .32rem;
+    line-height: .32rem;
 }
 .rec-d .mu-input-prefix-text{
     color: #000;
@@ -368,8 +392,5 @@ Vue.use(VueClipboard);
 }
 .rec-d .mu-input-line{
     background-color: #f3f3f3;
-}
-.rec-d .mu-select-input{
-    padding-left: .65rem;
 }
 </style>

@@ -17,7 +17,7 @@
                                 <p class="title bold">{{item.productName}}</p>
                                 <div class="price-box">
                                     <p class="price">进货均价:￥{{item.avgOrderMoney}}</p>
-                                    <p class="txt">(下阶订货价≥￥{{item.avgOrderMoney}}才供货)</p>
+                                    <p class="txt">(下阶订货价≥￥{{+item.avgOrderMoney + item.profitValue}}才供货)</p>
                                 </div>
                             </div>
                         </div>

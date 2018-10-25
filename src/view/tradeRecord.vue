@@ -21,7 +21,7 @@
                         </div>
                         <div class="mid" v-if="item.type == 3">预计3个工作日到账(周末和节假日顺延)</div>
                         <div class="bot flex spb">
-                            <p class="time">{{item.createTime | fmt}}</p>
+                            <p class="time">{{item.lastUpdateTime | fmt}}</p>
                             <p class="money">余额：{{item.balance != null ? item.balance : '---'}}</p>
                         </div>
                     </div>
@@ -127,7 +127,7 @@ export default {
             this.getData();
         },
         showTab() {
-            this.tabShow = true;
+            this.tabShow = !this.tabShow;
         },
         closeTab() {
             this.tabShow = false;
@@ -155,7 +155,8 @@ export default {
     mounted() {
         this.isWx = this.$util.isWx();
         if(this.isWx){
-            $('.hd-tab').css({ 'padding-top': 0 });
+            $('.hd-tab').css({ 'top': 0 });
+            $('.tabs-box').css({ 'top': '.72rem' });
         }
         this.getData();
     }
