@@ -11,9 +11,9 @@
                     <a href="javascript:;" class="tab flex1 flex fcen spc" @click="showTab">分类<span class="arr"></span></a>
                 </div>
             </div>
-            <mu-load-more class="box flex1 fcol" :loading="loading" @load="load">
+            <mu-load-more class="box flex1 fcol" :loading="loading" @load="load" :refreshing="refreshing" @refresh="refresh">
                 <div class="list" v-if="hasmore != 0">
-                    <div class="item" v-for="item,index in list" :key="item.id" @click="detail(index)">
+                    <div class="item" :class="{nav: (item.type == 1 && item.payType == 6) || item.type == 3}" v-for="item,index in list" :key="item.id" @click="detail(index)">
                         <div class="top flex spb">
                             <div class="title">{{item.inTypeChinese}}<span class="state"> ({{stateTxt[item.state]}})</span></div>
                             <div class="price" v-if="item.type != 1 && item.type != 4">-{{item.money}}</div>
@@ -75,6 +75,7 @@ export default {
                 '204': '待打款',
                 '205': '待处理',
             },
+            refreshing: false,
         }
     },
     methods: {
@@ -83,6 +84,7 @@ export default {
             myTradeRecord({ pageNum: this.page, pageSize: this.pageSize, type: this.type }).then(res => {
                 this.loading2.close();
                 this.loading = false;
+                this.refreshing = false;
                 if(res.code == 1){
                     if(this.page == 1){
                         this.list = [];
@@ -114,6 +116,7 @@ export default {
             .catch(err => {
                 this.loading2.close();
                 this.loading = false;
+                this.refreshing = false;
                 Toast.error('未知异常！');
                 console.log(err);
             })
@@ -136,6 +139,11 @@ export default {
             if(this.hasmore != 2) return;
             this.loading = true;
             this.page++;
+            this.getData();
+        },
+        refresh() {
+            this.refreshing = true;
+            this.page = 1;
             this.getData();
         },
         detail(index) {
@@ -214,6 +222,9 @@ Vue.use(Icon);
         background: #fff;
         padding: .1rem .15rem;
         border-bottom: 1px solid #f3f3f3;
+        &.nav{
+            background: rgba(128, 169, 240, .2);
+        }
         .top{
             margin-bottom: 5px;
             .title{

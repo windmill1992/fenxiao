@@ -353,7 +353,7 @@ Vue.use(VueClipboard);
             min-height: auto;
         }
         .sel{
-            padding-left: .65rem;
+            padding-left: .75rem;
             padding-right: .1rem;
             border: 0;
             background: transparent;

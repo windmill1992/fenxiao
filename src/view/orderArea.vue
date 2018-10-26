@@ -10,7 +10,7 @@
                 <mu-tab class="tab"><span :class="{bold: active == 1}">普通订货</span></mu-tab>
             </mu-tabs>
             
-            <mu-load-more class="box flex1 fcol" :loading="loading" @load="load">
+            <mu-load-more class="box flex1 fcol" :loading="loading" @load="load" :refreshing="refreshing" @refresh="refresh">
                 <div class="box flex1 fcol" v-show="active == 0">
                     <div class="list" v-if="hasmore1 > 0">
                         <div class="item flex fcen" v-for="item in list1" :key="'box'+ item.id">
@@ -99,6 +99,7 @@ export default {
             hasmore1: -1,
             hasmore2: -1,
             hasHighLevel: false,
+            refreshing: false,
         }
     },
     methods: {
@@ -109,6 +110,7 @@ export default {
                 this.hasHighLevel = res.data2 == 1;
                 this.loading2.close();
                 this.loading = false;
+                this.refreshing = false;
                 if(!this.hasHighLevel){
                     this.$router.replace('/');
                     return;
@@ -144,6 +146,7 @@ export default {
             .catch(err => {
                 this.loading2.close();
                 this.loading = false;
+                this.refreshing = false;
                 Toast.error('未知异常！');
                 console.log(err);
             })
@@ -201,13 +204,25 @@ export default {
         load() {
             if(this.loading) return;
             if(this.active == 0){
-                if(this.hasmore1 != 2) return;
+                if(this.hasmore1 != 2 || this.loading) return;
                 this.loading = true;
+                this.page1++;
                 this.getData1();
             }else{
-                if(this.hasmore2 != 2) return;
+                if(this.hasmore2 != 2 || this.loading) return;
                 this.loading2 = Loading({ target: document.getElementById('pageContainer') });
                 this.loading = true;
+                this.page2++;
+                this.getData2();
+            }
+        },
+        refresh() {
+            this.refreshing = true;
+            if(this.active == 0){
+                this.page1 = 1;
+                this.getData1();
+            }else{
+                this.page2 = 1;
                 this.getData2();
             }
         },

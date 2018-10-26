@@ -9,148 +9,151 @@
                 <img src="../assets/img/icon_chat.png" alt="消息">
             </mu-ripple>
         </div>
-        <mu-ripple class="user-wrapper flex fcen spb" @click="linkto('user')">
-            <div class="user-info flex1">
-                <p class="nick bold">{{info.userName}}</p>
-                <p class="link">查看 · 编辑个人资料</p>
-                <div class="level flex fcen" v-if="info.level == 0">
-                    <img src="../assets/img/vip0.png" alt="会员">
-                    <p>会员</p>
+
+        <mu-load-more class="box" :refreshing="refreshing" @refresh="refresh">
+            <mu-ripple class="user-wrapper flex fcen spb" @click="linkto('user')">
+                <div class="user-info flex1">
+                    <p class="nick bold">{{info.userName}}</p>
+                    <p class="link">查看 · 编辑个人资料</p>
+                    <div class="level flex fcen" v-if="info.level == 0">
+                        <img src="../assets/img/vip0.png" alt="会员">
+                        <p>会员</p>
+                    </div>
+                    <div class="level flex fcen" v-else-if="info.level == 1">
+                        <img src="../assets/img/vip1.png" alt="会员">
+                        <p>初级经销商</p>
+                    </div>
+                    <div class="level flex fcen" v-else-if="info.level == 2">
+                        <img src="../assets/img/vip2.png" alt="会员">
+                        <p>中级经销商</p>
+                    </div>
+                    <div class="level flex fcen" v-else-if="info.level == 3">
+                        <img src="../assets/img/vip3.png" alt="会员">
+                        <p>高级经销商</p>
+                    </div>
+                    <div class="level flex fcen" v-else-if="info.level == 4">
+                        <img src="../assets/img/vip4.png" alt="会员">
+                        <p>项目合伙人</p>
+                    </div>
                 </div>
-                <div class="level flex fcen" v-else-if="info.level == 1">
-                    <img src="../assets/img/vip1.png" alt="会员">
-                    <p>初级经销商</p>
+                <p class="avatar fshrink0">
+                    <img :src="info.coverImageUrl" v-if="info.coverImageUrl" alt="头像">
+                    <img :src="imgHost + '/def_tx.png'" v-else alt="头像">
+                </p>
+            </mu-ripple>
+            <!-- <div class="rank-wrapper">
+                <mu-ripple class="rank-link" @click="linkto('')"><span class="link">排行榜</span></mu-ripple>
+            </div> -->
+            <div class="menu-wrapper flex">
+                <mu-ripple class="menu-item fcol spb fcen" @click="linkto('firstPoint')">
+                    <p class="num">{{info.firstIntegral ? info.firstIntegral : 0}}</p>
+                    <p class="txt">一阶积分</p>
+                </mu-ripple>
+                <mu-ripple class="menu-item fcol spb fcen" @click="linkto('secondPoint')">
+                    <p class="num">{{info.secondIntegral ? info.secondIntegral : 0}}</p>
+                    <p class="txt">二阶积分</p>
+                </mu-ripple>
+                <mu-ripple class="menu-item fcol spb fcen" @click="linkto('ownPoint')">
+                    <p class="num">{{info.integralSelf ? info.integralSelf : 0}}</p>
+                    <p class="txt">自有积分</p>
+                </mu-ripple>
+                <mu-ripple class="menu-item fcol spb fcen" @click="linkto('teamSales')">
+                    <p class="num">{{info.teamSale ? info.teamSale : 0}}</p>
+                    <p class="txt">团队销售额</p>
+                </mu-ripple>
+                <mu-ripple class="menu-item2 fcol spb fcen" @click="linkto('report')">
+                    <p class="icon"><img src="../assets/img/icon_more.png" alt="更多"></p>
+                    <p class="txt">更多</p>
+                </mu-ripple>
+            </div>
+            <div class="bb10"></div>
+            <div class="con-wrapper">
+                <div class="head flex fcen">
+                    <div class="line cff7421"></div>
+                    <div class="title bold">结算中心</div>
+                    <div class="txt">余额 ￥{{info.balance}}</div>
                 </div>
-                <div class="level flex fcen" v-else-if="info.level == 2">
-                    <img src="../assets/img/vip2.png" alt="会员">
-                    <p>中级经销商</p>
+                <div class="list flex">
+                    <mu-ripple class="item" color="#ff7421" @click="linkto('tradeRecord')">
+                        <img src="../assets/img/dxrwjs.png" alt="订单明细">
+                        <p class="txt">订单明细</p>
+                    </mu-ripple>
+                    <mu-ripple class="item" color="#ff7421" @click="linkto('myAllowance', 1)">
+                        <img src="../assets/img/dxrw.png" alt="团队奖励">
+                        <p class="txt">我的补贴</p>
+                    </mu-ripple>
+                    <mu-ripple class="item" color="#ff7421" @click="linkto('wallet')">
+                        <img src="../assets/img/wallet.png" alt="钱包管理">
+                        <p class="txt">钱包管理</p>
+                    </mu-ripple>
                 </div>
-                <div class="level flex fcen" v-else-if="info.level == 3">
-                    <img src="../assets/img/vip3.png" alt="会员">
-                    <p>高级经销商</p>
+            </div>
+            <div class="bb10"></div>
+            <div class="con-wrapper">
+                <div class="head flex fcen">
+                    <div class="line cff4521"></div>
+                    <div class="title bold">订货管理</div>
+                    <div class="txt">我的库存 {{info.stockNum ? info.stockNum : 0}}</div>
                 </div>
-                <div class="level flex fcen" v-else-if="info.level == 4">
-                    <img src="../assets/img/vip4.png" alt="会员">
-                    <p>项目合伙人</p>
+                <div class="list flex">
+                    <mu-ripple class="item" color="#ff4521" @click="order">
+                        <img src="../assets/img/dh.png" alt="订货">
+                        <p class="txt">订货</p>
+                    </mu-ripple>
+                    <mu-ripple class="item" color="#ff4521" @click="linkto('myOrders')">
+                        <img src="../assets/img/wddh.png" alt="我的订货">
+                        <p class="txt">我的订货</p>
+                    </mu-ripple>
+                    <mu-ripple class="item" color="#ff4521" @click="linkto('myStock')">
+                        <img src="../assets/img/wdkc.png" alt="我的库存">
+                        <p class="txt">我的库存</p>
+                    </mu-ripple>
                 </div>
             </div>
-            <p class="avatar fshrink0">
-                <img :src="info.coverImageUrl" v-if="info.coverImageUrl" alt="头像">
-                <img :src="imgHost + '/def_tx.png'" v-else alt="头像">
-            </p>
-        </mu-ripple>
-        <!-- <div class="rank-wrapper">
-            <mu-ripple class="rank-link" @click="linkto('')"><span class="link">排行榜</span></mu-ripple>
-        </div> -->
-        <div class="menu-wrapper flex">
-            <mu-ripple class="menu-item fcol spb fcen" @click="linkto('firstPoint')">
-                <p class="num">{{info.firstIntegral ? info.firstIntegral : 0}}</p>
-                <p class="txt">一阶积分</p>
-            </mu-ripple>
-            <mu-ripple class="menu-item fcol spb fcen" @click="linkto('secondPoint')">
-                <p class="num">{{info.secondIntegral ? info.secondIntegral : 0}}</p>
-                <p class="txt">二阶积分</p>
-            </mu-ripple>
-            <mu-ripple class="menu-item fcol spb fcen" @click="linkto('ownPoint')">
-                <p class="num">{{info.integralSelf ? info.integralSelf : 0}}</p>
-                <p class="txt">自有积分</p>
-            </mu-ripple>
-            <mu-ripple class="menu-item fcol spb fcen" @click="linkto('teamSales')">
-                <p class="num">{{info.teamSale ? info.teamSale : 0}}</p>
-                <p class="txt">团队销售额</p>
-            </mu-ripple>
-            <mu-ripple class="menu-item2 fcol spb fcen" @click="linkto('report')">
-                <p class="icon"><img src="../assets/img/icon_more.png" alt="更多"></p>
-                <p class="txt">更多</p>
-            </mu-ripple>
-        </div>
-        <div class="bb10"></div>
-        <div class="con-wrapper">
-            <div class="head flex fcen">
-                <div class="line cff7421"></div>
-                <div class="title bold">结算中心</div>
-                <div class="txt">余额 ￥{{info.balance}}</div>
+            <div class="bb10"></div>
+            <div class="con-wrapper">
+                <div class="head flex fcen">
+                    <div class="line c80a9f0"></div>
+                    <div class="title bold">分销管理</div>
+                </div>
+                <div class="list flex">
+                    <mu-ripple class="item" color="#80a9f0" @click="invite">
+                        <img src="../assets/img/invite.png" alt="邀请客户">
+                        <p class="txt">邀请客户</p>
+                        <span v-if="auditNum > 0" class="badge">{{auditNum}}</span>
+                    </mu-ripple>
+                    <mu-ripple class="item" color="#80a9f0" @click="linkto('orders')">
+                        <img src="../assets/img/fxdd.png" alt="分销订单">
+                        <p class="txt">分销订单</p>
+                    </mu-ripple>
+                    <mu-ripple class="item" color="#80a9f0" @click="linkto('customers')">
+                        <img src="../assets/img/fxkh.png" alt="分销客户">
+                        <p class="txt">分销客户</p>
+                    </mu-ripple>
+                </div>
             </div>
-            <div class="list flex">
-                <mu-ripple class="item" color="#ff7421" @click="linkto('tradeRecord')">
-                    <img src="../assets/img/dxrwjs.png" alt="订单明细">
-                    <p class="txt">订单明细</p>
-                </mu-ripple>
-                <mu-ripple class="item" color="#ff7421" @click="linkto('myAllowance', 1)">
-                    <img src="../assets/img/dxrw.png" alt="团队奖励">
-                    <p class="txt">我的补贴</p>
-                </mu-ripple>
-                <mu-ripple class="item" color="#ff7421" @click="linkto('wallet')">
-                    <img src="../assets/img/wallet.png" alt="钱包管理">
-                    <p class="txt">钱包管理</p>
-                </mu-ripple>
+            <div class="bb10"></div>
+            <div class="con-wrapper">
+                <div class="head flex fcen">
+                    <div class="line c67c9ba"></div>
+                    <div class="title bold">发货管理</div>
+                </div>
+                <div class="list flex">
+                    <mu-ripple class="item" color="#67c9ba" @click="linkto('offlineRetail')">
+                        <img src="../assets/img/xxls.png" alt="线下零售">
+                        <p class="txt">线下零售</p>
+                    </mu-ripple>
+                    <!-- <mu-ripple class="item" color="#67c9ba" @click="linkto('')">
+                        <img src="../assets/img/scls.png" alt="云商城零售">
+                        <p class="txt">云商城零售</p>
+                    </mu-ripple>
+                    <mu-ripple class="item" color="#67c9ba" @click="linkto('exchangeZone')">
+                        <img src="../assets/img/huanfahq.png" alt="换发货区">
+                        <p class="txt">换发货区</p>
+                    </mu-ripple> -->
+                </div>
             </div>
-        </div>
-        <div class="bb10"></div>
-        <div class="con-wrapper">
-            <div class="head flex fcen">
-                <div class="line cff4521"></div>
-                <div class="title bold">订货管理</div>
-                <div class="txt">我的库存 {{info.stockNum ? info.stockNum : 0}}</div>
-            </div>
-            <div class="list flex">
-                <mu-ripple class="item" color="#ff4521" @click="order">
-                    <img src="../assets/img/dh.png" alt="订货">
-                    <p class="txt">订货</p>
-                </mu-ripple>
-                <mu-ripple class="item" color="#ff4521" @click="linkto('myOrders')">
-                    <img src="../assets/img/wddh.png" alt="我的订货">
-                    <p class="txt">我的订货</p>
-                </mu-ripple>
-                <mu-ripple class="item" color="#ff4521" @click="linkto('myStock')">
-                    <img src="../assets/img/wdkc.png" alt="我的库存">
-                    <p class="txt">我的库存</p>
-                </mu-ripple>
-            </div>
-        </div>
-        <div class="bb10"></div>
-        <div class="con-wrapper">
-            <div class="head flex fcen">
-                <div class="line c80a9f0"></div>
-                <div class="title bold">分销管理</div>
-            </div>
-            <div class="list flex">
-                <mu-ripple class="item" color="#80a9f0" @click="invite">
-                    <img src="../assets/img/invite.png" alt="邀请客户">
-                    <p class="txt">邀请客户</p>
-                    <span v-if="auditNum > 0" class="badge">{{auditNum}}</span>
-                </mu-ripple>
-                <mu-ripple class="item" color="#80a9f0" @click="linkto('orders')">
-                    <img src="../assets/img/fxdd.png" alt="分销订单">
-                    <p class="txt">分销订单</p>
-                </mu-ripple>
-                <mu-ripple class="item" color="#80a9f0" @click="linkto('customers')">
-                    <img src="../assets/img/fxkh.png" alt="分销客户">
-                    <p class="txt">分销客户</p>
-                </mu-ripple>
-            </div>
-        </div>
-        <div class="bb10"></div>
-        <div class="con-wrapper">
-            <div class="head flex fcen">
-                <div class="line c67c9ba"></div>
-                <div class="title bold">发货管理</div>
-            </div>
-            <div class="list flex">
-                <mu-ripple class="item" color="#67c9ba" @click="linkto('offlineRetail')">
-                    <img src="../assets/img/xxls.png" alt="线下零售">
-                    <p class="txt">线下零售</p>
-                </mu-ripple>
-                <!-- <mu-ripple class="item" color="#67c9ba" @click="linkto('')">
-                    <img src="../assets/img/scls.png" alt="云商城零售">
-                    <p class="txt">云商城零售</p>
-                </mu-ripple>
-                <mu-ripple class="item" color="#67c9ba" @click="linkto('exchangeZone')">
-                    <img src="../assets/img/huanfahq.png" alt="换发货区">
-                    <p class="txt">换发货区</p>
-                </mu-ripple> -->
-            </div>
-        </div>
+        </mu-load-more>
     </div>
 </template>
 
@@ -160,7 +163,7 @@ import 'muse-ui-loading/dist/muse-ui-loading.css';
 import Vue from 'vue';
 import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
-import { Snackbar, Button, Icon } from 'muse-ui';
+import { Snackbar, Button, Icon, LoadMore } from 'muse-ui';
 import { integral, auditUserNum } from '../api/user';
 import { imgHost } from '../api/baseUrl';
 export default {
@@ -169,6 +172,7 @@ export default {
             info: {},
             imgHost: imgHost,
             auditNum: 0,
+            refreshing: false,
         }     
     },
     methods: {
@@ -178,6 +182,7 @@ export default {
                 if(loading){
                     loading.close();
                 }
+                this.refreshing = false;
                 if(res.code == 1){
                     this.info = res.data;
                     this.getAuditNum();
@@ -193,6 +198,7 @@ export default {
             })
             .catch(err => {
                 loading.close();
+                this.refreshing = false;
                 Toast.error('未知异常！');
                 console.log(err);
             })
@@ -256,7 +262,11 @@ export default {
             }else{
                 alert('您还未成为经销商，请联系客服！');
             }
-        }
+        },
+        refresh() {
+            this.refreshing = true;
+            this.getData();
+        },
     },
     mounted() {
         this.getData();
@@ -265,6 +275,7 @@ export default {
 }
 Vue.use(Toast);
 Vue.use(Loading);
+Vue.use(LoadMore);
 Vue.use(Snackbar);
 Vue.use(Button);
 Vue.use(Icon);

@@ -5,7 +5,7 @@
             <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
         </div>
         <div class="wrapper fcol">
-            <mu-load-more class="flex1 fcol" :loading="loading" @load="load">
+            <mu-load-more class="flex1 fcol" :loading="loading" @load="load" :refreshing="refreshing" @refresh="refresh">
                 <div class="top">
                     <div class="date-sel flex spc">
                         <a href="javascript:;" class="sel bold flex fcen" @click="openSheet">{{year}}年{{month}}月</a>
@@ -20,7 +20,7 @@
                 <div class="bb10"></div>
                 <div class="box">
                     <div class="th flex spb">
-                        <p class="td">团队成员（特约）</p>
+                        <p class="td">团队成员（合伙人）</p>
                         <p class="td txtC">个人订货量</p>
                         <p class="td txtR">团队订货</p>
                     </div>
@@ -105,6 +105,7 @@ export default {
                 rewardMoney: 0,
                 teamSaleTotal: 0,
             },
+            refreshing: false,
         }
     },
     methods: {
@@ -114,6 +115,7 @@ export default {
             teamSale({ monthTime: time, pageNum: this.page, pageSize: this.pageSize }).then(res => {
                 this.loading2.close();
                 this.loading = false;
+                this.refreshing = false;
                 if(res.code == 1){
                     let r = res.data;
                     if(this.page == 1){
@@ -148,6 +150,7 @@ export default {
             .catch(err => {
                 this.loading = false;
                 this.loading2.close();
+                this.refreshing = false;
                 Toast.error('未知异常！');
                 console.log(err);
             })
@@ -191,7 +194,12 @@ export default {
             this.page++;
             this.loading = true;
             this.getData();
-        }
+        },
+        refresh() {
+            this.refreshing = true;
+            this.page = 1;
+            this.getData();
+        },
     },
     filters: {
         fmt(t) {

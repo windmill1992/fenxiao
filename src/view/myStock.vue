@@ -5,7 +5,7 @@
             <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
         </div>
         <div class="wrapper fcol" ref="wrapper">
-            <mu-load-more class="box flex1 fcol" :loading="loading" @load="load">
+            <mu-load-more class="box flex1 fcol" :loading="loading" @load="load" :refreshing="refreshing" @refresh="refresh">
                 <div class="list" v-if="hasmore != 0">
                     <div class="item" v-for="item in list" :key="item.id">
                         <div class="top flex fcen">
@@ -86,6 +86,7 @@ export default {
         return {
             list: [],
             loading: false,
+            refreshing: false,
             imgHost: imgHost,
             page: 1,
             pageSize: 10,
@@ -101,6 +102,7 @@ export default {
             myStock({ pageNum: this.page, pageSize: this.pageSize }).then(res => {
                 this.loading2.close();
                 this.loading = false;
+                this.refreshing = false;
                 if(res.code == 1){
                     if(this.page == 1){
                         this.list = [];
@@ -132,18 +134,19 @@ export default {
             .catch(err => {
                 this.loading2.close();
                 this.loading = false;
+                this.refreshing = false;
                 Toast.error('未知异常！');
                 console.log(err);
             })
         },
         setProfit() {
-            if(this.newProfit <= 0 || Number.isNaN(Number(this.newProfit))){
+            if(Number.isNaN(Number(this.newProfit))){
                 Toast.error('请设置合理的新利润！');
                 return;
             }
             let param = {
                 id: this.setId,
-                newProfitValue: this.newProfit,
+                newProfitValue: Number.parseFloat(Number.parseFloat(this.newProfit).toFixed(2)),
             }
             setProfitValue(param).then(res => {
                 this.openDialog = false;
@@ -169,6 +172,11 @@ export default {
         load() {
             this.loading = true;
             this.page++;
+            this.getData();
+        },
+        refresh() {
+            this.refreshing = true;
+            this.page = 1;
             this.getData();
         },
         linkto(name) {

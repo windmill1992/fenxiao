@@ -5,7 +5,7 @@
             <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
         </div>
         <div class="wrapper fcol" ref="wrapper">
-            <mu-load-more class="box flex1 fcol" :loading="loading" @load="load">
+            <mu-load-more class="box flex1 fcol" :loading="loading" @load="load" :refreshing="refreshing" @refresh="refresh">
                 <div class="box" v-if="hasmore > 0">
                     <div class="item" v-for="item in list" :key="item.id">
                         <div class="time">{{item.createTime | fmt}}</div>
@@ -49,6 +49,7 @@ export default {
             pageSize: 20,
             hasmore: -1,
             imgHost: imgHost,
+            refreshing: false,
         }
     },
     methods: {
@@ -56,6 +57,7 @@ export default {
             msgList({ type: this.type, page: this.page, pageSize: this.pageSize }).then(res => {
                 this.loading = false;
                 this.loading2.close();
+                this.refreshing = false;
                 if(res.code == 1){
                     let r = res.data;
                     if(this.page == 1){
@@ -76,7 +78,7 @@ export default {
                 }else if(res.code == 2){
                     this.hasmore = 1;
                 }else if(res.code == 0){
-                    this.$router.push('/login?from='+ this.$route.name +'&query=type_'+ this.type);
+                    this.$router.push('/login');
                 }else{
                     if(res.msg){
                         Toast.error(res.msg);
@@ -88,6 +90,7 @@ export default {
             .catch(err => {
                 this.loading = false;
                 this.loading2.close();
+                this.refreshing = false;
                 Toast.error('未知异常！');
                 console.log(err);
             })
@@ -95,8 +98,14 @@ export default {
         load() {
             if(this.hasmore == 2 && !this.loading){
                 this.loading = true;
+                this.page++;
                 this.getData();
             }
+        },
+        refresh() {
+            this.refreshing = true;
+            this.page = 1;
+            this.getData();
         }
     },
     filters: {

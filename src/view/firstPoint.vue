@@ -5,7 +5,7 @@
             <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
         </div>
         <div class="wrapper fcol">
-            <mu-load-more class="flex1 fcol" :loading="loading" @load="load">
+            <mu-load-more class="flex1 fcol" :loading="loading" @load="load" :refreshing="refreshing" @refresh="refresh">
                 <div class="top">
                     <div class="date-sel flex spc">
                         <a href="javascript:;" class="sel bold flex fcen" @click="openSheet">{{year}}年{{month}}月</a>
@@ -101,6 +101,7 @@ export default {
             pageSize: 12,
             hasmore: -1,
             point: 0,
+            refreshing: false,
         }
     },
     methods: {
@@ -110,6 +111,7 @@ export default {
             firstPoint({ monthTime: time, pageNum: this.page, pageSize: this.pageSize }).then(res => {
                 this.loading2.close();
                 this.loading = false;
+                this.refreshing = false;
                 if(res.code == 1){
                     let r = res.data;
                     if(this.page == 1){
@@ -143,6 +145,7 @@ export default {
             .catch(err => {
                 this.loading = false;
                 this.loading2.close();
+                this.refreshing = false;
                 Toast.error('未知异常！');
                 console.log(err);
             })
@@ -187,6 +190,11 @@ export default {
             if(this.hasmore != 2 || this.loading) return;
             this.page++;
             this.loading = true;
+            this.getData();
+        },
+        refresh() {
+            this.refreshing = true;
+            this.page = 1;
             this.getData();
         }
     },

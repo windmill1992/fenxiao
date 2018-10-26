@@ -70,7 +70,7 @@
             <a href="javascript:;" class="mask" @click="closeTab"></a>
             <div class="con flex fwrap">
                 <mu-button class="tab" :class="{ on: type == '-1' }" data-type="-1" @click="changTab">全部</mu-button>
-                <mu-button class="tab" :class="{ on: type == '4' }" data-type="4" @click="changTab">特约</mu-button>
+                <mu-button class="tab" :class="{ on: type == '4' }" data-type="4" @click="changTab">合伙人</mu-button>
                 <mu-button class="tab" :class="{ on: type == '3' }" data-type="3" @click="changTab">高级</mu-button>
                 <mu-button class="tab" :class="{ on: type == '2' }" data-type="2" @click="changTab">中级</mu-button>
                 <mu-button class="tab" :class="{ on: type == '1' }" data-type="1" @click="changTab">初级</mu-button>
@@ -98,13 +98,13 @@ export default {
             tabShow: false,
             type: '-1',
             list: [],
-            levels: ['会员', '初级', '中级', '高级', '特约'],
+            levels: ['会员', '初级', '中级', '高级', '合伙人'],
             levelsTxt: {
                 '0': '会员',
                 '1': '初级',
                 '2': '中级',
                 '3': '高级',
-                '4': '特约',
+                '4': '合伙人',
             },
             imgHost: imgHost,
         }

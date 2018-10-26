@@ -12,7 +12,7 @@
                 <mu-tab class="tab">已取消</mu-tab>
             </mu-tabs>
             
-            <mu-load-more class="box flex1 fcol" :loading="loading" @load="load">
+            <mu-load-more class="box flex1 fcol" :loading="loading" @load="load" :refreshing="refreshing" @refresh="refresh">
                 <div class="list" v-if="hasmore != 0">
                     <div class="item" v-for="item in list" :key="item.id">
                         <div class="top flex spb">
@@ -38,7 +38,10 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="total">共 {{item.orderNum}} 件商品,总价: ￥{{item.amountMoney}}</div>
+                        <div class="total flex spb fcen">
+                            <!-- <p>收入：{{(item.price) * item.orderNum}}</p> -->
+                            <p>共 {{item.orderNum}} 件商品,总价: ￥{{item.amountMoney}}</p>
+                        </div>
                         <div class="bot flex fend">
                             <template v-if="item.state == 101">
                                 <router-link to="/orderArea" class="btn-a">
@@ -94,6 +97,7 @@ export default {
             hasmore : -1,
             page: 1,
             pageSize: 10,
+            refreshing: false,
         }
     },
     methods: {
@@ -102,6 +106,7 @@ export default {
             order2List({ pageNum: this.page, pageSize: this.pageSize, state: this.state[this.active] }).then(res => {
                 this.loading2.close();
                 this.loading = false;
+                this.refreshing = false;
                 if(res.code == 1){
                     if(this.page == 1){
                         this.list = [];
@@ -133,6 +138,7 @@ export default {
             .catch(err => {
                 this.loading2.close();
                 this.loading = false;
+                this.refreshing = false;
                 Toast.error('未知异常！');
                 console.log(err);
             })
@@ -187,6 +193,11 @@ export default {
             if(this.hasmore != 2 || (this.loading2 && this.loading2.instance != null)) return;
             this.loading = true;
             this.page++;
+            this.getData();
+        },
+        refresh() {
+            this.refreshing = true;
+            this.page = 1;
             this.getData();
         },
         switchTab() {

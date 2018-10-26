@@ -126,6 +126,7 @@ export default {
                 this.loading.close();
                 if(res.code == 1){
                     Toast.success('登录成功，正在跳转...');
+                    sessionStorage.setItem('code', 1);
                     setTimeout(() => {
                         // if(this.from){
                         //     this.$router.push({ name: this.from, params: str2json(this.params), query: str2json(this.query) });
@@ -141,8 +142,8 @@ export default {
                         if(this.from){
                             query = '?from='+ this.from + (this.params ? '&params=' + this.params : '') + (this.query ? '&query=' + this.query : '');
                         }
-                        this.$router.push('/bindMobile'+ query);
-                    }, 1500);
+                        this.$router.replace('/bindMobile');
+                    }, 1000);
                 }else{
                     if(res.msg){
                         Toast.error(res.msg);
@@ -169,8 +170,12 @@ export default {
         this.params = this.$route.query.params;
         this.query = this.$route.query.query;
         let code = this.$route.query.code;
-        if(code){
+        let c = sessionStorage.getItem('code');
+        if(code && c != 1){
             this.wxLogin(code);
+        }else if(c == 1){
+            sessionStorage.removeItem('code');
+            this.$router.replace('/');
         }
         if(localStorage.getItem('account')){
             this.account = localStorage.getItem('account');

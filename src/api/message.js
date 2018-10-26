@@ -15,12 +15,12 @@ export const setReaded = params => {
 
 //消息列表
 export const msgList = params => { 
-    return axios.get(`${baseUrl}/message/${params.type}/type/list`).then(res => res.data);
+    return axios.get(`${baseUrl}/message/${params.type}/type/list`, { params: { pageNum: params.page, pageSize: params.pageSize } }).then(res => res.data);
 }
 
 //按类型查询最新一条消息
 export const newMsg = params => { 
-    return axios.get(`${baseUrl}/message/${params.type}/type`, { params: { pageNum: params.page, pageSize: params.pageSize } }).then(res => res.data);
+    return axios.get(`${baseUrl}/message/${params.type}/type`).then(res => res.data);
 }
 
 //公告详情

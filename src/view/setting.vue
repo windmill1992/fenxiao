@@ -103,7 +103,7 @@ export default {
             wxBindLogin(param).then(res => {
                 this.loading.close();
                 if(res.code == 1 || res.code == 10026){
-                    Toast.success('登录成功');
+                    Toast.success('微信绑定成功');
                     this.getUserState();
                     sessionStorage.setItem('wx', 1);
                 }else if(res.code == 10025 || res.code == 10007){
@@ -155,6 +155,7 @@ export default {
                 if(res.code == 1){
                     Toast.success('退出成功！');
                     sessionStorage.removeItem('wx');
+                    sessionStorage.removeItem('code');
                     setTimeout(() => {
                         this.$router.replace('/login');
                     }, 1000);

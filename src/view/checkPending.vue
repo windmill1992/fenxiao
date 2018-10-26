@@ -5,7 +5,7 @@
             <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
         </div>
         <div class="wrapper fcol" ref="wrapper" v-if="hasmore > 0">
-            <mu-load-more class="box flex1 fcol" @load="load" :loading="loading">
+            <mu-load-more class="box flex1 fcol" @load="load" :loading="loading" :refreshing="refreshing" @refresh="refresh">
                 <div class="list">
                     <div class="item flex spb fcen" v-for="item in list" :key="item.id">
                         <mu-ripple class="rip flex fcen flex1">
@@ -56,6 +56,7 @@ export default {
             select: [],
             imgHost: imgHost,
             hasmore: -1,
+            refreshing: false,
         }
     },
     methods: {
@@ -64,6 +65,7 @@ export default {
             auditUsers({ pageNum: this.page, pageSize: this.pageSize }).then(res => {
                 this.loading2.close();
                 this.loading = false;
+                this.refreshing = false;
                 if(res.code == 1){
                     if(this.page == 1){
                         this.list = [];
@@ -96,6 +98,7 @@ export default {
             .catch(err => {
                 this.loading2.close();
                 this.loading = false;
+                this.refreshing = false;
                 Toast.error('未知异常！');
                 console.log(err);
             })
@@ -104,6 +107,11 @@ export default {
             if(this.hasmore != 2) return;
             this.loading = true;
             this.page++;
+            this.getData();
+        },
+        refresh() {
+            this.refreshing = true;
+            this.page = 1;
             this.getData();
         },
         checkSure() {

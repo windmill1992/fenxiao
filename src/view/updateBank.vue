@@ -41,7 +41,7 @@
                     </select>
                 </div>
                 <div class="item flex fcen spb">
-                    <mu-text-field type="number" v-model="code" :placeholder="'发送到'+ mobile.substr(0,3) + '****'+ mobile.substr(7,11)" class="inp yzm" max-length="6" full-width underline-color="blue" prefix="验证码"></mu-text-field>
+                    <mu-text-field type="number" v-model="code" :placeholder="'发送到'+ mobile.substr(0,3) + '****'+ mobile.substr(7,11)" class="inp yzm" ref="yzm" max-length="6" full-width underline-color="blue" prefix="验证码"></mu-text-field>
                     <a href="javascript:;" class="code-a" v-if="loading" v-loading="loading" data-mu-loading-size="20"></a>
                     <a href="javascript:;" class="code-a" @click="getCode" v-else-if="!waiting">获取验证码</a>
                     <a href="javascript:;" class="code-a no" v-else>{{time}}s重新获取</a>
@@ -314,6 +314,7 @@ export default {
                 if(res.code == 1){
                     this.countdown();
                     Toast.success('手机验证码发送成功，请查收！');
+                    $(this.$refs['yzm']).focus();
                 }else{
                     if(res.msg){
                         Toast.error(res.msg);
@@ -345,6 +346,9 @@ export default {
         this.provinceArr = arr;
         this.getData();
         this.getBankList();
+    },
+    beforeDestroy() {
+        clearInterval(this.timer);
     }
 }
 Vue.use(Loading);

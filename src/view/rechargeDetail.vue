@@ -6,7 +6,7 @@
         </div>
         <div class="wrapper">
             <div class="top" :style="'background-image: url(' + imgHost + '/rec_bg2.png)'">
-                <p v-if="info.state == 101">已用时：{{mins}}’{{sec}}”</p>
+                <p v-if="info.state == 101">已用时：<template v-if="hour > 0">{{hour}}°</template>{{mins}}’{{sec}}”</p>
                 <p v-else>已处理</p>
             </div>
             <div class="box">
@@ -91,10 +91,13 @@ export default {
         setTime(t) {
             let ts = Date.now();
             let a = ts - t;
+            let h = Number.parseInt(a / 1000 / 60 / 60);
             let m = Number.parseInt(a / 1000 / 60 % 60);
             let s = Number.parseInt(a / 1000 % 60);
+            h = h < 10 ? '0' + h : h;
             m = m < 10 ? '0' + m : m;
             s = s < 10 ? '0' + s : s;
+            this.hour = h;
             this.mins = m;
             this.sec = s;
         }
