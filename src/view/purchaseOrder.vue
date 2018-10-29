@@ -247,7 +247,7 @@ export default {
                     this.num = [...[], ...this.num];
                     this.sumInfo = res.data;
                 }else if(res.code == 0){
-                    this.$router.push('/login?from='+ this.$route.name +'&query=ids_'+ this.ids);
+                    
                 }else if(res.code == 10036){
                     if(this.sumInfo.shipmentNum <= 9){
                         Message.confirm('', '温馨提示', {

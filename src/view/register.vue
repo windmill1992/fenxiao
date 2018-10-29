@@ -27,12 +27,16 @@
                 </div>
                 <p class="tip">*密码不少于6位且只能以字母或下划线开头，可以包含~!@#$%^&*-_'.?等特殊符号，不能包含中文！</p>
             </div>
-            <div class="prot flex fcen">
+            <div class="prot">
                 <mu-checkbox label="我已阅读并同意" v-model="protocol" color="#ff7421"></mu-checkbox>
-                <a href="" class="link">《用户协议》</a>
+                <router-link to="/help/manage_term" class="link">《众康科诺经营规则》</router-link>
+                <router-link to="/help/register_term" class="link">《众康科诺商城服务协议》</router-link>
+                <router-link to="/help/basic_standard" class="link">《经销商服务规范》</router-link>
+                <router-link to="/help/illegal_term" class="link">《经销商违规行为及处理规则》</router-link>
+                <router-link to="/help/disclaimer" class="link">《免责声明》</router-link>
             </div>
             <div class="btns-wrapper">
-                <mu-button class="btn" full-width color="#ff7421" textColor="#fff" @click="submit">
+                <mu-button class="btn" full-width :color="protocol ? '#ff7421' : '#ccc'" textColor="#fff" @click="submit">
                     <span class="bold">注册</span>
                 </mu-button>
             </div>
@@ -56,7 +60,7 @@ import Vue from 'vue';
 import Loading from 'muse-ui-loading';
 import Toast from 'muse-ui-toast';
 import { TextField, Checkbox, Dialog, Snackbar, Button, Icon } from 'muse-ui';
-import { regist, getMobileCode, isRegistered} from '../api/login';
+import { regist, getMobileCode, isRegistered } from '../api/login';
 import { baseUrl } from '../api/baseUrl';
 import { pswReg } from '../utils/pswReg';
 export default {
@@ -137,6 +141,9 @@ export default {
             this.openYzm = false;
         },
         submit() {
+            if(!this.protocol){
+                return;
+            }
             if(this.loading2 || this.loading3) return;
             if(!this.mobile || !this.$util.telValidate(this.mobile)){
                 Toast.error('请输入正确的手机号！');
@@ -156,10 +163,6 @@ export default {
             }
             if(!pswReg.test(this.psw)){
                 Toast.error({ message: '密码格式错误！', time: 2000 });
-                return;
-            }
-            if(!this.protocol){
-                Toast.error('请同意用户协议！');
                 return;
             }
             this.loading = Loading({ target: document.getElementById('pageContainer') });
@@ -268,12 +271,19 @@ Vue.use(Icon);
         letter-spacing: 1px;
     }
 }
+.mu-checkbox{
+    height: 16px;
+    line-height: 16px;
+    top: 5px;
+}
 .prot{
     padding: .15rem .15rem 0;
     font-size: .12rem;
+    vertical-align: bottom;
     .link{
-        color: #ff7421;
-        line-height: 24px;
+        color: #579bd6;
+        line-height: 22px;
+        vertical-align: top;
     }
 }
 .btns-wrapper{
@@ -304,6 +314,9 @@ Vue.use(Icon);
 }
 </style>
 <style>
+.register .mu-checkbox-wrapper{
+    height: 14px;
+}
 .register .mu-input-content{
     padding: 0 .15rem;
 }

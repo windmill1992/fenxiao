@@ -44,6 +44,7 @@ export default {
     data() {
         return {
             imgHost: imgHost,
+            hour: '',
             mins: '',
             sec: '',
             info: {

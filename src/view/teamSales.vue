@@ -62,7 +62,7 @@ import Vue from 'vue';
 import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
 import { SlidePicker, BottomSheet, Button, Snackbar, Icon, LoadMore } from 'muse-ui';
-import { imgHost, avatarHost } from '../api/baseUrl';
+import { imgHost } from '../api/baseUrl';
 import { teamSale } from '../api/user';
 import { util } from '../utils/base';
 
@@ -97,7 +97,6 @@ export default {
             month: month,
             list: [],
             imgHost: imgHost,
-            avatarHost: avatarHost,
             hasmore: -1,
             page: 1,
             pageSize: 12,
@@ -285,7 +284,7 @@ Vue.use(Icon);
         }
     }
     .td{
-        width: 25%;
+        width: 33%;
         font-size: .12rem;
         color: #000;
         white-space: nowrap;

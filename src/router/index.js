@@ -526,5 +526,45 @@ export default new Router({
         title: '我的补贴'
       }
     },
+    {
+      path: '/help/manage_term',
+      name: 'manage_term',
+      component: resolve =>  require(['../view/help/manage_term.vue'], resolve),
+      meta: {
+        title: '众康科诺经营规则'
+      }
+    },
+    {
+      path: '/help/register_term',
+      name: 'register_term',
+      component: resolve =>  require(['../view/help/register_term.vue'], resolve),
+      meta: {
+        title: '众康科诺云商城服务协议'
+      }
+    },
+    {
+      path: '/help/basic_standard',
+      name: 'basic_standard',
+      component: resolve =>  require(['../view/help/basic_standard.vue'], resolve),
+      meta: {
+        title: '经销商服务规范'
+      }
+    },
+    {
+      path: '/help/illegal_term',
+      name: 'illegal_term',
+      component: resolve =>  require(['../view/help/illegal_term.vue'], resolve),
+      meta: {
+        title: '经销商违规行为及处理规则'
+      }
+    },
+    {
+      path: '/help/disclaimer',
+      name: 'disclaimer',
+      component: resolve =>  require(['../view/help/disclaimer.vue'], resolve),
+      meta: {
+        title: '免责声明'
+      }
+    },
   ]
 })

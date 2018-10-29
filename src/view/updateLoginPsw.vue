@@ -75,10 +75,10 @@ export default {
                 if(res.code == 1) {
                     Toast.success('密码修改成功！');
                     setTimeout(() => {
-                        this.$router.push('/login?from=user');
-                    }, 1500);
+                        this.$router.replace('/login');
+                    }, 1000);
                 }else if(res.code == 0){
-                    this.$router.push('/login?from='+ this.$route.name);
+                    this.$router.push('/login');
                 }else{
                     if(res.msg){
                         Toast.error(res.msg);

@@ -144,7 +144,7 @@ export default {
             })
         },
         sureOrder(id) {
-            Message.confirm('确认补货吗？', '提示', {}).then(({ result }) => {
+            Message.confirm('确认出货吗？', '提示', {}).then(({ result }) => {
                 if(result){
                     cancelOrder2({ orderId: id, orderType: 1 }).then(res => {
                         if(res.code == 1){
@@ -166,7 +166,7 @@ export default {
             })
         },
         refuseOrder(id) {
-            Message.confirm('确定拒绝补货吗？', '提示', {
+            Message.confirm('确定拒绝出货吗？', '提示', {
                 type: 'error',
             }).then(({ result }) => {
                 if(result){

@@ -15,7 +15,7 @@
                 <div class="list" v-if="hasmore != 0">
                     <div class="item" :class="{nav: (item.type == 1 && item.payType == 6) || item.type == 3}" v-for="item,index in list" :key="item.id" @click="detail(index)">
                         <div class="top flex spb">
-                            <div class="title">{{item.inTypeChinese}}<span class="state"> ({{stateTxt[item.state]}})</span></div>
+                            <div class="title" :class="{green: item.state == 202}">{{item.inTypeChinese}}<span class="state"> ({{stateTxt[item.state]}})</span></div>
                             <div class="price" v-if="item.type != 1 && item.type != 4">-{{item.money}}</div>
                             <div class="price red" v-else>+{{item.money}}</div>
                         </div>
@@ -40,7 +40,7 @@
                 <mu-button class="tab" :class="{ on: type == 1 }" data-type="1" data-name="充值" @click="changTab">充值</mu-button>
                 <mu-button class="tab" :class="{ on: type == 2 }" data-type="2" data-name="支出" @click="changTab">支出</mu-button>
                 <mu-button class="tab" :class="{ on: type == 3 }" data-type="3" data-name="提现" @click="changTab">提现</mu-button>
-                <mu-button class="tab" :class="{ on: type == 4 }" data-type="4" data-name="提现" @click="changTab">系统退回</mu-button>
+                <mu-button class="tab" :class="{ on: type == 4 }" data-type="4" data-name="系统退回" @click="changTab">系统退回</mu-button>
             </div>
         </div>
     </div>
@@ -71,7 +71,7 @@ export default {
             stateTxt: {
                 '201': '未完成',
                 '202': '成功',
-                '203':' 失败',
+                '203': '失败',
                 '204': '待打款',
                 '205': '待处理',
             },
@@ -229,9 +229,12 @@ Vue.use(Icon);
             margin-bottom: 5px;
             .title{
                 font-size: .16rem;
-                color: #000;
+                color: #ff4521;
                 word-break: break-all;
                 max-width: 66%;
+                &.green{
+                    color: #47883d;
+                }
                 .state{
                     color: #ff4521;
                     font-size: .12rem;

@@ -20,19 +20,19 @@
                         <p>会员</p>
                     </div>
                     <div class="level flex fcen" v-else-if="info.level == 1">
-                        <img src="../assets/img/vip1.png" alt="会员">
+                        <img src="../assets/img/vip1.png" alt="初级经销商">
                         <p>初级经销商</p>
                     </div>
                     <div class="level flex fcen" v-else-if="info.level == 2">
-                        <img src="../assets/img/vip2.png" alt="会员">
+                        <img src="../assets/img/vip2.png" alt="中级经销商">
                         <p>中级经销商</p>
                     </div>
                     <div class="level flex fcen" v-else-if="info.level == 3">
-                        <img src="../assets/img/vip3.png" alt="会员">
+                        <img src="../assets/img/vip3.png" alt="高级经销商">
                         <p>高级经销商</p>
                     </div>
                     <div class="level flex fcen" v-else-if="info.level == 4">
-                        <img src="../assets/img/vip4.png" alt="会员">
+                        <img src="../assets/img/vip4.png" alt="项目合伙人">
                         <p>项目合伙人</p>
                     </div>
                 </div>

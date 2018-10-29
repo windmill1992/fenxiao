@@ -71,9 +71,9 @@ export default {
                     Toast.success('设置成功！');
                     setTimeout(() => {
                         this.$router.push('/setting');
-                    }, 1500);
+                    }, 1000);
                 }else if(res.code == 0){
-                    this.$router.push('/login?from='+ this.$route.name);
+                    this.$router.push('/login');
                 }else{
                     this.f = false;
                     if(res.msg){

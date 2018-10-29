@@ -41,13 +41,13 @@
                         <div class="arrow-r"></div>
                     </div>
                 </mu-ripple>
-                <!-- <mu-ripple class="item flex spb fcen" @click="toAddrManage">
+                <mu-ripple class="item flex spb fcen" @click="toAddrManage">
                     <p>收货地址管理</p>
                     <div class="flex fcen">
                         <p style="color: #ff7421;">{{hasAddr ? '' : '未设置'}}</p>
                         <div class="arrow-r"></div>
                     </div>
-                </mu-ripple> -->
+                </mu-ripple>
                 <mu-ripple class="item flex spb fcen" @click="showHigh">
                     <p>我的上阶信息</p>
                     <div class="arrow-r" v-if="user.highUserInfo"></div>
