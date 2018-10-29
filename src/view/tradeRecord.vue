@@ -163,8 +163,12 @@ export default {
     mounted() {
         this.isWx = this.$util.isWx();
         if(this.isWx){
-            $('.hd-tab').css({ 'top': 0 });
-            $('.tabs-box').css({ 'top': '.72rem' });
+            wx.miniProgram.getEnv(res => {
+				if(!res.miniprogram){
+					$('.hd-tab').css({ 'top': 0 });
+                    $('.tabs-box').css({ 'top': '.72rem' });
+				}
+			});
         }
         this.getData();
     }
