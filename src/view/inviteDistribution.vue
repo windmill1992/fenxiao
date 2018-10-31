@@ -8,12 +8,12 @@
             <div class="card" :style="'background: url('+ imgHost +'/yqfxkh.png) no-repeat 0 0 / 100% 100%;'">
                 <p class="txt">邀请更多人一起创业</p>
                 <p class="txt2 bold">大健康之路在此起航!</p>
-                <div class="share-box flex">
-                    <a href="javascript:;" class="item" @click="showShare">
+                <div class="share-box flex spa">
+                    <a href="javascript:;" class="item" @click="showShare" v-if="isWx && !isMini">
                         <img src="../assets/img/wechat.png" alt="微信好友">
                         <p>微信好友</p>
                     </a>
-                    <a href="javascript:;" class="item" @click="showShare">
+                    <a href="javascript:;" class="item" @click="showShare" v-if="isWx && !isMini">
                         <img src="../assets/img/pyq.png" alt="朋友圈">
                         <p>朋友圈</p>
                     </a>
@@ -43,6 +43,7 @@
                 </div>
             </div>
         </div>
+        <input type="hidden" id="mini" :value="isMini" />
     </div>
 </template>
 
@@ -60,14 +61,16 @@ export default {
             imgHost: imgHost,
             inviteCode: '',
             showDialog: false,
+            isMini: false,
+            isWx: false,
         }
     },
     methods: {
         getData() {
             let host = location.protocol + "//" + location.hostname;
             let url = location.href;
-            if(this.isWx && !!navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/) && localStorage.getItem('ios') != 1){
-                localStorage.setItem('ios', 1);
+            if(this.isWx && !!navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/) && localStorage.getItem('ios') != 2){
+                localStorage.setItem('ios', 2);
                 location.href = host + '/inviteDistribution';
                 return;
             }
@@ -147,7 +150,7 @@ export default {
                 }
             })
             .catch(err => {
-                sessionStorage.removeItem('ios');
+                localStorage.removeItem('ios');
                 Toast.error('未知异常！');
                 console.log(err);
             })
@@ -171,8 +174,18 @@ export default {
     mounted() {
         this.isWx = this.$util.isWx();
         this.getData();
-        if(this.isWx && (navigator.userAgent.indexOf('Android') > -1 || u.indexOf('Linux') > -1)){
+        let u = navigator.userAgent;
+        if(this.isWx && (u.indexOf('Android') > -1 || u.indexOf('Linux') > -1)){
             Toast.info('安卓微信版本6.7.2部分机型分享功能暂不可用，请升级或降低版本！');
+        }
+        if(this.isWx){
+            console.log('env---wx');
+            wx.miniProgram.getEnv(res => {
+                if(res.miniprogram){
+                    this.isMini = true;
+                    console.log('env---wxmini');
+                }
+            });
         }
     },
 }

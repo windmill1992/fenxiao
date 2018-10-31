@@ -34,7 +34,7 @@
                 </div>
                 <div class="box flex1 fcol" v-else>
                     <div class="no-data fcol spc fcen flex1">
-                        <img :src="imgHost + '/error_zanwusj.png'" alt="暂无数据">
+                        <img :src="imgHost + '/error_zanwusj.png'" alt="暂无数据" />
                         <p class="txt">暂无补贴数据</p>
                     </div>
                 </div>
@@ -94,8 +94,10 @@ export default {
                 }else if(res.code == 4){
                     this.hasmore = 0;
                     this.list = [];
+                    this.info = res.data2 ? res.data2 : this.info;
                 }else if(res.code == 2){
                     this.hasmore = 1;
+                    this.info = res.data2 ? res.data2 : this.info;
                 }else if(res.code == 0){
                     this.$router.push('/login?from='+ this.$route.name);
                 }else{

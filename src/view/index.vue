@@ -265,7 +265,7 @@ export default {
         },
         refresh() {
             this.refreshing = true;
-            this.getData();
+            window.location.reload();
         },
     },
     mounted() {
