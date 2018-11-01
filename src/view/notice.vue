@@ -55,8 +55,10 @@ export default {
     methods: {
         getData() {
             msgList({ type: this.type, page: this.page, pageSize: this.pageSize }).then(res => {
+                if(this.loading2){
+                    this.loading2.close();
+                }
                 this.loading = false;
-                this.loading2.close();
                 this.refreshing = false;
                 if(res.code == 1){
                     let r = res.data;

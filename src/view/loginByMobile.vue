@@ -119,7 +119,12 @@ export default {
                         // }else{
                         //     this.$router.replace('/');
                         // }
-                        this.$router.replace('/');
+                        if(this.admin){
+                            let arr = this.admin.split('_');
+                            this.$router.replace(`/admin/${arr[0]}/${arr[1]}`);
+                        }else{
+                            this.$router.replace('/');
+                        }
                     }, 1000);
                 }else{
                     this.loading2 = false;
@@ -155,6 +160,7 @@ export default {
         this.from = this.$route.query.from;
         this.params = this.$route.query.params;
         this.query = this.$route.query.query;
+        this.admin = this.$route.query.admin;
     }
 }
 Vue.use(Loading);

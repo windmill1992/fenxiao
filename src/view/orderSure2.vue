@@ -127,7 +127,9 @@ export default {
         getData() {
             this.loading = Loading({ target: document.getElementById('pageContainer') });
             shipOrderList({ productIds: this.ids.join(',') }).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     this.list = [...[], ...res.data];
                     this.getAddr();

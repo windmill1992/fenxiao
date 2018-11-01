@@ -153,6 +153,11 @@ export const myCode = params => {
     return axios.get(`${baseUrl}/user/center/myCode`, { params: params }).then(res => res.data);
 }
 
+//邀请人
+export const inviter = params => { 
+    return axios.get(`${baseUrl}/user/center/query/${params.code}`).then(res => res.data);
+}
+
 //订单详情
 export const orderDetail = params => { 
     return axios.get(`${baseUrl}/user/center/myOrderDetail`, { params: params }).then(res => res.data);

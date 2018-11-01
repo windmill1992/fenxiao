@@ -135,7 +135,9 @@ export default {
         getData() {
             this.loading = Loading({ target: document.getElementById('pageContainer') });
             prodDetail2({ id: this.ids }).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     this.info = res.data;
                     this.getUserState();
@@ -231,7 +233,7 @@ export default {
                         })
                     }
                 }else if(res.code == 0){
-                    this.$router.push('/login?from='+ this.$route.name +'&query=ids_'+ this.ids);
+                    this.$router.push('/login');
                 }else{
                     this.loading2 = false;
                     if(res.msg){

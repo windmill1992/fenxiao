@@ -82,7 +82,9 @@ export default {
         getData() {
             this.loading2 = Loading({ target: document.getElementById('pageContainer') });
             myTradeRecord({ pageNum: this.page, pageSize: this.pageSize, type: this.type }).then(res => {
-                this.loading2.close();
+                if(this.loading2){
+                    this.loading2.close();
+                }
                 this.loading = false;
                 this.refreshing = false;
                 if(res.code == 1){

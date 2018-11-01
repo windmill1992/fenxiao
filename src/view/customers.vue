@@ -5,33 +5,6 @@
             <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
         </div>
         <div class="wrapper fcol">
-            <!-- <div class="menus flex">
-                <router-link to="" class="menu flex1">
-                    <mu-ripple class="rip">
-                        <img src="../assets/img/ydjf.png" alt="月度积分">
-                        <p class="txt">月度积分</p>
-                    </mu-ripple>
-                </router-link>
-                <router-link to="" class="menu flex1">
-                    <mu-ripple class="rip">
-                        <img src="../assets/img/ndjf.png" alt="年度积分">
-                        <p class="txt">年度积分</p>
-                    </mu-ripple>
-                </router-link>
-                <router-link to="" class="menu flex1">
-                    <mu-ripple class="rip">
-                        <img src="../assets/img/yddx.png" alt="月度动销">
-                        <p class="txt">月度动销</p>
-                    </mu-ripple>
-                </router-link>
-                <router-link to="" class="menu flex1">
-                    <mu-ripple class="rip">
-                        <img src="../assets/img/yydx.png" alt="月月动销">
-                        <p class="txt">月月动销</p>
-                    </mu-ripple>
-                </router-link>
-            </div>
-            <div class="bb10"></div> -->
             <mu-tabs :value.sync="active" color="white" indicator-color="#ff7421" full-width @change="switchTab">
                 <mu-tab><span :class="{bold: active == 0}">全部</span></mu-tab>
                 <mu-tab class="tab"><span :class="{bold: active == 1}">即将取消资格</span></mu-tab>

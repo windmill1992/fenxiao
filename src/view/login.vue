@@ -89,7 +89,12 @@ export default {
                     Toast.success('登录成功，正在跳转...');
                     setTimeout(() => {
                         // this.$router.replace({ name: this.from ? this.from : 'index', params: str2json(this.params), query: str2json(this.query) });
-                        this.$router.replace('/');
+                        if(this.admin){
+                            let arr = this.admin.split('_');
+                            this.$router.replace(`/admin/${arr[0]}/${arr[1]}`);
+                        }else{
+                            this.$router.replace('/');
+                        }
                     }, 1000);
                 }else{
                     this.f = false;
@@ -112,6 +117,9 @@ export default {
             if(this.from){
                 query = '?from='+ this.from + (this.params ? '&params=' + this.params : '') + (this.query ? '&query=' + this.query : '');
             }
+            if(this.admin){
+                query = '?admin='+ this.admin;
+            }
             this.$router.push('/loginByMobile'+ query);
         },
         wxLogin(code) {
@@ -131,7 +139,12 @@ export default {
                         // if(this.from){
                         //     this.$router.push({ name: this.from, params: str2json(this.params), query: str2json(this.query) });
                         // }else{}
-                        this.$router.replace('/');
+                        if(this.admin){
+                            let arr = this.admin.split('_');
+                            this.$router.replace(`/admin/${arr[0]}/${arr[1]}`);
+                        }else{
+                            this.$router.replace('/');
+                        }
                     }, 1000);
                 }else if(res.code == 10025 || res.code == 10007){
                     location.href = res.data;
@@ -139,9 +152,6 @@ export default {
                     Toast.success('登录成功，正在跳转...');
                     setTimeout(() => {
                         let query = '';
-                        if(this.from){
-                            query = '?from='+ this.from + (this.params ? '&params=' + this.params : '') + (this.query ? '&query=' + this.query : '');
-                        }
                         this.$router.replace('/bindMobile');
                     }, 1000);
                 }else{
@@ -170,6 +180,7 @@ export default {
         this.params = this.$route.query.params;
         this.query = this.$route.query.query;
         let code = this.$route.query.code;
+        this.admin = this.$route.query.admin;
         let c = sessionStorage.getItem('code');
         if(code && c != 1){
             this.wxLogin(code);

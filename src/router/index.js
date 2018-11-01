@@ -566,5 +566,21 @@ export default new Router({
         title: '免责声明'
       }
     },
+    {
+      path: '/admin/recharge/:id',
+      name: 'admin_recharge',
+      component: resolve =>  require(['../view/admin/recharge.vue'], resolve),
+      meta: {
+        title: '充值'
+      }
+    },
+    {
+      path: '/admin/certification/:uid',
+      name: 'admin_certification',
+      component: resolve =>  require(['../view/admin/certification.vue'], resolve),
+      meta: {
+        title: '资质审核'
+      }
+    },
   ]
 })

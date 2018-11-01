@@ -93,7 +93,7 @@ export default {
             })
         },
         qrcode() {
-            let link = location.protocol + '//' + location.host + '/shareReg?invitationCode='+ this.inviteCode +'&inviter='+ this.inviter;;
+            let link = location.protocol + '//' + location.host + '/shareReg?invitationCode='+ this.inviteCode;
             QRCode.toDataURL(link)
             .then(url => {
                 this.qrurl = url;

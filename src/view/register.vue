@@ -61,6 +61,7 @@ import Loading from 'muse-ui-loading';
 import Toast from 'muse-ui-toast';
 import { TextField, Checkbox, Dialog, Snackbar, Button, Icon } from 'muse-ui';
 import { regist, getMobileCode, isRegistered } from '../api/login';
+import { inviter } from '../api/user';
 import { baseUrl } from '../api/baseUrl';
 import { pswReg } from '../utils/pswReg';
 export default {
@@ -80,10 +81,26 @@ export default {
             time: 60,
             waiting: false,
             yzmUrl: '',
-            inviter: '',
         }
     },
     methods: {
+        getData() {
+            inviter({ code: this.invitationCode }).then(res => {
+                if(res.code == 1) {
+                    this.inviter = res.data.userName;
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                Toast.error('未知异常！');
+                console.log(err);
+            })
+        },
         getCode() {
             if(!this.mobile || !this.$util.telValidate(this.mobile)){
                 Toast.error('请输入正确的手机号！');
@@ -213,7 +230,7 @@ export default {
     mounted() {
         this.isWx = this.$util.isWx();
         this.invitationCode = this.$route.query.invitationCode;
-        this.inviter = this.$route.query.inviter;
+        this.getData();
     }
 }
 Vue.use(Toast);

@@ -64,7 +64,9 @@ export default {
         getData() {
             this.loading = Loading({ target: document.getElementById('pageContainer') });
             addressList({ pageNum: this.pageNum, pageSize: this.pageSize }).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     if(this.pageNum == 1){
                         this.list = [];

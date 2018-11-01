@@ -108,7 +108,9 @@ export default {
             this.loading = true;
             salesProdList({ pageNum: this.page1, pageSize: this.pageSize1 }).then(res => {
                 this.hasHighLevel = res.data2 == 1;
-                this.loading2.close();
+                if(this.loading2){
+                    this.loading2.close();
+                }
                 this.loading = false;
                 this.refreshing = false;
                 if(!this.hasHighLevel){
@@ -154,7 +156,7 @@ export default {
         getData2() {
             prodList({ pageNum: this.page2, pageSize: this.pageSize2 }).then(res => {
                 this.hasHighLevel = res.data2 == 1;
-                if(this.active == 1){
+                if(this.active == 1 && this.loading2){
                     this.loading2.close();
                 }
                 this.loading = false;

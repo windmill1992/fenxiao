@@ -81,7 +81,7 @@ export default {
                     this.inviter = res.data.userName;
                     let share = {
                         "img_url": `${imgHost}/logo.png`,
-                        "link": `${host}/shareReg?inviter=${this.inviter}&invitationCode=${this.inviteCode}`,
+                        "link": `${host}/shareReg?invitationCode=${this.inviteCode}`,
                         "desc": `您的好友${this.inviter}邀请您注册成为经销商啦~`,
                         "title": "享瘦伴侣",
                     }
@@ -159,7 +159,7 @@ export default {
             this.showDialog = true;
         },
         copyLink() {
-            let link = location.hostname + '/shareReg?invitationCode='+ this.inviteCode +'&inviter='+ this.inviter;
+            let link = location.hostname + '/shareReg?invitationCode='+ this.inviteCode;
             this.$copyText(link).then(e => {
                 Toast.success('链接复制成功！');
             }, err => {

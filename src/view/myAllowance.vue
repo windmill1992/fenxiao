@@ -74,7 +74,9 @@ export default {
         getData() {
             this.loading2 = Loading({ target: document.getElementById('pageContainer') });
             myAllowance({ pageNum: this.page, pageSize: this.pageSize }).then(res => {
-                this.loading2.close();
+                if(this.loading2){
+                    this.loading2.close();
+                }
                 this.loading = false;
                 this.refreshing = false;
                 if(res.code == 1){

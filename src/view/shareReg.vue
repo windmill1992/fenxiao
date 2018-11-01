@@ -25,6 +25,7 @@ import Vue from 'vue';
 import Toast from 'muse-ui-toast';
 import { Button, Snackbar, Icon } from 'muse-ui';
 import { imgHost } from '../api/baseUrl';
+import { inviter } from '../api/user';
 export default {
     data() {
         return {
@@ -34,20 +35,37 @@ export default {
         }
     },
     methods: {
+        getData() {
+            inviter({ code: this.invitationCode }).then(res => {
+                if(res.code == 1) {
+                    this.inviter = res.data.userName;
+                }else{
+                    if(res.msg){
+                        Toast.error(res.msg);
+                    }else{
+                        Toast.error('服务器开了小差，请稍后再试！');
+                    }
+                }
+            })
+            .catch(err => {
+                Toast.error('未知异常！');
+                console.log(err);
+            })
+        },
         toReg() {
-            if(!this.inviter || !this.invitationCode) {
+            if(!this.invitationCode) {
                 alert('邀请人不存在！');
                 return;
             }
-            this.$router.push({ name: 'register', query: { inviter: this.inviter, invitationCode: this.invitationCode } });
+            this.$router.push({ name: 'register', query: { invitationCode: this.invitationCode } });
         }
     },
     mounted() {
         this.isWx = this.$util.isWx();
-        let { inviter, invitationCode } = this.$route.query;
-        if(inviter && invitationCode){
-            this.inviter = inviter;
+        let { invitationCode } = this.$route.query;
+        if(invitationCode){
             this.invitationCode = invitationCode;
+            this.getData();
         }else{
             alert('邀请人不存在！');
         }

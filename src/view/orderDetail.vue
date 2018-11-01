@@ -120,7 +120,9 @@ export default {
         getData() {
             this.loading = Loading({ target: document.getElementById('pageContainer') });
             orderDetail({ orderId: this.id }).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     this.info = res.data;
                     if(!this.state){
@@ -132,7 +134,7 @@ export default {
                         this.countdown(rest);
                     }
                 }else if(res.code == 0){
-                    this.$router.push('/login?from='+ this.$route.name +'&params=id_'+ this.id);
+                    this.$router.push('/login');
                 }else{
                     if(res.msg){
                         Toast.error(res.msg);
@@ -505,10 +507,6 @@ Vue.use(VueClipboard);
 }
 </style>
 <style>
-.order-d .mu-dialog-body{
-    padding: 0;
-    position: relative;
-}
 .trade-p .mu-input{
     margin: 0;
     padding: 0;

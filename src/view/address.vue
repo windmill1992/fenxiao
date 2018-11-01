@@ -198,8 +198,8 @@ export default {
                 if(res.code == 1){
                     Toast.success('保存成功！');
                     setTimeout(() => {
-                        this.$router.go(-1);
-                    }, 1500);
+                        window.history.go(-1);
+                    }, 1000);
                 }else if(res.code == 0){
                     this.$router.push('/login?from='+ this.$route.name);
                 }else{

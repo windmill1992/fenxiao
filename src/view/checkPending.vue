@@ -63,7 +63,9 @@ export default {
         getData() {
             this.loading2 = Loading({ target: document.getElementById('pageContainer') });
             auditUsers({ pageNum: this.page, pageSize: this.pageSize }).then(res => {
-                this.loading2.close();
+                if(this.loading2){
+                    this.loading2.close();
+                }
                 this.loading = false;
                 this.refreshing = false;
                 if(res.code == 1){
@@ -71,7 +73,6 @@ export default {
                         this.list = [];
                     }
                     let r = res.data;
-                    let arr = [...this.list, ...r.resultData];
                     if(r.total == 0){
                         this.hasmore == 0;
                     }else if(r.total <= this.page * this.pageSize){
@@ -79,7 +80,7 @@ export default {
                     }else{
                         this.hasmore = 2;
                     }
-                    this.list = arr;
+                    this.list =  [...this.list, ...r.resultData];
                 }else if(res.code == 4){
                     this.list = [];
                     this.hasmore = 0;
