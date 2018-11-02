@@ -20,7 +20,7 @@
                 <div class="item flex1 flex fcen">卡号：{{uBankNo}} <a href="javascript:;" class="copy" @click="copyBankNo">复制卡号</a></div>
             </div>
             <div class="btns">
-                <mu-button color="#ff7421" textColor="#fff" full-width class="btn bold" @click="showDialog">我已充值，开始订货</mu-button>
+                <mu-button color="#ff7421" textColor="#fff" full-width class="btn bold" @click="showDialog">我已充值，回填信息</mu-button>
             </div>
             <div class="other">
                 <p>客服电话：0571-88581506</p>
@@ -84,9 +84,9 @@ export default {
             money: '',
             bankList: [],
             bank: '',
-            uBankNo: '6222222222222222',
-            uBankName: '招商银行杭州钱塘支行',
-            uName: '张三',
+            uBankNo: '6217 0015 4002 3191 057',
+            uBankName: '建设银行杭州余杭保健路支行',
+            uName: '李秀玲',
         }
     },
     methods: {
@@ -225,7 +225,8 @@ export default {
             })
         },
         copyBankNo() {
-            this.$copyText(this.userBankNo).then(e => {
+            let txt = this.uBankNo.replace(/ /g, '');
+            this.$copyText(txt).then(e => {
                 Toast.success('卡号复制成功！');
             }, err => {
                 Toast.error('卡号复制失败！');
