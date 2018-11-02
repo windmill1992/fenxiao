@@ -159,7 +159,7 @@ export default {
             this.showDialog = true;
         },
         copyLink() {
-            let link = location.hostname + '/shareReg?invitationCode='+ this.inviteCode;
+            let link = location.protocol + "//" + location.hostname + '/shareReg?invitationCode='+ this.inviteCode;
             this.$copyText(link).then(e => {
                 Toast.success('链接复制成功！');
             }, err => {

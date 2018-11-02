@@ -567,6 +567,14 @@ export default new Router({
       }
     },
     {
+      path: '/help/user_protocol',
+      name: 'user_protocol',
+      component: resolve =>  require(['../view/help/user_protocol.vue'], resolve),
+      meta: {
+        title: '众康科诺隐私保护承诺'
+      }
+    },
+    {
       path: '/admin/recharge/:id',
       name: 'admin_recharge',
       component: resolve =>  require(['../view/admin/recharge.vue'], resolve),

@@ -31,10 +31,10 @@
                 <p class="label">客服电话</p>
                 <p class="txt1">0571-88581506</p>
             </mu-ripple>
-            <!-- <mu-ripple class="item flex fcen spb" @click="linkto('company')">
-                <p class="label">公司简介</p>
+            <mu-ripple class="item flex fcen spb" @click="linkto('user_protocol')">
+                <p class="label">隐私协议</p>
                 <p class="arr-r gray"></p>
-            </mu-ripple> -->
+            </mu-ripple>
             
             <div class="btns">
                 <mu-button class="btn" full-width color="#ff7421" textColor="#fff" @click="logout">

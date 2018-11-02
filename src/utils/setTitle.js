@@ -1,7 +1,7 @@
 const setTitle = t => {
     document.title = t;
     var i = document.createElement('iframe');
-    i.src = 'https://m.baidu.com/favicon.ico';
+    i.src = 'https://www.51xsbl.com/res/icon/favicon.ico';
     i.style.display = 'none';
     i.onload = function() {
         setTimeout(function(){

@@ -1,9 +1,5 @@
 <template>
     <div id="pageContainer" class="share-reg">
-        <div class="header">
-            <p class="title">注册会员</p>
-            <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
-        </div>
         <div class="wrapper">
             <div class="top-bg">
                 <img :src="imgHost +'/picture.png'" alt="regbg">
@@ -61,7 +57,6 @@ export default {
         }
     },
     mounted() {
-        this.isWx = this.$util.isWx();
         let { invitationCode } = this.$route.query;
         if(invitationCode){
             this.invitationCode = invitationCode;
@@ -78,6 +73,9 @@ Vue.use(Icon);
 </script>
 
 <style scoped lang="less">
+.wrapper{
+    padding-top: 0;
+}
 .top-bg{
     position: relative;
     img{

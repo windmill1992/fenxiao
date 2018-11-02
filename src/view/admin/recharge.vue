@@ -174,6 +174,7 @@ export default {
     },
     filters: {
         fmt(t) {
+            if(!t) return '';
             return util.formatTime(t, '-');
         },
     },
@@ -234,6 +235,7 @@ Vue.use(Icon);
         padding: .1rem .15rem;
         font-size: .16rem;
         border-bottom: 1px solid #f3f3f3;
+        white-space: nowrap;
         .txt{
             font-size: .14rem;
         }

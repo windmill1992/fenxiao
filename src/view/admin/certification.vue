@@ -124,6 +124,7 @@ export default {
     },
     filters: {
         fmt(t) {
+            if(!t) return '';
             return util.formatTime(t, '-');
         },
     },
