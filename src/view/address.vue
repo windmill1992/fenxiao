@@ -122,7 +122,12 @@ export default {
             })
         },
         selProvince(e) {
-            let index = $(e.target).find(':selected').index() - 1;
+            let index = 0;
+            if(typeof e == 'string' || typeof e == 'number'){
+                index = e;
+            }else{
+                index = $(e.target).find(':selected').index() - 1;
+            }
             console.log('pro---'+ index);
             this.formdata.province = $city[index].value;
             this.province = index;
@@ -136,7 +141,12 @@ export default {
             this.area = '';
         },
         selCity(e) {
-            let index = $(e.target).find(':selected').index() - 1;
+            let index = 0;
+            if(typeof e == 'string' || typeof e == 'number'){
+                index = e;
+            }else{
+                index = $(e.target).find(':selected').index() - 1;
+            }
             console.log('city---'+ index);
             this.formdata.city = $city[this.province].child[index].value;
             this.city = index;
@@ -153,7 +163,12 @@ export default {
             }
         },
         selArea(e) {
-            let index = $(e.target).find(':selected').index() - 1;
+            let index = 0;
+            if(typeof e == 'string' || typeof e == 'number'){
+                index = e;
+            }else{
+                index = $(e.target).find(':selected').index() - 1;
+            }
             console.log('area---'+ index);
             this.formdata.area = $city[this.province].child[this.city].child[index].value;
             this.area = index;
