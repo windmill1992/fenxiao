@@ -20,6 +20,7 @@
     "muse-ui-toast": "^0.3.0",
     "qrcode": "^1.2.2",
     "qs": "^6.5.2",
+    "swiper": "^4.4.2",
     "vue": "^2.5.2",
     "vue-clipboard2": "^0.2.1",
     "vue-router": "^3.0.1"

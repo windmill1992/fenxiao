@@ -2,14 +2,22 @@
     <div id="pageContainer" class="share-reg">
         <div class="wrapper">
             <div class="top-bg">
-                <img :src="imgHost +'/picture.png'" alt="regbg">
+                <img :src="imgHost +'/reg_bg2.png'" alt="regbg">
                 <div class="mask">
                     <p class="txt bold">您的好友{{inviter}}</p>
                     <p class="txt2">邀请您成为会员!</p>
                 </div>
-                <a href="javascript:;" class="btns" :style="'background: url('+ imgHost +'/djzc.png) no-repeat 0 0 / 100% 100%;'" @click="toReg">
-                    <span class="btn bold">点击注册</span>
-                </a>
+                <a href="javascript:;" class="btns" :style="'background: url('+ imgHost +'/djzc.png) no-repeat 0 0 / 100% 100%;'" @click="toReg"></a>
+            </div>
+            <div class="con">
+                <img :src="imgHost + '/reg_con.png'" alt="">
+            </div>
+            <div class="dialog" :class="{show: open}">
+                <div class="mask" @click="open = false"></div>
+                <div class="dialog_inner" @click="open = false">
+                    <img :src="imgHost + '/ios_share.png'" v-if="isSelf && isIos" alt="">
+                    <img :src="imgHost + '/android_share.png'" v-else-if="isSelf && !isIos" alt="">
+                </div>
             </div>
         </div>
     </div>
@@ -28,6 +36,9 @@ export default {
             imgHost: imgHost,
             inviter: '',
             invitationCode: '',
+            isSelf: false,
+            isIos: false,
+            open: false,
         }
     },
     methods: {
@@ -61,6 +72,11 @@ export default {
         if(invitationCode){
             this.invitationCode = invitationCode;
             this.getData();
+            if(localStorage.getItem('self') == 1){
+                this.isSelf = true;
+                this.open = true;
+            }
+            this.isIos = !!navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
         }else{
             alert('邀请人不存在！');
         }
@@ -108,10 +124,42 @@ Vue.use(Icon);
         left: 0;
         text-align: center;
         z-index: 9;
-        .btn{
-            display: block;
-            color: #fff;
-            font-size: .2rem;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, .05);
+    }
+}
+.con{
+    img{
+        width: 100%;
+        height: auto;
+    }
+}
+.dialog{
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 99;
+    display: none;
+    .mask{
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, .6);
+        cursor: pointer;
+    }
+    .dialog_inner{
+        position: absolute;
+        left: 0;
+        bottom: .2rem;
+        width: 100%;
+        cursor: pointer;
+        img{
+            width: 90%;
+            height: auto;
+            margin: 0 5%;
         }
     }
 }

@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <my-splash v-if="firstShow"></my-splash>
     <transition name="fade">
       <router-view/>
     </transition>
@@ -7,14 +8,29 @@
 </template>
 
 <script>
+import MySplash from './components/splash';
 export default {
   name: 'App',
-  mounted() {
-        this.$util.getPageStyle();
-        window.onresize = () => {
-            this.$util.getPageStyle();
-        }
+  data() {
+    return {
+      firstShow: true,
     }
+  },
+  mounted() {
+    this.$util.getPageStyle();
+    window.onresize = () => {
+        this.$util.getPageStyle();
+    }
+    let app = sessionStorage.getItem('appStart');
+    if(app == 1){
+      this.firstShow = false;
+    }else{
+      sessionStorage.setItem('appStart', 1);
+    }
+  },
+  components: {
+    MySplash,
+  }
 }
 </script>
 

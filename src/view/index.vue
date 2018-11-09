@@ -44,21 +44,36 @@
             <!-- <div class="rank-wrapper">
                 <mu-ripple class="rank-link" @click="linkto('')"><span class="link">排行榜</span></mu-ripple>
             </div> -->
+            <div class="banner-wrapper">
+                <div class="swiper-container">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide">
+                            <img :src="imgHost + '/banner/banner1.jpg'" alt="">
+                        </div>
+                        <div class="swiper-slide">
+                            <img :src="imgHost + '/banner/banner2.jpg'" alt="">
+                        </div>
+                        <div class="swiper-slide">
+                            <img :src="imgHost + '/banner/banner3.jpg'" alt="">
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="menu-wrapper flex">
                 <mu-ripple class="menu-item fcol spb fcen" @click="linkto('firstPoint')">
-                    <p class="num">{{info.firstIntegral ? info.firstIntegral : 0}}</p>
+                    <p class="num">{{info.firstIntegral ? info.firstIntegral : 0 | numFmt}}</p>
                     <p class="txt">一阶积分</p>
                 </mu-ripple>
                 <mu-ripple class="menu-item fcol spb fcen" @click="linkto('secondPoint')">
-                    <p class="num">{{info.secondIntegral ? info.secondIntegral : 0}}</p>
+                    <p class="num">{{info.secondIntegral ? info.secondIntegral : 0 | numFmt}}</p>
                     <p class="txt">二阶积分</p>
                 </mu-ripple>
                 <mu-ripple class="menu-item fcol spb fcen" @click="linkto('ownPoint')">
-                    <p class="num">{{info.integralSelf ? info.integralSelf : 0}}</p>
+                    <p class="num">{{info.integralSelf ? info.integralSelf : 0 | numFmt}}</p>
                     <p class="txt">自有积分</p>
                 </mu-ripple>
                 <mu-ripple class="menu-item fcol spb fcen" @click="linkto('teamSales')">
-                    <p class="num">{{info.teamSale ? info.teamSale : 0}}</p>
+                    <p class="num">{{info.teamSale ? info.teamSale : 0 | numFmt}}</p>
                     <p class="txt">团队销售额</p>
                 </mu-ripple>
                 <mu-ripple class="menu-item2 fcol spb fcen" @click="linkto('report')">
@@ -160,12 +175,14 @@
 <script>
 import 'muse-ui-toast/dist/muse-ui-toast.all.css';
 import 'muse-ui-loading/dist/muse-ui-loading.css';
+import 'swiper/dist/css/swiper.min.css';
 import Vue from 'vue';
 import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
 import { Snackbar, Button, Icon, LoadMore } from 'muse-ui';
 import { integral, auditUserNum } from '../api/user';
 import { imgHost } from '../api/baseUrl';
+import Swiper from 'swiper';
 export default {
     data() {
         return {
@@ -268,9 +285,21 @@ export default {
             window.location.reload();
         },
     },
+    filters: {
+        numFmt(n) {
+            if(!n) return 0;
+            n = n.toString();
+            if(n.length > 6) return parseInt(n / 10000) + 'w';
+            return n;
+        },
+    },
     mounted() {
         this.getData();
         // alert(navigator.userAgent);
+        let swiper = new Swiper('.swiper-container', {
+            autoplay: true,
+            loop: true,
+        })
     }
 }
 Vue.use(Toast);
@@ -367,10 +396,21 @@ Vue.use(Icon);
         }
     }
 }
-.menu-wrapper{
-    border-top: 1px solid #f3f3f3;
-    height: .75rem;
+.banner-wrapper{
+    width: 100%;
+    padding: 0 .12rem;
     margin-top: .1rem;
+    .swiper-container{
+        border-radius: .05rem;
+        overflow: hidden;
+    }
+    img{
+        width: 100%;
+        vertical-align: top;
+    }
+}
+.menu-wrapper{
+    height: .75rem;
     .menu-item{
         width: 27.8%;
         padding: .13rem 0;

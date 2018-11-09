@@ -156,6 +156,7 @@ export default {
                     Toast.success('退出成功！');
                     sessionStorage.removeItem('wx');
                     sessionStorage.removeItem('code');
+                    localStorage.removeItem('self');
                     setTimeout(() => {
                         this.$router.replace('/login');
                     }, 1000);

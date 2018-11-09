@@ -9,7 +9,7 @@
                 <p class="txt">邀请更多人一起创业</p>
                 <p class="txt2 bold">大健康之路在此起航!</p>
                 <div class="share-box flex spa">
-                    <a href="javascript:;" class="item" @click="showShare" v-if="isWx && !isMini">
+                    <a href="javascript:;" class="item" @click="showShare" v-if="!isMini">
                         <img src="../assets/img/wechat.png" alt="微信好友">
                         <p>微信好友</p>
                     </a>
@@ -156,7 +156,12 @@ export default {
             })
         },
         showShare() {
-            this.showDialog = true;
+            if(this.isWx){
+                this.showDialog = true;
+            }else{
+                localStorage.setItem('self', 1);
+                this.$router.push('/shareReg?invitationCode='+ this.inviteCode);
+            }
         },
         copyLink() {
             let link = location.protocol + "//" + location.hostname + '/shareReg?invitationCode='+ this.inviteCode;
