@@ -47,11 +47,12 @@
                         <option :value="index" v-for="item,index in areaArr" :key="'area'+ index" v-if="item != '其他'">{{item}}</option>
                     </select>
                 </div>
-                <div class="item">
-                    <select v-model="bankDeposit" placeholder="选择开户行" class="sel inp" @change="selDeposit">
+                <div class="item flex">
+                    <!-- <select v-model="bankDeposit" placeholder="选择开户行" class="sel inp" @change="selDeposit">
                         <option value="" disabled selected style="display: none;">选择开户行</option>
                         <option :value="index" v-for="item,index in bankList2" :key="'dep'+ index">{{item.v}}</option>
-                    </select>
+                    </select> -->
+                    <a href="javascript:;" class="sel inp sel-a" @click="showSheet">{{formdata.bankDeposit ? formdata.bankDeposit : '选择开户行'}}</a>
                 </div>
                 <!-- <div class="item">
                     <mu-text-field v-model="formdata.detailAddr" placeholder="请输入详细地址" class="inp" full-width underline-color="blue" prefix="详细地址"></mu-text-field>
@@ -63,6 +64,20 @@
                 </mu-button>
             </div>
         </div>
+        <mu-bottom-sheet :open.sync="open" class="bot-s" :overlay="false">
+            <div class="top flex fcen spb">
+                <div class="search-box flex">
+                    <img src="../assets/img/search.png" alt="" />
+                    <input type="text" v-model="searchTxt" @input="search" class="inp" />
+                </div>
+                <a href="javascript:;" class="close" @click="open = false">取消</a>
+            </div>
+            <div class="list">
+                <mu-ripple class="item" :class="{on: bankDeposit === index}" v-for="item,index in bankList2" :key="'dep'+ index"
+                    v-if="item.v.includes(searchTxt)" @click="selDeposit(index)">{{item.v}}</mu-ripple>
+            </div>
+        </mu-bottom-sheet>
+        <a href="javascript:;" class="overlay" v-show="open" @click="open = false"></a>
     </div>
 </template>
 
@@ -72,7 +87,7 @@ import 'muse-ui-loading/dist/muse-ui-loading.css';
 import Vue from 'vue';
 import Toast from 'muse-ui-toast';
 import Loading from 'muse-ui-loading';
-import { TextField, Snackbar, Icon, Button } from 'muse-ui';
+import { TextField, Snackbar, Icon, Button, BottomSheet } from 'muse-ui';
 import { $city } from '../assets/js/city2.min';
 import { checkCard } from '../utils/card';
 import { bankList, cityInfo, bankListInfo, qualifacationCert } from '../api/user';
@@ -94,6 +109,9 @@ export default {
             loading: false,
             bankList: [],
             bankList2: [],
+            open: false,
+            searchTxt: '',
+
         }
     },
     methods: {
@@ -201,7 +219,6 @@ export default {
             console.log('city---'+ index);
             this.formdata.city = $city[this.province].child[index].value;
             this.city = index;
-            console.log($city[this.province].child);
             if($city[this.province].child[index].child){
                 let arr = [];
                 for (let v of $city[this.province].child[index].child) {
@@ -226,9 +243,21 @@ export default {
             }
         },
         selDeposit(e) {
-            let index = $(e.target).find(':selected').index() - 1;
+            // let index = $(e.target).find(':selected').index() - 1;
+            let index = e;
+            this.bankDeposit = e;
             this.formdata.bankDeposit = this.bankList2[index].v;
             this.formdata.bankDepositCode = this.bankList2[index].k;
+            this.open = false;
+        },
+        search() {
+            // let arr = [];
+            // for(let o of this.bankList2){
+            //     if(o.v.includes(searchTxt)){
+            //         arr.push(o);
+            //     }
+            // }
+            // this.bankList2
         },
         save() {
             if(!this.formdata.uname){
@@ -283,6 +312,13 @@ export default {
             }, this.regionCode));
             this.$router.push('/certification');
         },
+        showSheet() {
+            if(this.bankList2.length == 0) {
+                Toast.error('该地区未查询到支行信息');
+                return;
+            }
+            this.open = true;
+        },
     },
     mounted() {
         this.isWx = this.$util.isWx();
@@ -313,6 +349,7 @@ Vue.use(TextField);
 Vue.use(Snackbar);
 Vue.use(Icon);
 Vue.use(Button);
+Vue.use(BottomSheet);
 </script>
 
 <style scoped lang="less">
@@ -348,6 +385,26 @@ Vue.use(Button);
             &.flex1{
                 width: 33.33%;
                 white-space: nowrap;
+            }
+        }
+        .sel-a{
+            padding-left: .14rem;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            &::after{
+                content: '';
+                display: inline-block;
+                width: .07rem;
+                height: .07rem;
+                border-right: 1px solid #000;
+                border-bottom: 1px solid #000;
+                -webkit-transform: rotate(45deg) translate3d(0, -50%, 0);
+                transform: rotate(45deg) translate3d(0, -50%, 0);
+                position: absolute;
+                right: 0.18rem;
+                top: 50%;
             }
         }
         .code-a{
@@ -393,6 +450,61 @@ Vue.use(Button);
         font-size: .16rem;
         border-radius: .05rem;
         letter-spacing: 1px;
+    }
+}
+.bot-s{
+    width: 100%;
+    padding: .12rem .12rem .24rem;
+    height: calc(~"100%");
+    -webkit-overflow-scrolling: touch;
+    overflow: hidden;
+    .top{
+        .search-box{
+            height: .4rem;
+            border: 1px solid #c9c9c9;
+            border-radius: .05rem;
+            padding: .05rem;
+            width: 100%;
+            margin-right: .15rem;
+            img{
+                width: .22rem;
+                height: .2rem;
+                margin: .05rem 0;
+            }
+            .inp{
+                border: none;
+                outline: none;
+                height: .2rem;
+                line-height: .2rem;
+                margin: .05rem 0;
+                padding: 0 .1rem;
+                font-size: .14rem;
+                width: 100%;
+            }
+        }
+        .close{
+            white-space: nowrap;
+            font-size: .14rem;
+            color: #666;
+        }
+    }
+    .list{
+        margin-top: .1rem;
+        max-height: calc(~"100% - .45rem");
+        overflow-y: scroll;
+    }
+    .item{
+        position: relative;
+        height: .32rem;
+        line-height: .32rem;
+        font-size: .14rem;
+        padding-left: .1rem;
+        color: #000;
+        border-radius: .02rem;
+        &.on{
+            color: #fff;
+            background: #51BD0B;
+        }
     }
 }
 </style>

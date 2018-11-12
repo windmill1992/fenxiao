@@ -246,6 +246,18 @@ body::-webkit-scrollbar {
 	height: 0;
 	border-bottom: .1rem solid #f6f6f6;
 }
+.overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, .6);
+	z-index: 1000;
+}
+.mu-bottom-sheet{
+    position: absolute!important;
+}
 /*toast提示*/
 .tips{
 	position: fixed;
