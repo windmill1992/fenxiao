@@ -389,6 +389,7 @@ Vue.use(BottomSheet);
         }
         .sel-a{
             padding-left: .14rem;
+            padding-right: .15rem;
             position: relative;
             overflow: hidden;
             white-space: nowrap;
@@ -396,15 +397,15 @@ Vue.use(BottomSheet);
             &::after{
                 content: '';
                 display: inline-block;
-                width: .07rem;
-                height: .07rem;
-                border-right: 1px solid #000;
-                border-bottom: 1px solid #000;
-                -webkit-transform: rotate(45deg) translate3d(0, -50%, 0);
-                transform: rotate(45deg) translate3d(0, -50%, 0);
+                width: 0;
+                height: 0;
+                border-right: .04rem solid transparent;
+                border-left: .04rem solid transparent;
+                border-top: .06rem solid #000;
                 position: absolute;
-                right: 0.18rem;
+                right: .1rem;
                 top: 50%;
+                margin-top: -2px;
             }
         }
         .code-a{
@@ -495,10 +496,9 @@ Vue.use(BottomSheet);
     }
     .item{
         position: relative;
-        height: .32rem;
-        line-height: .32rem;
+        padding: .05rem .1rem .05rem .15rem;
+        line-height: .22rem;
         font-size: .14rem;
-        padding-left: .1rem;
         color: #000;
         border-radius: .02rem;
         &.on{
