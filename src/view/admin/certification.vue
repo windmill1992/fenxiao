@@ -37,9 +37,9 @@
                     <p class="state" v-else-if="info.powerState == 103">审核通过</p>
                     <p class="state" v-else-if="info.powerState == 104">审核不通过</p>
                 </div>
-                <div class="item flex">
+                <div class="item">
                     <p class="label">身份证照片：</p>
-                    <img :src="info.idfaceUrl" class="flex1" alt="身份证照片">
+                    <a class="preview"><img :src="info.idfaceUrl" alt="身份证照片"></a>
                 </div>
             </div>
             <div class="btns flex spc" v-if="info.powerState == 102">
@@ -164,7 +164,14 @@ Vue.use(Icon);
             font-size: .14rem;
             color: #ff7421;
         }
+        .preview{
+            display: block;
+            width: 100%;
+            overflow: hidden;
+        }
         img{
+            width: 100%;
+            max-width: 100%;
             height: auto;
             vertical-align: top;
         }

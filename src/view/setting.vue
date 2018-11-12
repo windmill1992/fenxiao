@@ -151,7 +151,9 @@ export default {
         logout() {
             this.loading = Loading({ text: '正在退出...', target: document.getElementById('pageContainer') });
             logout().then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     Toast.success('退出成功！');
                     sessionStorage.removeItem('wx');
