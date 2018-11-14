@@ -11,7 +11,7 @@
             </div>
             <div class="box flex1" :style="'background-image: url('+ imgHost +'/reg_bg.png)'">
                 <div class="btns">
-                    <mu-button class="btn" href="/" color="#ff7421" textColor="#fff" full-width>立即订货</mu-button>
+                    <mu-button class="btn" href="/" color="#ff7421" textColor="#fff" full-width>进入分销中心</mu-button>
                 </div>
                 <div class="qr-box fcol fcen">
                     <a><img :src="imgHost + '/qrcode.jpg'" alt="公众号"></a>

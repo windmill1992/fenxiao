@@ -192,7 +192,9 @@ export default {
                 password: this.psw,
             }
             regist(param).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     Toast.success('注册成功，正在跳转...');
                     setTimeout(() => {
@@ -231,6 +233,9 @@ export default {
         this.isWx = this.$util.isWx();
         this.invitationCode = this.$route.query.invitationCode;
         this.getData();
+    },
+    beforeDestroy() {
+        clearInterval(this.timer);
     }
 }
 Vue.use(Toast);
