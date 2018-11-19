@@ -242,7 +242,7 @@ export default {
                 if(this.info.level >= 4){
                     this.$router.push({ name: name });
                 }else{
-                    Toast.error('特约用户才能查看哦~');
+                    Toast.error('项目合伙人才能查看哦~');
                 }
             }else{
                 if(name == 'setting' || name == 'user'){

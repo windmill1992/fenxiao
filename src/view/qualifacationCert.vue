@@ -16,7 +16,7 @@
                     <mu-text-field v-model="formdata.uname" placeholder="请输入姓名" class="inp" full-width underline-color="blue" prefix="姓名"></mu-text-field>
                 </div>
                 <div class="item">
-                    <mu-text-field type="number" v-model="formdata.idcard" placeholder="请输入身份证号" class="inp" full-width underline-color="blue" prefix="身份证号"></mu-text-field>
+                    <mu-text-field v-model="formdata.idcard" placeholder="请输入身份证号" class="inp" full-width underline-color="blue" prefix="身份证号"></mu-text-field>
                 </div>
                 <div class="item">
                     <mu-text-field type="number" v-model="formdata.mobile" placeholder="请输入手机号" class="inp" full-width underline-color="blue" prefix="手机号"></mu-text-field>
