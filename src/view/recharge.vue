@@ -190,7 +190,9 @@ export default {
             this.loading = Loading({ text: '正在提交...', target: document.getElementById('pageContainer') });
             this.loading2 = true;
             cashApply({ type: 100, applyMoney: this.money, card: this.bankNo, bankName: this.bankName, realName: this.uname }).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     Toast.success('提交成功！');
                     setTimeout(() => {

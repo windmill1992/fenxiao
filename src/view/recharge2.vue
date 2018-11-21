@@ -108,7 +108,9 @@ export default {
         getData() {
             this.loading = Loading({ target: document.getElementById('pageContainer') });
             userInfo().then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     this.uname = res.data.userName;
                     this.mobile = res.data.mobileNum;
@@ -158,7 +160,9 @@ export default {
             }
             this.loading = Loading({ target: document.getElementById('pageContainer') });
             recharge({ orderType: 1, orderAmount: this.amount }).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     // window.location.href = encodeURI(res.data);
                     let link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');

@@ -156,7 +156,9 @@ export default {
             }
             this.loading = Loading({ target: document.getElementById('pageContainer') });
             updateMobile({ mobile: this.mobile, code: this.code, psw: this.psw, type: 'edit' }).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     Toast.success('修改成功，正在跳转...');
                     setTimeout(() => {

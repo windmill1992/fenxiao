@@ -71,7 +71,9 @@ export default {
                 }else if(res.code == 0){
                     this.$router.push('/login?from='+ this.$route.name);
                 }else{
-                    this.loading.close();
+                    if(this.loading){
+                        this.loading.close();
+                    }
                     if(res.msg){
                         Toast.error(res.msg);
                     }else{
@@ -87,7 +89,9 @@ export default {
         },
         getTrack() {
             trackInfo({ express: this.info.courierName, expressNo: this.info.courierNum }).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     let arr =[];
                     for (let i=res.data.Traces.length - 1; i>=0; i--){

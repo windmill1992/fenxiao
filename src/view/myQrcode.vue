@@ -55,7 +55,9 @@ export default {
                 }else if(res.code == 0){
                     this.$router.push('/login?from='+ this.$route.name);
                 }else{
-                    this.loading.close();
+                    if(this.loading){
+                        this.loading.close();
+                    }
                     if(res.msg){
                         Toast.error(res.msg);
                     }else{
@@ -71,7 +73,9 @@ export default {
         },
         getCode() {
             myCode({ url: location.href }).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     this.inviteCode = res.data.code;
                     this.inviter = res.data.userName;

@@ -41,7 +41,9 @@ export default {
         getUserState() {
             this.loading = Loading({ target: document.getElementById('pageContainer') });
             userState().then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     this.state = res.data;
                 }else if(res.code == 0){

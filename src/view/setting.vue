@@ -101,7 +101,9 @@ export default {
             }
             this.loading = Loading({ text: '正在登录...', target: document.getElementById('pageContainer') });
             wxBindLogin(param).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1 || res.code == 10026){
                     Toast.success('微信绑定成功');
                     this.getUserState();

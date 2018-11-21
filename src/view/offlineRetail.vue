@@ -70,7 +70,9 @@ export default {
         getData() {
             this.loading = Loading({ target: document.getElementById('pageContainer') });
             myStock({ pageNum: 1, pageSize: 20 }).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     this.list = [...[], ...res.data.resultData];
                     for(let v of this.list){

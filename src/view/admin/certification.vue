@@ -76,7 +76,9 @@ export default {
         getData() {
             this.loading = Loading({ target: document.getElementById('#pageContainer') });
             certInfo({ userId: this.uid }).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1) {
                     this.info = res.data;
                 }else if(res.code == 10036){
@@ -103,7 +105,9 @@ export default {
             this.openSure = false;
             this.loading = Loading({ text: '正在提交...', target: document.getElementById('#pageContainer') });
             certification({ userId: this.uid, type: t }).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     Toast.success('操作成功！');
                     window.location.reload();

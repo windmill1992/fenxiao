@@ -60,7 +60,9 @@ export default {
         getData() {
             this.loading = Loading({ target: document.getElementById('pageContainer') });
             myBank().then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     this.info = res.data;
                     if(!this.state){
@@ -144,7 +146,9 @@ export default {
                     this.loading = Loading({ text: '正在提交...', target: document.getElementById('pageContainer') });
                     this.loading2 = true;
                     cashApply({ type: 200, applyMoney: this.money, transactPassWord: value }).then(res => {
-                        this.loading.close();
+                        if(this.loading){
+                            this.loading.close();
+                        }
                         if(res.code == 1){
                             Toast.success('提交成功，请等待审核。');
                             setTimeout(() => {

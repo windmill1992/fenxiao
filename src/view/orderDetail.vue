@@ -262,7 +262,9 @@ export default {
         openSheet() {
             this.loading = Loading({ target: document.getElementById('pageContainer') });
             getBalance({ orderId: this.id }).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     this.amount = res.data;
                     this.enough = true;
@@ -296,6 +298,7 @@ export default {
                 }
             })
             .catch(err => {
+                this.loading.close();
                 Toast.error('未知异常！');
                 console.log(err);
             })

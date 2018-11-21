@@ -206,7 +206,9 @@ export default {
             this.loading = Loading({ text: '正在查询...', target: document.getElementById('pageContainer') });
             this.loading2 = true;
             salesOrder({ orderType: 5, id: this.ids }).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     this.openSheet = true;
                     this.amount = res.data;

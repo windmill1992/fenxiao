@@ -222,7 +222,9 @@ export default {
                     if(result){
                         this.loading = Loading({ text: '正在提交...', target: document.getElementById('pageContainer') });
                         payShip({ shipmentId: this.id, transactPassWord: value }).then(res => {
-                            this.loading.close();
+                            if(this.loading){
+                                this.loading.close();
+                            }
                             if(res.code == 1){
                                 this.showSheet = false;
                                 sessionStorage.removeItem('sendObj');
@@ -290,7 +292,9 @@ export default {
             }
             this.loading = Loading({ target: document.getElementById('pageContainer') });
             getShipBalance({ shipmentId: this.id }).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     this.amount = res.data;
                     this.enough = true;

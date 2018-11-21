@@ -83,7 +83,9 @@ export default {
             this.loading = Loading({ text: '正在登录...', target: document.getElementById('pageContainer') });
             this.f = true;
             login({ userName: this.account, password: this.psw }).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     localStorage.setItem('account', this.account);
                     Toast.success('登录成功，正在跳转...');
@@ -131,7 +133,9 @@ export default {
             }
             this.loading = Loading({ text: '正在登录...', target: document.getElementById('pageContainer') });
             wxlogin(param).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     Toast.success('登录成功，正在跳转...');
                     sessionStorage.setItem('code', 1);

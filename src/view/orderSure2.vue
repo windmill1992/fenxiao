@@ -234,7 +234,9 @@ export default {
                                     this.$router.push('/orderDetail3/'+ this.orderId);
                                 }, 1000);
                             }else{
-                                this.loading.close();
+                                if(this.loading){
+                                    this.loading.close();
+                                }
                                 if(res.msg){
                                     Toast.error(res.msg);
                                 }else{
@@ -272,7 +274,9 @@ export default {
                 address: `${this.addrInfo.province + this.addrInfo.city + this.addrInfo.area + this.addrInfo.detailAddress}`,
             }
             shipOrder(data).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     this.openSheet = true;
                     this.amount = res.data;

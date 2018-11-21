@@ -72,7 +72,9 @@ export default {
         getData() {
             this.loading = Loading({ target: document.getElementById('pageContainer') });
             addressInfo({ id: this.id }).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     let r = res.data;
                     this.formdata = {
@@ -209,7 +211,9 @@ export default {
             }
             this.loading = Loading({ target: document.getElementById('pageContainer') });
             urls(param).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     Toast.success('保存成功！');
                     setTimeout(() => {

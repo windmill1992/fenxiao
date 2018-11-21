@@ -103,7 +103,9 @@ export default {
         getData() {
             this.loading = Loading({ target: document.getElementById('pageContainer') });
             userInfo().then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     this.user = res.data;
                     this.getAddrInfo();
@@ -149,7 +151,9 @@ export default {
             formData.append('type', 1);
             this.loading = Loading({ text: '正在上传头像...', target: document.getElementById('pageContainer') });
             uploadImage(formData).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     Toast.success('上传头像成功！');
                     this.user.coverImageUrl = res.data.imageUrl;

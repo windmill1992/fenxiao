@@ -143,7 +143,9 @@ export default {
         getData(id) {
             this.loading = Loading({ target: document.getElementById('pageContainer') });
             prodInfo({ productId: this.ids }).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     this.info = res.data;
                     this.getUserState();
@@ -294,7 +296,9 @@ export default {
             this.loading = Loading({ text: '正在查询...', target: document.getElementById('pageContainer') });
             this.loading2 = true;
             order({ orderType: 5, productId: this.ids, shipmentNum: this.num[0], price: this.sumInfo.price, amountMoney: this.sumInfo.amountMoney }).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     this.showDialog = false;
                     this.openSheet = true;

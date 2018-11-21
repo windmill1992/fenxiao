@@ -115,7 +115,9 @@ export default {
         getData() {
             this.loading = Loading({ target: document.getElementById('#pageContainer') });
             recInfo({ payNum: this.id }).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1) {
                     this.info = res.data;
                 }else if(res.code == 10036){
@@ -153,7 +155,9 @@ export default {
             this.openSure3 = false;
             this.loading = Loading({ text: '正在提交...', target: document.getElementById('#pageContainer') });
             recharge({ payMoney: this.money, payNum: this.id }).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     Toast.success('充值成功！');
                     window.location.reload();

@@ -71,7 +71,9 @@ export default {
                 oldPassWord: this.oldpsw,
             }
             updateLoginPsw(param).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1) {
                     Toast.success('密码修改成功！');
                     setTimeout(() => {
@@ -88,6 +90,7 @@ export default {
                 }
             })
             .catch(err => {
+                this.loading.close();
                 Toast.error('未知异常！');
                 console.log(err);
             })

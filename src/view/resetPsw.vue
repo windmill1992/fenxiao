@@ -155,7 +155,9 @@ export default {
                 surePassword: this.psw2,
             }
             resetLoginPsw(param).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     Toast.success('密码设置成功!');
                     setTimeout(() => {

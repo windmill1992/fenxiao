@@ -61,7 +61,9 @@ export default {
         getData() {
             this.loading = Loading({ target: document.getElementById('pageContainer') });
             rechargeInfo({ payNum: this.payNum }).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     this.info = res.data;
                     if(res.data.state == 101){

@@ -124,7 +124,9 @@ export default {
             }
             this.loading = Loading({ target: document.getElementById('pageContainer') });
             bindMobile({ mobile: this.mobile, code: this.code, type: 'bind' }).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     Toast.success('绑定成功，正在跳转...');
                     setTimeout(() => {

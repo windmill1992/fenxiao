@@ -66,7 +66,9 @@ export default {
             this.loading = Loading({ text: '请稍等...', target: document.getElementById('pageContainer') });
             this.f = true;
             updateTradePsw({ oldPassWord: this.oldpsw, password: this.psw, surePassword: this.psw2 }).then(res => {
-                this.loading.close();
+                if(this.loading){
+                    this.loading.close();
+                }
                 if(res.code == 1){
                     Toast.success('设置成功！');
                     setTimeout(() => {
