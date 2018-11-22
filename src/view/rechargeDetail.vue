@@ -75,7 +75,7 @@ export default {
                 if(res.code == 1){
                     this.info = res.data;
                     if(res.data.state == 101){
-                        this.countdown(res.data.createTime + 240000);
+                        this.countdown(res.data.createTime + 210000);
                     }
                 }else if(res.code == 0){
                     this.$router.push('/login');
