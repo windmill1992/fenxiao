@@ -29,7 +29,26 @@
         </div>
         <mu-dialog :open.sync="show" dialog-class="rec-d" width="400" max-width="80%">
             <p class="title">请回填充值的信息</p>
-            <div class="box">
+            <div class="item flex fcen">
+                <p>充值方式:</p>
+                <select v-model="way" class="sel inp" @change="selWay">
+                    <option :value="0">支付宝转账</option>
+                    <option :value="1">银行卡转账</option>
+                    <option :value="2">现金/POS机付款</option>
+                </select>
+            </div>
+            <div class="box" v-if="way == 0">
+                <div class="item">
+                    <mu-text-field type="text" v-model="bankNo" placeholder="" max-length="25" class="inp" full-width underline-color="blue" prefix="支付宝账号:"></mu-text-field>
+                </div>
+                <div class="item">
+                    <mu-text-field type="text" v-model="uname" placeholder="" max-length="20" class="inp" full-width underline-color="blue" prefix="付款人:"></mu-text-field>
+                </div>
+                <div class="item">
+                    <mu-text-field type="number" v-model="money" placeholder="" max-length="10" class="inp" full-width underline-color="blue" prefix="充值金额:"></mu-text-field>
+                </div>
+            </div>
+            <div class="box" v-else-if="way == 1">
                 <div class="item">
                     <mu-text-field type="text" v-model="uname" placeholder="" max-length="15" class="inp" full-width underline-color="blue" prefix="开户名:"></mu-text-field>
                 </div>
@@ -41,10 +60,18 @@
                     </select>
                 </div>
                 <div class="item" v-else>
-                    <mu-text-field type="text" v-model="bankName" placeholder="" max-length="20" class="inp" full-width underline-color="blue" prefix="开户行:"></mu-text-field>
+                    <mu-text-field type="text" v-model="accountName" placeholder="" max-length="20" class="inp" full-width underline-color="blue" prefix="开户行:"></mu-text-field>
                 </div>
                 <div class="item">
                     <mu-text-field type="number" v-model="bankNo" placeholder="" max-length="20" class="inp" full-width underline-color="blue" prefix="卡号:"></mu-text-field>
+                </div>
+                <div class="item">
+                    <mu-text-field type="number" v-model="money" placeholder="" max-length="10" class="inp" full-width underline-color="blue" prefix="充值金额:"></mu-text-field>
+                </div>
+            </div>
+            <div class="box" v-else-if="way == 2">
+                <div class="item">
+                    <mu-text-field type="text" v-model="uname" placeholder="" max-length="20" class="inp" full-width underline-color="blue" prefix="付款人:"></mu-text-field>
                 </div>
                 <div class="item">
                     <mu-text-field type="number" v-model="money" placeholder="" max-length="10" class="inp" full-width underline-color="blue" prefix="充值金额:"></mu-text-field>
@@ -78,25 +105,45 @@ export default {
             imgHost: imgHost,
             account: '',
             show: false,
+
             uname: '',
-            bankName: '',
+            accountName: '',
             bankNo: '',
+
+            typeArr: ['支付宝', '银行卡转账', '现金/POS机付款'],   //充值类型
             money: '',
             bankList: [],
             bank: '',
             uBankNo: '6217 0015 4002 3191 057',
             uBankName: '建设银行杭州余杭保健路支行',
             uName: '李秀玲',
+            way: 1,
         }
     },
     methods: {
-        getRecInfo() {
-            userRechargeInfo().then(res => {
+        getRecInfo(f) {
+            let param = {};
+            if(f == 1){
+                param.type = this.typeArr[this.way];
+            }
+            userRechargeInfo(param).then(res => {
                 if(res.code == 1) {
                     let r = res.data;
                     this.uname = r.realName;
-                    this.bankName = r.bankName;
                     this.bankNo = r.card;
+                    this.accountName = r.accountName;
+                    if(f != 1){
+                        if(r.bankName.includes('银行')){
+                            this.way = 1;
+                            this.getBank();
+                        }else if(r.bankName.includes('支付宝')){
+                            this.way = 0;
+                        }else{
+                            this.way = 2;
+                        }
+                    }else if(this.way == 1){
+                        this.getBank();
+                    }
                     if(r.state == 101){
                         Message.confirm('您有一笔充值申请没有完成，请联系客服尽快充值', '提示', {
                             cancelLabel: '再等等',
@@ -112,14 +159,26 @@ export default {
                     if(r.userName){
                         this.account = r.userName;
                     }else{
-                        this.getUserInfo();
+                        if(!this.account){
+                            this.getUserInfo();
+                        }
                     }
                 }else if(res.code == 4){
-                    this.getUserInfo();
+                    this.uname = '';
+                    this.bankNo = '';
+                    this.accountName = '';
+                    if(!this.account){
+                        this.getUserInfo();
+                    }
                 }else if(res.code == 0){
                     this.$router.push('/login');
                 }else{
-                    this.getUserInfo();
+                    this.uname = '';
+                    this.bankNo = '';
+                    this.accountName = '';
+                    if(!this.account){
+                        this.getUserInfo();
+                    }
                     if(res.msg){
                         Toast.error(res.msg);
                     }else{
@@ -128,7 +187,12 @@ export default {
                 }
             })
             .catch(err => {
-                this.getUserInfo();
+                this.uname = '';
+                this.bankNo = '';
+                this.accountName = '';
+                if(!this.account){
+                    this.getUserInfo();
+                }
                 Toast.error('未知异常！');
                 console.log(err);
             });
@@ -154,12 +218,6 @@ export default {
             bankList().then(res => {
                 if(res.code == 1){
                     this.bankList = res.data;
-                    for (let i=0; i<res.data.length; i++){
-                        if(res.data[i].bankName == this.bankName){
-                            this.bank = i;
-                            break;
-                        }
-                    }
                 }else{
                     if(res.msg){
                         Toast.error(res.msg);
@@ -173,23 +231,54 @@ export default {
                 console.log(err);
             })
         },
+        getBank() {
+            for (let i=0; i<this.bankList.length; i++){
+                if(this.bankList[i].bankName == this.accountName){
+                    this.bank = i;
+                    break;
+                }
+            }
+        },
         selBank(e) {
             let i = $(e.target).find(':selected').index() - 1;
-            this.bankName = this.bankList[i].bankName;
+            this.accountName = this.bankList[i].bankName;
+        },
+        selWay() {
+            this.getRecInfo(1);
         },
         submit() {
             if(this.loading2) return;
-            if(!this.uname || !this.bankName || !this.bankNo || !this.money){
-                Toast.error('请填写完整的充值信息！');
-                return;
+            if(this.way == 0){
+                if(!this.uname || !this.bankNo){
+                    Toast.error('请填写完整的充值信息！');
+                    return;
+                }
+            }else if(this.way == 1){
+                if(!this.uname || !this.bankNo){
+                    Toast.error('请填写完整的充值信息！');
+                    return;
+                }
+            }else if(this.way == 2){
+                if(!this.uname){
+                    Toast.error('请填写完整的充值信息！');
+                    return;
+                }
             }
-            if(this.money < 0.01 || Number.isNaN(Number(this.money))){
+            if(!this.money || this.money < 0.01 || Number.isNaN(Number(this.money))){
                 Toast.error('请输入有效充值金额！');
                 return;
             }
             this.loading = Loading({ text: '正在提交...', target: document.getElementById('pageContainer') });
             this.loading2 = true;
-            cashApply({ type: 100, applyMoney: this.money, card: this.bankNo, bankName: this.bankName, realName: this.uname }).then(res => {
+            let param = {
+                type: 100,
+                realName: this.uname,
+                bankName: this.typeArr[this.way],
+                card: this.bankNo,
+                applyMoney: this.money,
+                accountName: this.accountName,
+            };
+            cashApply(param).then(res => {
                 if(this.loading){
                     this.loading.close();
                 }
@@ -356,7 +445,7 @@ Vue.use(VueClipboard);
             min-height: auto;
         }
         .sel{
-            padding-left: .75rem;
+            padding-left: .9rem;
             padding-right: .1rem;
             border: 0;
             background: transparent;
@@ -391,7 +480,7 @@ Vue.use(VueClipboard);
 }
 .rec-d .mu-input-prefix-text{
     color: #000;
-    min-width: .65rem;
+    min-width: .8rem;
 }
 .rec-d .mu-input-line{
     background-color: #f3f3f3;

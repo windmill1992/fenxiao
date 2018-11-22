@@ -25,7 +25,8 @@
         <mu-dialog title="验证码" width="360" :open.sync="openYzm" dialog-class="yzm-d">
             <div class="flex fcen spb">
                 <img :src="yzmUrl" alt="验证码">
-                <mu-text-field type="number" v-model="yzmCode" max-length="4" class="inp-yzm" underline-color="blue"></mu-text-field>
+                <!-- <mu-text-field type="number" v-model="yzmCode" max-length="4" class="inp-yzm" underline-color="blue"></mu-text-field> -->
+                <input type="number" v-model="yzmCode" class="inp-yzm2" maxlength="4">
             </div>
             <mu-button slot="actions" flat color="#555" @click="closeDialog">取消</mu-button>
             <mu-button slot="actions" flat color="primary" @click="sureYzm">确定</mu-button>
@@ -68,6 +69,9 @@ export default {
                 if(res.code == 1){
                     this.freshCode();
                     this.openYzm = true;
+                    setTimeout(() => {
+                        $('.yzm-d .inp-yzm2').focus();
+                    }, 500);
                 }else if(res.code == 10015){
                     Toast.warning('该手机号已被注册！');
                 }else{

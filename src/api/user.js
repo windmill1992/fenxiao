@@ -4,7 +4,10 @@ import axios from 'axios';
 import qs from 'qs';
 
 axios.defaults.headers.post = {
-    'Content-Type': 'application/x-www-form-urlencoded'
+    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+}
+axios.defaults.headers.get = {
+    'Content-Type': 'application/json;charset=UTF-8'
 }
 axios.defaults.withCredentials = true;
 
@@ -234,8 +237,8 @@ export const cashApply = params => {
 }
 
 //查询用户最新充值余额记录
-export const userRechargeInfo = () => { 
-    return axios.get(`${baseUrl}/withdraw/last`,).then(res => res.data);
+export const userRechargeInfo = params => { 
+    return axios.get(`${baseUrl}/withdraw/last`, { params: params }).then(res => res.data);
 }
 
 //查询用户最新充值余额详情

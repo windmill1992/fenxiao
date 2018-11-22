@@ -417,6 +417,17 @@ img[lazy=loaded] {
     font-size: .14rem;
     min-height: auto;
 }
+.yzm-d .inp-yzm2{
+    width: 1rem;
+    height: .32rem;
+    margin: 0 0 0 .2rem;
+    padding: 0;
+    color: #000;
+    font-size: .14rem;
+    min-height: auto;
+    border: 1px solid #f3f3f3;
+    text-align: center;
+}
 .yzm-d img{
 	width: 1rem;
 	height: .4rem;

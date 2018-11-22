@@ -12,11 +12,18 @@
             <div class="box">
                 <div class="item">充值账号：{{info.userName}}</div>
                 <div class="item">充值金额：{{info.applyMoney}}元</div>
+                <div class="item" v-if="info.payMoney">打款金额：{{info.payMoney}}元</div>
                 <div class="item">充值人：{{info.realName}}</div>
-                <div class="item item1 flex">
-                    <p>银行：</p><p class="txt flex1">{{info.bankName}}</p>
+                <div class="item">充值类型：{{info.bankName}}</div>
+                <template v-if="info.bankName.includes('银行')">
+                    <div class="item item1 flex">
+                        <p>银行：</p><p class="txt flex1">{{info.accountName}}</p>
+                    </div>
+                    <div class="item">卡号：{{info.card.substr(0, 8)}}****{{info.card.substr(-4)}}</div>
+                </template>
+                <div class="item item1 flex" v-else-if="info.bankName.includes('支付宝')">
+                    <p>支付宝账号：</p><p class="txt flex1">{{info.card}}</p>
                 </div>
-                <div class="item">卡号：{{info.card.substr(0, 8)}}****{{info.card.substr(-4)}}</div>
                 <div class="item">状态：{{stateTxt[info.state]}}</div>
             </div>
             <p class="txt1" v-if="info.state == 101">在班时间内，5分钟即可充值完毕，请耐心等待</p>
@@ -49,11 +56,12 @@ export default {
             sec: '',
             info: {
                 card: '',
+                bankName: '',
             },
             stateTxt: {
                 '101': '待处理',
-                '102': '充值成功',
-                '103': '充值失败',
+                '102': '充值失败',
+                '103': '充值成功',
             }
         }
     },
@@ -67,7 +75,7 @@ export default {
                 if(res.code == 1){
                     this.info = res.data;
                     if(res.data.state == 101){
-                        this.countdown(res.data.createTime);
+                        this.countdown(res.data.createTime + 240000);
                     }
                 }else if(res.code == 0){
                     this.$router.push('/login');
@@ -86,6 +94,9 @@ export default {
             });
         },
         countdown(t) {
+            if(Date.now() - t < 0){
+                t = Date.now();
+            }
             this.setTime(t);
             this.timer = setInterval(() => {
                 this.setTime(t);
