@@ -3,11 +3,15 @@ import { baseUrl } from './baseUrl';
 import axios from 'axios';
 import qs from 'qs';
 
+let token = localStorage.getItem('token');
+if(token == null) token = '';
 axios.defaults.headers.post = {
-    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+    'token': token,
 }
 axios.defaults.headers.get = {
-    'Content-Type': 'application/json;charset=UTF-8'
+    'Content-Type': 'application/json;charset=UTF-8',
+    'token': token,
 }
 axios.defaults.withCredentials = true;
 
