@@ -590,5 +590,13 @@ export default new Router({
         title: '资质审核'
       }
     },
+    {
+      path: '/admin/delivery/:id',
+      name: 'admin_delivery',
+      component: resolve =>  require(['../view/admin/delivery.vue'], resolve),
+      meta: {
+        title: '发货通知'
+      }
+    },
   ]
 })

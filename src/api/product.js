@@ -63,6 +63,11 @@ export const payShip = params => {
     return axios.post(`${baseUrl}/free/ship`, qs.stringify(params)).then(res => res.data);
 }
 
+//包邮发货
+export const freeShip = params => { 
+    return axios.post(`${baseUrl}/free/create/ship/zero`, qs.stringify(params)).then(res => res.data);
+}
+
 //订货
 export const orderGoods = params => { 
     return axios.post(`${baseUrl}/free/order/goods`, qs.stringify(params)).then(res => res.data);

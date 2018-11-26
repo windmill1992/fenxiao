@@ -78,8 +78,8 @@ import Toast from 'muse-ui-toast';
 import Message from 'muse-ui-message';
 import { BottomSheet, TextField, Snackbar, Button, Icon, Dialog } from 'muse-ui';
 import { selDefAddress, userState, integral, shipOrderList } from '../api/user';
+import { shipOrder, express, payShip, freeShip } from '../api/product';
 import { imgHost } from '../api/baseUrl';
-import { shipOrder, express, payShip } from '../api/product';
 export default {
     data() {
         return {
@@ -186,7 +186,7 @@ export default {
             })
         },
         getExpress() {
-            express({ province: this.addrInfo.province, express: 'SF', shipmentNum: this.totalNum }).then(res => {
+            express({ province: this.addrInfo.province, express: 'SF', productIds: this.ids.join(','), shipmentNums: this.nums.join(',') }).then(res => {
                 if(res.code == 1){
                     this.way = res.data + '元';
                     this.money = res.data;
@@ -267,56 +267,108 @@ export default {
             this.loading2 = true;
             let data = {
                 productIds: this.ids.join(','),
-                money: this.money,
                 shipmentNums: this.nums.join(','),
                 receiverName: this.addrInfo.realName,
                 receiverPhone: this.addrInfo.mobileNum,
                 address: `${this.addrInfo.province + this.addrInfo.city + this.addrInfo.area + this.addrInfo.detailAddress}`,
-            }
-            shipOrder(data).then(res => {
-                if(this.loading){
-                    this.loading.close();
-                }
-                if(res.code == 1){
-                    this.openSheet = true;
-                    this.amount = res.data;
-                    this.enough = true;
-                    this.loading2 = false;
-                    this.orderId = res.data2;
-                    if(this.state.transactState == 0) {
-                        Message.confirm('您还未设置过交易密码，是否去设置？', '提示', {}).then(({ result }) => {
-                            if(result){
-                                this.$router.push('/setTradePsw');
-                            }
-                        })
-                    }
-                }else if(res.code == 10035){
-                    this.openSheet = true;
-                    this.amount = res.data;
-                    this.enough = false;
-                    this.loading2 = false;
-                    if(this.state.transactState == 0) {
-                        Message.confirm('您还未设置过交易密码，是否去设置？', '提示', {}).then(({ result }) => {
-                            if(result){
-                                this.$router.push('/setTradePsw');
-                            }
-                        })
-                    }
+            };
+            if(this.money <= 0){
+                if(this.state.transactState == 0) {
+                    Message.confirm('您还未设置过交易密码，是否去设置？', '提示', {}).then(({ result }) => {
+                        if(result){
+                            this.$router.push('/setTradePsw');
+                        }
+                    })
                 }else{
-                    this.loading2 = false;
-                    if(res.msg){
-                        Toast.error(res.msg);
-                    }else{
-                        Toast.error('服务器开了小差，请稍后再试！');
-                    }
+                    Message.prompt('', '交易密码', {
+                        validator(value) {
+                            return {
+                                valid: /\d{6}/.test(value),
+                                message: '请输入6位交易密码！',
+                            }
+                        },
+                        className: 'trade-p3',
+                        inputType: 'password',
+                        inputPlaceholder: '请输入交易密码',
+                    }).then(({ result, value }) => {
+                        if(result){
+                            this.loading = Loading({ text: '正在提交...', target: document.getElementById('pageContainer') });
+                            data.transactPassWord = value;
+                            freeShip(data).then(res => {
+                                if(res.code == 1){
+                                    this.loading2 = false;
+                                    this.orderId = res.data2;
+                                    sessionStorage.removeItem('sendObj');
+                                    Toast.success('发货成功！');
+                                    setTimeout(() => {
+                                        this.$router.push('/orderDetail3/'+ this.orderId);
+                                    }, 1000);
+                                }else{
+                                    if(this.loading){
+                                        this.loading.close();
+                                    }
+                                    if(res.msg){
+                                        Toast.error(res.msg);
+                                    }else{
+                                        Toast.error('服务器开了小差，请稍后再试！');
+                                    }
+                                }
+                            })
+                            .catch(err => {
+                                this.loading.close();
+                                Toast.error('未知异常！');
+                                console.log(err);
+                            })
+                        }
+                    })
                 }
-            })
-            .catch(err => {
-                this.loading.close();
-                this.loading2 = false;
-                Toast.error('未知异常！');
-                console.log(err);
-            });
+            }else{
+                data.money = this.money;
+                shipOrder(data).then(res => {
+                    if(this.loading){
+                        this.loading.close();
+                    }
+                    if(res.code == 1){
+                        this.openSheet = true;
+                        this.amount = res.data;
+                        this.enough = true;
+                        this.loading2 = false;
+                        this.orderId = res.data2;
+                        if(this.state.transactState == 0) {
+                            Message.confirm('您还未设置过交易密码，是否去设置？', '提示', {}).then(({ result }) => {
+                                if(result){
+                                    this.$router.push('/setTradePsw');
+                                }
+                            })
+                        }
+                    }else if(res.code == 10035){
+                        this.openSheet = true;
+                        this.amount = res.data;
+                        this.enough = false;
+                        this.loading2 = false;
+                        if(this.state.transactState == 0) {
+                            Message.confirm('您还未设置过交易密码，是否去设置？', '提示', {}).then(({ result }) => {
+                                if(result){
+                                    this.$router.push('/setTradePsw');
+                                }
+                            })
+                        }
+                    }else{
+                        this.loading2 = false;
+                        if(res.msg){
+                            Toast.error(res.msg);
+                        }else{
+                            Toast.error('服务器开了小差，请稍后再试！');
+                        }
+                    }
+                })
+                .catch(err => {
+                    this.loading.close();
+                    this.loading2 = false;
+                    Toast.error('未知异常！');
+                    console.log(err);
+                });
+            }
         },
         closeSheet() {
             this.openSheet = false;

@@ -167,7 +167,7 @@ export default {
                         this.getTrack();
                     }
                 }else if(res.code == 0){
-                    this.$router.push('/login?from='+ this.$route.name);
+                    this.$router.push('/login');
                 }else{
                     if(res.msg){
                         Toast.error(res.msg);
@@ -341,7 +341,9 @@ export default {
         getTrack() {
             trackInfo({ express: this.info.courierName, expressNo: this.info.courierNum }).then(res => {
                 if(res.code == 1){
-                    this.trace = res.data.Traces[res.data.Traces.length - 1].AcceptStation;
+                    if(res.data.Traces.length > 0){
+                        this.trace = res.data.Traces[res.data.Traces.length - 1].AcceptStation;
+                    }
                 }else if(res.code == 4 || res.code == 2){
                     this.trace = '';
                 }else{

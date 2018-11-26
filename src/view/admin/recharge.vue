@@ -113,7 +113,7 @@ export default {
     },
     methods: {
         getData() {
-            this.loading = Loading({ target: document.getElementById('#pageContainer') });
+            this.loading = Loading({ target: document.getElementById('pageContainer') });
             recInfo({ payNum: this.id }).then(res => {
                 if(this.loading){
                     this.loading.close();
@@ -153,7 +153,7 @@ export default {
         },
         sureSubmit() {
             this.openSure3 = false;
-            this.loading = Loading({ text: '正在提交...', target: document.getElementById('#pageContainer') });
+            this.loading = Loading({ text: '正在提交...', target: document.getElementById('pageContainer') });
             recharge({ payMoney: this.money, payNum: this.id }).then(res => {
                 if(this.loading){
                     this.loading.close();

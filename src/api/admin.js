@@ -27,3 +27,13 @@ export const recharge = params => {
 export const certification = params => { 
     return axios.post(`${baseUrl}/audit/customer/competency`, qs.stringify(params)).then(res => res.data);
 }
+
+//发货详情
+export const shipInfo = params => { 
+    return axios.get(`${baseUrl}/ship/info`, { params, params }).then(res => res.data);
+}
+
+//管理员发货
+export const shipSend = params => { 
+    return axios.post(`${baseUrl}/ship/send`, qs.stringify(params)).then(res => res.data);
+}

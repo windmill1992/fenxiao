@@ -74,7 +74,7 @@ export default {
     },
     methods: {
         getData() {
-            this.loading = Loading({ target: document.getElementById('#pageContainer') });
+            this.loading = Loading({ target: document.getElementById('pageContainer') });
             certInfo({ userId: this.uid }).then(res => {
                 if(this.loading){
                     this.loading.close();
@@ -103,7 +103,7 @@ export default {
         submit(f) {
             let t = f == 1 ? '103' : '104';
             this.openSure = false;
-            this.loading = Loading({ text: '正在提交...', target: document.getElementById('#pageContainer') });
+            this.loading = Loading({ text: '正在提交...', target: document.getElementById('pageContainer') });
             certification({ userId: this.uid, type: t }).then(res => {
                 if(this.loading){
                     this.loading.close();

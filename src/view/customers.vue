@@ -244,7 +244,7 @@ Vue.use(Icon);
                     overflow: hidden;
                     height: .22rem;
                     line-height: .22rem;
-                    padding-right: .45rem;
+                    padding-right: .55rem;
                     position: relative;
                     word-break: break-all;
                 }
