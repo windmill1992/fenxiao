@@ -5,7 +5,7 @@
             <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
         </div>
         <div class="wrapper">
-            <div class="box">
+            <div class="box" v-if="ways == 1">
                 <mu-ripple class="addr flex fcen" @click="toAddrManage" v-if="hasAddr">
                     <img src="../assets/img/map.png" class="fshrink0" alt="地址">
                     <div class="info flex1">
@@ -43,6 +43,13 @@
             </div>
             <div class="bb10"></div>
             <div class="box">
+                <div class="item flex spb fcen">
+                    <p class="txt">发货方式</p>
+                    <select v-model="ways" class="sel" @change="getWays">
+                        <option value="1">邮寄（不包邮）</option>
+                        <option value="2">自提（杭州市余杭区）</option>
+                    </select>
+                </div>
                 <div class="item flex spb fcen">
                     <p class="txt">快递费</p>
                     <p class="txt" v-if="!loading2">{{way}}</p>
@@ -93,6 +100,7 @@ export default {
             ids: [],
             nums: [],
             way: '',
+            ways: '1',
             money: 0,
             totalNum: 0,
             loading2: false,
@@ -203,6 +211,14 @@ export default {
                 console.log(err);
             })
         },
+        getWays() {
+            if(this.ways == 1) {
+                this.getAddr();
+            }else{
+                this.way = 0;
+                this.money = 0;
+            }
+        },
         send() {
             if(this.loading && this.loading.instance != null) return;
             if(this.state.transactState == 0) {
@@ -254,25 +270,30 @@ export default {
             }
         },
         showSheet() {
-            if(!this.user) return;
-            if(this.hasAddr){
-                this.submit();
+            if(!this.user) {
+                Toast.error('未登录');
+                return;
+            }
+            if(this.ways == 1) {
+                if(this.hasAddr){
+                    this.submit();
+                }else{
+                    Toast.error('请添加收货地址！');
+                }
             }else{
-                Toast.error('请添加收货地址！');
+                this.submit();
             }
         },
         submit() {
             if(this.loading2) return;
             this.loading = Loading({ text: '正在查询...', target: document.getElementById('pageContainer') });
             this.loading2 = true;
-            let data = {
-                productIds: this.ids.join(','),
-                shipmentNums: this.nums.join(','),
-                receiverName: this.addrInfo.realName,
-                receiverPhone: this.addrInfo.mobileNum,
-                address: `${this.addrInfo.province + this.addrInfo.city + this.addrInfo.area + this.addrInfo.detailAddress}`,
-            };
             if(this.money <= 0){
+                let data = {
+                    productIds: this.ids.join(','),
+                    shipmentNums: this.nums.join(','),
+                    isSelfMention: 1,
+                };
                 if(this.state.transactState == 0) {
                     Message.confirm('您还未设置过交易密码，是否去设置？', '提示', {}).then(({ result }) => {
                         if(result){
@@ -323,7 +344,15 @@ export default {
                     })
                 }
             }else{
-                data.money = this.money;
+                let data = {
+                    productIds: this.ids.join(','),
+                    shipmentNums: this.nums.join(','),
+                    receiverName: this.addrInfo.realName,
+                    receiverPhone: this.addrInfo.mobileNum,
+                    address: `${this.addrInfo.province + this.addrInfo.city + this.addrInfo.area + this.addrInfo.detailAddress}`,
+                    money: this.money,
+                    isSelfMention: 0,
+                };
                 shipOrder(data).then(res => {
                     if(this.loading){
                         this.loading.close();
@@ -467,6 +496,11 @@ Vue.use(Icon);
                 color: #000;
                 font-size: .14rem;
                 min-height: auto;
+            }
+            .sel {
+                border: none;
+                outline: none;
+                text-align: right;
             }
         }
     }
