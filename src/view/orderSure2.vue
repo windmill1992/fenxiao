@@ -5,7 +5,7 @@
             <a href="javascript:;" onclick="history.go(-1);" class="back"></a>
         </div>
         <div class="wrapper">
-            <div class="box" v-if="ways == 1">
+            <div class="box" :class="{off: ways == 2}">
                 <mu-ripple class="addr flex fcen" @click="toAddrManage" v-if="hasAddr">
                     <img src="../assets/img/map.png" class="fshrink0" alt="地址">
                     <div class="info flex1">
@@ -18,7 +18,7 @@
                     <div class="arr-r"></div>
                 </mu-ripple>
                 <mu-ripple class="addr flex fcen spb" @click="addAddr" v-else>
-                    <p>添加收货地址</p>
+                    <p>{{ways == 1 ? '添加收货地址' : '--'}}</p>
                     <div class="arr-r"></div>
                 </mu-ripple>
                 <div class="source">货源: 浙江众康科诺贸易有限公司</div>
@@ -403,10 +403,14 @@ export default {
             this.openSheet = false;
         },
         toAddrManage() {
-            this.$router.push('/addrManage');
+            if(this.ways == 1) {
+                this.$router.push('/addrManage');
+            }
         },
         addAddr() {
-            this.$router.push('/address');
+            if(this.ways == 1) {
+                this.$router.push('/address');  
+            }
         },
     },
     mounted() {
@@ -444,6 +448,14 @@ Vue.use(Icon);
     .box{
         background: #fff;
         border-top: 1px solid #f3f3f3;
+        &.off{
+            .info{
+                color: #ccc;
+            }
+            .arr-r{
+                display: none;
+            }
+        }
         .addr{
             position: relative;
             padding: .1rem .15rem;
