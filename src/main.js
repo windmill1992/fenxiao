@@ -4,6 +4,7 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import axios from 'axios'
+import Cookie from 'js-cookie';
 
 import NProgress from 'muse-ui-progress';
 import Progress from 'muse-ui/lib/Progress';
@@ -27,6 +28,11 @@ router.beforeEach((to, from, next) => {
   NProgress.start();
   document.title = to.meta.title;
   setTitle(to.meta.title);
+  if(Cookie.get('token')) {
+    axios.defaults.headers['token'] = Cookie.get('token');
+  }else{
+    axios.defaults.headers['token'] = '';
+  }
   next()
 })
 
