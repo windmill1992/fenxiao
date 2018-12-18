@@ -29,6 +29,8 @@ router.beforeEach((to, from, next) => {
   document.title = to.meta.title;
   setTitle(to.meta.title);
   if(to.query.token && to.query.tokenHeader) {
+    to.query.token = decodeURIComponent(to.query.token);
+    to.query.tokenHeader = decodeURIComponent(to.query.tokenHeader);
     Cookie.set(to.query.tokenHeader, to.query.token);
   }
   next()
