@@ -31,7 +31,11 @@ router.beforeEach((to, from, next) => {
   if(Cookie.get('token')) {
     axios.defaults.headers['token'] = Cookie.get('token');
   }else{
-    axios.defaults.headers['token'] = '';
+    if(to.query.token) {
+      axios.defaults.headers['token'] = to.query.token;
+    }else{
+      axios.defaults.headers['token'] = '';
+    }
   }
   next()
 })
