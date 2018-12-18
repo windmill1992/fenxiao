@@ -32,7 +32,7 @@ router.beforeEach((to, from, next) => {
   if(to.query.token && to.query.tokenHeader) {
     to.query.token = decodeURIComponent(to.query.token);
     to.query.tokenHeader = decodeURIComponent(to.query.tokenHeader);
-    Cookie.set(to.query.tokenHeader, '\"' + to.query.token + '\"');
+    Cookie.set(to.query.tokenHeader, to.query.token, { path: '/', domain: '.51xsbl.com' });
   }
   next()
 })
