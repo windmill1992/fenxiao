@@ -28,14 +28,8 @@ router.beforeEach((to, from, next) => {
   NProgress.start();
   document.title = to.meta.title;
   setTitle(to.meta.title);
-  if(Cookie.get('token')) {
-    axios.defaults.headers['token'] = Cookie.get('token');
-  }else{
-    if(to.query.token) {
-      axios.defaults.headers['token'] = to.query.token;
-    }else{
-      axios.defaults.headers['token'] = '';
-    }
+  if(to.query.token && to.query.tokenHeader) {
+    Cookie.set(to.query.tokenHeader, to.query.token);
   }
   next()
 })

@@ -117,7 +117,6 @@ export default {
                 this.loading3.close();
                 if(res.code == 1){
                     Toast.success('登录成功，正在跳转...');
-                    Cookie.set('token', res.data);
                     setTimeout(() => {
                         // if(this.from){
                         //     this.$router.push({ name: this.from, params: str2json(this.params), query: str2json(this.query) });

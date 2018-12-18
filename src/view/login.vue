@@ -53,7 +53,6 @@ import { TextField, Button, Snackbar, Icon } from 'muse-ui';
 import { login, wxlogin } from '../api/login';
 import { str2json } from '../utils/str2json';
 import { imgHost } from '../api/baseUrl';
-import Cookie from 'js-cookie';
 export default {
     data() {
         return {
@@ -90,7 +89,6 @@ export default {
                 if(res.code == 1){
                     localStorage.setItem('account', this.account);
                     Toast.success('登录成功，正在跳转...');
-                    Cookie.set('token', res.data);
                     setTimeout(() => {
                         // this.$router.replace({ name: this.from ? this.from : 'index', params: str2json(this.params), query: str2json(this.query) });
                         if(this.admin){
@@ -141,7 +139,6 @@ export default {
                 if(res.code == 1){
                     Toast.success('登录成功，正在跳转...');
                     sessionStorage.setItem('code', 1);
-                    Cookie.set('token', res.data);
                     setTimeout(() => {
                         // if(this.from){
                         //     this.$router.push({ name: this.from, params: str2json(this.params), query: str2json(this.query) });
