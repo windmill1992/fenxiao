@@ -13,7 +13,7 @@ export default {
   name: 'App',
   data() {
     return {
-      firstShow: true,
+      firstShow: false,
     }
   },
   mounted() {
@@ -21,12 +21,21 @@ export default {
     window.onresize = () => {
         this.$util.getPageStyle();
     }
-    let app = sessionStorage.getItem('appStart');
-    if(app == 1){
-      this.firstShow = false;
-    }else{
-      sessionStorage.setItem('appStart', 1);
-    }
+  },
+  watch: {
+      $route(to) {
+          if (to.name && to.name != 'index' && to.name != 'login') {
+            this.firstShow = false;
+          } else {
+            let app = sessionStorage.getItem('appStart');
+            if(app == 1){
+              this.firstShow = false;
+            }else{
+              this.firstShow = true;
+              sessionStorage.setItem('appStart', 1);
+            }
+          }
+      },
   },
   components: {
     MySplash,
